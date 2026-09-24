@@ -1,0 +1,35 @@
+## Interface: 11509, 11600, 16001, 20506, 30405, 40402, 50504, 120100
+## Title: |cff5fd3f0Panorama|r
+## Notes: Advanced graphics settings (view distance, shadows, water, camera...) adjustable in game and reapplied at every login. /pano
+## Notes-frFR: Tes réglages graphiques avancés (distance de vue, ombres, eau, caméra...) réglables en jeu et réappliqués à chaque connexion. /pano
+## Notes-deDE: Erweiterte Grafikeinstellungen (Sichtweite, Schatten, Wasser, Kamera...) im Spiel einstellbar und bei jedem Einloggen erneut angewendet. /pano
+## Notes-esES: Ajustes gráficos avanzados (distancia de visión, sombras, agua, cámara...) configurables en el juego y aplicados en cada conexión. /pano
+## Notes-esMX: Ajustes gráficos avanzados (distancia de visión, sombras, agua, cámara...) configurables en el juego y aplicados en cada conexión. /pano
+## Notes-itIT: Impostazioni grafiche avanzate (distanza visiva, ombre, acqua, telecamera...) regolabili in gioco e riapplicate a ogni accesso. /pano
+## Notes-ptBR: Configurações gráficas avançadas (distância de visão, sombras, água, câmera...) ajustáveis no jogo e reaplicadas a cada conexão. /pano
+## Notes-ruRU: Расширенные настройки графики (дальность обзора, тени, вода, камера...) прямо в игре, применяются заново при каждом входе. /pano
+## Notes-koKR: 고급 그래픽 설정(시야 거리, 그림자, 물, 카메라...)을 게임 안에서 조절하고 접속할 때마다 다시 적용합니다. /pano
+## Notes-zhCN: 高级图形设置（视野距离、阴影、水面、镜头……），可在游戏内调整，每次登录时重新应用。/pano
+## Notes-zhTW: 進階圖形設定（視野距離、陰影、水面、鏡頭……），可在遊戲內調整，每次登入時重新套用。/pano
+## Version: 1.2.0
+## SavedVariables: PanoramaDB
+## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
+## X-License: GPL-3.0-or-later
+
+# Même liste de versions que KickAlert, dans l'ordre :
+#   11509 Classic Era · 11600 Anniversary · 16001 Forever · 20506 TBC
+#   30405 Wrath · 40402 Cata · 50504 Mists · 120100 retail
+
+# Traductions avant Panorama.lua, qui choisit la langue du client (repli enUS).
+Locale\enUS.lua
+Locale\frFR.lua
+Locale\deDE.lua
+Locale\esES.lua
+Locale\itIT.lua
+Locale\ptBR.lua
+Locale\ruRU.lua
+Locale\koKR.lua
+Locale\zhCN.lua
+Locale\zhTW.lua
+Panorama.lua
+Options.lua
