@@ -100,6 +100,7 @@ L.OPT_SUBTITLE = "Configurações gráficas avançadas, reaplicadas a cada conex
 L.OPT_NEEDS_RESTART = "Exige reiniciar o motor gráfico."
 L.OPT_MINIMAP_BUTTON = "Botão do minimapa"
 L.OPT_MINIMAP_BUTTON_TIP = "Mostra o botão do Panorama no minimapa."
+L.OPT_OPEN_WINDOW = "Abrir a janela do Panorama"
 L.MINIMAP_TIP_OPEN = "Clique esquerdo: abrir o painel"
 L.MINIMAP_TIP_MENU = "Clique direito: predefinições e ações"
 L.MINIMAP_TIP_DRAG = "Arrastar: mover o botão"

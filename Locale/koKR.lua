@@ -100,6 +100,7 @@ L.OPT_SUBTITLE = "고급 그래픽 설정이며 접속할 때마다 적용됩니
 L.OPT_NEEDS_RESTART = "그래픽 엔진 재시작이 필요합니다."
 L.OPT_MINIMAP_BUTTON = "미니맵 버튼"
 L.OPT_MINIMAP_BUTTON_TIP = "미니맵에 Panorama 버튼을 표시합니다."
+L.OPT_OPEN_WINDOW = "Panorama 창 열기"
 L.MINIMAP_TIP_OPEN = "왼쪽 클릭: 패널 열기"
 L.MINIMAP_TIP_MENU = "오른쪽 클릭: 프리셋 및 동작"
 L.MINIMAP_TIP_DRAG = "드래그: 버튼 이동"

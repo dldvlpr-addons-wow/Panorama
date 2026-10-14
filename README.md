@@ -3,7 +3,7 @@
 Advanced graphics settings for World of Warcraft, in one panel.
 
 Many graphics options are only available through `/console` commands. Panorama puts them in a
-native settings panel with sliders, checkboxes and dropdowns. It reapplies your values every time
+window of its own with sliders, checkboxes and dropdowns. It reapplies your values every time
 you log in.
 
 ## Features
@@ -47,7 +47,8 @@ you log in.
 | `/pano undo` | Restore the settings from before the last preset |
 | `/pano minimap` | Show or hide the minimap button |
 
-The panel is also available under Options > AddOns > Panorama.
+The panel opens in its own window, which you can move and close with Escape. Options > AddOns >
+Panorama has a button that opens it.
 
 ## Supported clients
 
@@ -58,6 +59,8 @@ WoW Forever 1.60.1 (interface 16001).
 - The in-game interface is available in English, French, German, Spanish, Italian, Portuguese,
   Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language.
 - To undo every change, use the Defaults button in the game's Graphics menu.
+
+Discord: https://discord.gg/EyYpyMq2km
 
 ## License
 

@@ -100,6 +100,7 @@ L.OPT_SUBTITLE = "Erweiterte Grafikeinstellungen, bei jedem Einloggen angewendet
 L.OPT_NEEDS_RESTART = "Erfordert einen Neustart der Grafik-Engine."
 L.OPT_MINIMAP_BUTTON = "Minimap-Button"
 L.OPT_MINIMAP_BUTTON_TIP = "Zeigt den Panorama-Button an der Minimap."
+L.OPT_OPEN_WINDOW = "Panorama-Fenster öffnen"
 L.MINIMAP_TIP_OPEN = "Linksklick: Panel öffnen"
 L.MINIMAP_TIP_MENU = "Rechtsklick: Voreinstellungen und Aktionen"
 L.MINIMAP_TIP_DRAG = "Ziehen: Button verschieben"

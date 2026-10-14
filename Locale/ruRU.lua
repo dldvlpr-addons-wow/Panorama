@@ -100,6 +100,7 @@ L.OPT_SUBTITLE = "Расширенные настройки графики, пр
 L.OPT_NEEDS_RESTART = "Требуется перезапуск графического движка."
 L.OPT_MINIMAP_BUTTON = "Кнопка у миникарты"
 L.OPT_MINIMAP_BUTTON_TIP = "Показывает кнопку Panorama у миникарты."
+L.OPT_OPEN_WINDOW = "Открыть окно Panorama"
 L.MINIMAP_TIP_OPEN = "Левый клик: открыть панель"
 L.MINIMAP_TIP_MENU = "Правый клик: наборы и действия"
 L.MINIMAP_TIP_DRAG = "Перетащить: переместить кнопку"

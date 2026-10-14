@@ -1,5 +1,6 @@
--- Panneau Panorama dans Options > AddOns : cartes de préréglage, sections repliables, une ligne
--- par réglage (libellé, phrase d'aide, contrôle, bouton « Défaut »).
+-- Fenêtre Panorama, déplaçable et fermée par Échap : cartes de préréglage, sections repliables,
+-- une ligne par réglage (libellé, phrase d'aide, contrôle, bouton « Défaut »).
+-- Options > AddOns > Panorama n'affiche qu'un bouton qui ouvre cette fenêtre.
 -- Chaque changement est écrit tout de suite dans la CVar (NS.Change).
 local _, NS = ...
 local L = NS.L
@@ -8,7 +9,6 @@ local CONTENT_WIDTH = 560
 local ROW_HEIGHT = 52
 local HEADER_HEIGHT = 30
 
-local category
 local panel
 local items = {}      -- dans l'ordre d'affichage : { frame, section, height }
 local controls = {}   -- cvar -> { setting, refresh }
@@ -207,12 +207,23 @@ local function CreatePresetCards(parent)
 end
 
 function NS.BuildOptions()
-    panel = CreateFrame("Frame")
+    panel = CreateFrame("Frame", "PanoramaFrame", UIParent, "BasicFrameTemplate")
     panel:Hide()
+    panel:SetSize(CONTENT_WIDTH + 50, 640)
+    panel:SetPoint("CENTER")
+    panel:SetFrameStrata("DIALOG")
+    panel:SetToplevel(true)
+    panel:SetClampedToScreen(true)
+    panel:SetMovable(true)
+    panel:EnableMouse(true)
+    panel:RegisterForDrag("LeftButton")
+    panel:SetScript("OnDragStart", panel.StartMoving)
+    panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
+    tinsert(UISpecialFrames, "PanoramaFrame")
 
     local logo = panel:CreateTexture(nil, "ARTWORK")
     logo:SetSize(56, 56)
-    logo:SetPoint("TOPLEFT", 16, -12)
+    logo:SetPoint("TOPLEFT", 16, -30)
     logo:SetTexture("Interface\\AddOns\\Panorama\\Media\\logo")
     local title = panel:CreateFontString(nil, "ARTWORK")
     title:SetFontObject(GameFontNormalHuge or GameFontNormalLarge)
@@ -224,7 +235,7 @@ function NS.BuildOptions()
 
     -- Zone fixe sous l'en-tête : préréglages et actions. Le reste défile.
     local top = CreateFrame("Frame", nil, panel)
-    top:SetPoint("TOPLEFT", 0, -76)
+    top:SetPoint("TOPLEFT", 0, -94)
     top:SetPoint("TOPRIGHT")
     top:SetHeight(230)
     local presetsTitle = top:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -278,11 +289,18 @@ function NS.BuildOptions()
     Layout()
 
     panel:SetScript("OnShow", NS.RefreshOptions)
-    category = Settings.RegisterCanvasLayoutCategory(panel, "Panorama")
-    Settings.RegisterAddOnCategory(category)
     NS.RefreshOptions()
+
+    local launcher = CreateFrame("Frame")
+    local open = CreateButton(launcher, L.OPT_OPEN_WINDOW, 220, function()
+        if not InCombatLockdown() then HideUIPanel(SettingsPanel) end
+        panel:Show()
+    end)
+    open:SetPoint("TOPLEFT", 16, -16)
+    local category = Settings.RegisterCanvasLayoutCategory(launcher, "Panorama")
+    Settings.RegisterAddOnCategory(category)
 end
 
 function NS.OpenOptions()
-    Settings.OpenToCategory(category:GetID())
+    panel:SetShown(not panel:IsShown())
 end

@@ -1,27 +1,129 @@
 name: Release
 
-# Pousser un tag (ex. 1.2.0) construit le zip avec le packager BigWigs et le
-# publie sur CurseForge, Wago et en release GitHub.
-# Secrets du dépôt : CF_API_KEY, WAGO_API_TOKEN (GITHUB_TOKEN est fourni).
-# Identifiants de projet dans le .toc : ## X-Curse-Project-ID et ## X-Wago-ID.
-# Une plateforme sans secret ou sans identifiant est ignorée.
+# Chaque push et pull request lance tests/run_tests.lua. Pousser un tag (ex. 1.3.0) lance en plus,
+# si les tests passent, la release :
+# - le tag, sans préfixe « v », doit être la version du .toc (## Version) et avoir sa section
+#   « ## x.y.z » dans CHANGELOG.md, sinon rien n'est publié ;
+# - le packager BigWigs construit le zip, le publie en release GitHub et sur Wago (## X-Wago-ID) ;
+# - l'envoi sur CurseForge est fait ici, pas par le packager, pour marquer le fichier avec la version
+#   WoW Forever lue dans ## Interface (16001 -> 1.60.1) et jamais avec une version retail.
+# - une fois le fichier sur CurseForge, DISCORD_RELEASE_WEBHOOK reçoit l'annonce et
+#   DISCORD_CHANGELOG_WEBHOOK la section du CHANGELOG.md. Secrets obligatoires : une variable
+#   afficherait l'URL du webhook en clair dans le log. Absent = ignoré, échec d'envoi = warning.
+# Secrets du dépôt : CF_API_KEY (obligatoire), WAGO_API_TOKEN (absent = Wago ignoré).
+# GITHUB_TOKEN est fourni.
 
 on:
   push:
+    branches: ["**"]
     tags: ["*"]
+  pull_request:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: sudo apt-get update && sudo apt-get install -y lua5.1
+
+      - run: lua5.1 tests/run_tests.lua
+
   release:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Vérifie version, changelog et clé CurseForge
+        id: verify
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: |
+          version="${TAG#v}"
+          toc_version=$(sed -n 's/^## Version: *\([^[:space:]]*\).*/\1/p' Panorama.toc)
+          [ "$toc_version" = "$version" ] || { echo "::error::Panorama.toc est en $toc_version, le tag en $version"; exit 1; }
+          sed 's/\r$//' CHANGELOG.md | grep -qx "## $version" || { echo "::error::Pas de section \"## $version\" dans CHANGELOG.md"; exit 1; }
+          [ -n "$CF_API_KEY" ] || { echo "::error::Secret CF_API_KEY absent"; exit 1; }
+
       - uses: BigWigsMods/packager@v2
+        env:
+          GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+          WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+
+      - name: Envoi sur CurseForge
+        id: curseforge
+        if: ${{ !cancelled() && steps.verify.outcome == 'success' }}
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: |
+          set -euo pipefail
+          api=https://wow.curseforge.com/api
+          version="${TAG#v}"
+          project_id=$(sed -n 's/^## X-Curse-Project-ID: *\([0-9]*\).*/\1/p' Panorama.toc)
+
+          zip=(.release/*.zip)
+          if [ "${#zip[@]}" -ne 1 ] || [ ! -f "${zip[0]}" ]; then
+            echo "::error::Un seul zip attendu dans .release, trouvé : ${zip[*]}"; exit 1
+          fi
+
+          interface=$(sed -n 's/^## Interface: *\([0-9]*\).*/\1/p' Panorama.toc)
+          game_version="$((interface / 10000)).$((interface / 100 % 100)).$((interface % 100))"
+          game_version_ids=$(curl -sS --fail-with-body -H "X-Api-Token: $CF_API_KEY" "$api/game/versions" \
+            | jq -c --arg name "$game_version" '[.[] | select(.name == $name) | .id]')
+          if [ "$game_version_ids" = "[]" ]; then
+            echo "::error::CurseForge n'a pas de version de jeu nommée $game_version"; exit 1
+          fi
+
+          case "$TAG" in
+            *alpha*) release_type=alpha ;;
+            *beta*) release_type=beta ;;
+            *) release_type=release ;;
+          esac
+
+          metadata=$(jq -n \
+            --arg changelog "$(awk -v h="## $version" '{sub(/\r$/, "")} $0 == h {f=1; next} f && /^## /{exit} f' CHANGELOG.md)" \
+            --arg name "Panorama $version" \
+            --arg type "$release_type" \
+            --argjson versions "$game_version_ids" \
+            '{changelog: $changelog, changelogType: "markdown", displayName: $name, gameVersions: $versions, releaseType: $type}')
+
+          curl -sS --fail-with-body -H "X-Api-Token: $CF_API_KEY" \
+            --form-string "metadata=$metadata" -F "file=@${zip[0]}" \
+            "$api/projects/$project_id/upload-file"
+
+      - name: Annonce Discord
+        if: ${{ !cancelled() && steps.curseforge.outcome == 'success' }}
+        env:
+          RELEASE_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          CHANGELOG_WEBHOOK: ${{ secrets.DISCORD_CHANGELOG_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          title="Panorama $version"
+          curseforge="https://www.curseforge.com/projects/$(sed -n 's/^## X-Curse-Project-ID: *\([0-9]*\).*/\1/p' Panorama.toc)"
+          links="CurseForge: <$curseforge>"
+          post() { curl -sS --fail-with-body -H "Content-Type: application/json" -d @- "$1"; }
+
+          if [ -n "$RELEASE_WEBHOOK" ]; then
+            jq -n --arg content "**$title** is out."$'\n'"$links" '{content: $content}' | post "$RELEASE_WEBHOOK" \
+              || echo "::warning::Échec de l'annonce Discord"
+          else
+            echo "::warning::DISCORD_RELEASE_WEBHOOK absent, annonce de release ignorée"
+          fi
+
+          if [ -n "$CHANGELOG_WEBHOOK" ]; then
+            notes=$(awk -v h="## $version" '{sub(/\r$/, "")} $0 == h {f=1; next} f && /^## /{exit} f' CHANGELOG.md)
+            jq -n --arg title "$title" --arg url "$curseforge" --arg notes "$notes" --arg links "$links" \
+              '{embeds: [{title: $title, url: $url, description: ($notes[:3900] + "\n\n" + $links)}]}' | post "$CHANGELOG_WEBHOOK" \
+              || echo "::warning::Échec de l'envoi du changelog Discord"
+          else
+            echo "::warning::DISCORD_CHANGELOG_WEBHOOK absent, changelog ignoré"
+          fi

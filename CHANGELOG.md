@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.3.0
+
+### New
+- **Own window**: the panel now opens in its own window instead of the game's Options. Drag it to
+  move it, close it with Escape or the close button. `/pano` and a left click on the minimap button
+  open or close it. Options > AddOns > Panorama keeps a button that opens the window.
+- **Minimap button** with the Panorama logo: left click opens the panel, right click shows
+  presets, undo and graphics restart, drag moves it. `/pano minimap` shows or hides it.
+- **Advanced section**: 8 graphics settings that only exist as console variables
+  (`reflectionMode`, `rippleDetail`, `terrainLodDist`, `wmoLodDist`, `entityLodDist`,
+  `doodadLodScale`, `particleMTDensity`, `DepthBasedOpacity`). They are written only after you
+  change them.
+- **Floating combat text**: 12 options for what the combat text shows.
+- **Undo**: `/pano undo` or the panel button restores the settings from before the last preset.
+- **Redesigned panel**: preset cards, collapsible sections, default button per setting.
+
 ## 1.2.0 (changes since 1.0.0)
 
 ### New
@@ -11,16 +27,6 @@
   mouse or comfort settings.
 - **Stays in sync**: a change made in the game's Graphics menu or with `/console` now shows in the
   panel.
-
-- **Minimap button** with the Panorama logo: left click opens the panel, right click shows
-  presets, undo and graphics restart, drag moves it. `/pano minimap` shows or hides it.
-- **Advanced section**: 8 graphics settings that only exist as console variables
-  (`reflectionMode`, `rippleDetail`, `terrainLodDist`, `wmoLodDist`, `entityLodDist`,
-  `doodadLodScale`, `particleMTDensity`, `DepthBasedOpacity`). They are written only after you
-  change them.
-- **Floating combat text**: 12 options for what the combat text shows.
-- **Undo**: `/pano undo` or the panel button restores the settings from before the last preset.
-- **Redesigned panel**: preset cards, collapsible sections, default button per setting.
 
 ### Changed
 - **Starts from your current values**: on first install, Panorama reads your current game settings

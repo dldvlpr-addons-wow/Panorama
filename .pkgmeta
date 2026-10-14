@@ -1,8 +1,11 @@
 package-as: Panorama
 
-manual-changelog: CHANGELOG.md
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
 
 ignore:
   - tests
+  - DESCRIPTION.md
   - "*.zip"
   - "*.png"
