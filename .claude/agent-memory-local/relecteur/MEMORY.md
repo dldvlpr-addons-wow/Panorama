@@ -1,0 +1,1 @@
+- [Combat text CVar cache](combat-text-cvar-cache.md) — floatingCombatText*_v2 via SetCVar inert until /reload; check UpdateDisplayedMessages call

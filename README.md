@@ -8,11 +8,11 @@ you log in.
 
 ## Features
 
-- **28 settings** grouped by theme: view distance, vegetation, shadows and lighting, environment,
+- **48 settings** grouped by theme: view distance, vegetation, shadows and lighting, environment,
   image, camera and interface.
 - **Safe values**: sliders stay inside the limits the game accepts. An out-of-range value in the
   saved file is brought back into range.
-- **Works on every client**: a setting that your client does not support is hidden and never
+- **Safe on your client**: a setting that your client does not support is hidden and never
   written.
 - **Starts from your current values**: on first install, the panel reads your current game
   settings. Nothing changes until you move a control.
@@ -44,13 +44,14 @@ you log in.
 | `/pano apply` | Reapply all settings |
 | `/pano restart` | Restart the graphics engine |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
+| `/pano undo` | Restore the settings from before the last preset |
+| `/pano minimap` | Show or hide the minimap button |
 
 The panel is also available under Options > AddOns > Panorama.
 
 ## Supported clients
 
-Classic Era, Anniversary, WoW Forever, TBC Classic, Wrath Classic, Cataclysm Classic,
-Mists of Pandaria Classic and retail.
+WoW Forever 1.60.1 (interface 16001).
 
 ## Notes
 

@@ -39,7 +39,7 @@ NS.settings = {
     { cvar = "physicsLevel", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
     { title = L.SECTION_IMAGE },
-    { cvar = "gxMultisample", choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
+    { cvar = "gxMultisample", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
     { cvar = "ResampleAlwaysSharpen", default = true },
     { cvar = "ResampleSharpness", min = 0, max = 2, step = 0.1, default = 0.5 },
     { cvar = "ffxGlow", default = true, levels = { false, true, true, true } },
@@ -55,6 +55,35 @@ NS.settings = {
       max = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) and 60 or 41, step = 1, default = 41 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
+
+    -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
+    -- BlizzardInterfaceCode). `advanced` : jamais écrites tant que le joueur n'a pas touché au réglage.
+    -- ponytail: bornes estimées, non lues dans le source Blizzard. À confirmer en jeu par
+    -- /run SetCVar("<nom>", "<valeur>"), puis resserrer.
+    { title = L.SECTION_ADVANCED },
+    { cvar = "reflectionMode", advanced = true, min = 0, max = 3, step = 1, default = 0 },
+    { cvar = "rippleDetail", advanced = true, min = 0, max = 2, step = 1, default = 0 },
+    { cvar = "terrainLodDist", advanced = true, min = 50, max = 1000, step = 10, default = 200 },
+    { cvar = "wmoLodDist", advanced = true, min = 50, max = 1000, step = 10, default = 250 },
+    { cvar = "entityLodDist", advanced = true, min = 1, max = 50, step = 1, default = 5 },
+    { cvar = "doodadLodScale", advanced = true, min = 0, max = 100, step = 5, default = 50 },
+    { cvar = "particleMTDensity", advanced = true, min = 10, max = 100, step = 5, default = 20 },
+    { cvar = "DepthBasedOpacity", advanced = true, default = false },
+
+    -- Texte de combat flottant : lu par Blizzard_CombatText, aucun contrôle dans les menus.
+    { title = L.SECTION_COMBAT_TEXT },
+    { cvar = "floatingCombatTextCombatState_v2", default = false },
+    { cvar = "floatingCombatTextDodgeParryMiss_v2", default = false },
+    { cvar = "floatingCombatTextDamageReduction_v2", default = false },
+    { cvar = "floatingCombatTextFriendlyHealers_v2", default = false },
+    { cvar = "floatingCombatTextAuras_v2", default = false },
+    { cvar = "floatingCombatTextReactives_v2", default = false },
+    { cvar = "floatingCombatTextEnergyGains_v2", default = false },
+    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", default = false },
+    { cvar = "floatingCombatTextComboPoints_v2", default = false },
+    { cvar = "floatingCombatTextLowManaHealth_v2", default = false },
+    { cvar = "floatingCombatTextHonorGains_v2", default = false },
+    { cvar = "floatingCombatTextRepChanges_v2", default = false },
 }
 
 NS.presets = {
@@ -126,27 +155,80 @@ function NS.Apply(setting)
     SetCVarValue(setting.cvar, tostring(value))
 end
 
+-- Un réglage avancé n'est écrit que s'il a été modifié par le joueur : sa valeur vient du jeu sinon.
 function NS.ApplyAll()
     for _, setting in ipairs(NS.settings) do
-        if setting.cvar then NS.Apply(setting) end
+        if setting.cvar and (not setting.advanced or NS.db.touched[setting.cvar]) then
+            NS.Apply(setting)
+        end
     end
 end
 
--- Passe par les réglages du panneau quand ils existent, pour que ses contrôles suivent.
+-- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées, texte de
+-- combat) ; repli sur setting.default si le client ne la donne pas.
+function NS.GameDefault(setting)
+    if (setting.advanced or setting.cvar:find("^floatingCombatText")) and GetCVarDefault then
+        local raw = GetCVarDefault(setting.cvar)
+        if type(setting.default) == "boolean" then
+            if raw ~= nil then return raw == "1" or raw == "true" end
+        else
+            local number = tonumber(raw)
+            if number then return math.max(setting.min, math.min(number, setting.max)) end
+        end
+    end
+    return setting.default
+end
+
+-- Appelé à chaque changement du joueur (panneau, préréglage, annulation) : NS.db.values est
+-- déjà à jour. Le panneau relit les valeurs pour que ses contrôles suivent.
+function NS.Change(setting)
+    if setting.advanced then NS.db.touched[setting.cvar] = true end
+    NS.Apply(setting)
+    -- Blizzard_CombatText ne relit ses CVars qu'à UpdateDisplayedMessages.
+    if setting.cvar:find("^floatingCombatText") then
+        if CombatText and CombatText.UpdateDisplayedMessages then
+            CombatText:UpdateDisplayedMessages()
+        elseif CombatText_UpdateDisplayedMessages then
+            CombatText_UpdateDisplayedMessages()
+        end
+    end
+    if NS.RefreshOptions then NS.RefreshOptions() end
+end
+
+local function SetValue(setting, value)
+    NS.db.values[setting.cvar] = value
+    NS.Change(setting)
+end
+
+-- Valeurs d'avant le dernier préréglage, gardées dans PanoramaDB.undo.
+function NS.CanUndo()
+    return NS.db.undo ~= nil
+end
+
 function NS.ApplyPreset(index)
+    NS.db.undo = {}
+    for cvar, value in pairs(NS.db.values) do NS.db.undo[cvar] = value end
     for _, setting in ipairs(NS.settings) do
         if setting.levels and NS.Exists(setting) then
-            local value = NS.Sanitize(setting, setting.levels[index])
-            local registered = NS.registered and NS.registered[setting.cvar]
-            if registered then
-                registered:SetValue(value)
-            else
-                NS.db.values[setting.cvar] = value
-                NS.Apply(setting)
-            end
+            SetValue(setting, NS.Sanitize(setting, setting.levels[index]))
         end
     end
     print(L.PREFIX .. L.MSG_PRESET:format(NS.presets[index].label))
+end
+
+function NS.Undo()
+    if not NS.db.undo then
+        print(L.PREFIX .. L.MSG_NOTHING_TO_UNDO)
+        return
+    end
+    local values = NS.db.undo
+    NS.db.undo = nil
+    for _, setting in ipairs(NS.settings) do
+        if setting.cvar and setting.levels and values[setting.cvar] ~= nil and NS.Exists(setting) then
+            SetValue(setting, values[setting.cvar])
+        end
+    end
+    print(L.PREFIX .. L.MSG_UNDONE)
 end
 
 function NS.RestartGraphics()
@@ -163,11 +245,19 @@ events:SetScript("OnEvent", function(self, event, arg1)
         local db = PanoramaDB
         if type(db.values) ~= "table" then db.values = {} end
         if db.applyOnLogin == nil then db.applyOnLogin = true end
+        if type(db.touched) ~= "table" then db.touched = {} end
+        if type(db.undo) ~= "table" then db.undo = nil end
+        if type(db.collapsed) ~= "table" then db.collapsed = { [L.SECTION_ADVANCED] = true } end
+        if type(db.minimap) ~= "table" then db.minimap = {} end
+        if type(db.minimap.angle) ~= "number" then db.minimap.angle = 200 end
+        if type(db.minimap.show) ~= "boolean" then db.minimap.show = true end
         for _, setting in ipairs(NS.settings) do
             if setting.cvar then
                 local value = db.values[setting.cvar]
-                -- Premier lancement, ou réapplication coupée : on part des valeurs actuelles du jeu.
-                if NS.Exists(setting) and (value == nil or not db.applyOnLogin) then
+                -- Premier lancement, réapplication coupée, ou réglage avancé jamais touché :
+                -- on part des valeurs actuelles du jeu.
+                if NS.Exists(setting) and (value == nil or not db.applyOnLogin
+                        or (setting.advanced and not db.touched[setting.cvar])) then
                     value = ReadCVar(setting)
                 end
                 db.values[setting.cvar] = NS.Sanitize(setting, value)
@@ -175,6 +265,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
         end
         NS.db = db
         if NS.BuildOptions then NS.BuildOptions() end
+        if NS.BuildMinimapButton then NS.BuildMinimapButton() end
     elseif event == "PLAYER_LOGIN" then
         -- Réécrit les valeurs de la dernière session, au cas où le jeu les aurait changées entre-temps
         -- (Config.wtf, détection automatique). Premier lancement : les valeurs viennent du jeu, rien à écrire.
@@ -186,6 +277,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
         local setting = NS.db and type(arg1) == "string" and settingsByCVar[arg1:lower()]
         if setting then
             NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting))
+            if NS.RefreshOptions then NS.RefreshOptions() end
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -209,6 +301,11 @@ SlashCmdList.PANORAMA = function(message)
         end
     elseif command == "restart" then
         NS.RestartGraphics()
+    elseif command == "undo" then
+        NS.Undo()
+    elseif command == "minimap" then
+        NS.db.minimap.show = not NS.db.minimap.show
+        if NS.UpdateMinimapButton then NS.UpdateMinimapButton() end
     elseif command ~= "" then
         for index, preset in ipairs(NS.presets) do
             if preset.id == command then return NS.ApplyPreset(index) end

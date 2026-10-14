@@ -14,7 +14,7 @@ GetLocale = function() return "frFR" end
 local LOCALES = { "enUS", "frFR", "deDE", "esES", "itIT", "ptBR", "ruRU", "koKR", "zhCN", "zhTW" }
 
 local function Load(savedVariables)
-    cvars = { farclip = "1000", ffxDeath = "1", gxMultisample = "1" }
+    cvars = { farclip = "1000", ffxDeath = "1", gxMultisample = "1", rippleDetail = "2" }
     combat, written = false, {}
     local ns = {}
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
@@ -75,4 +75,25 @@ assert(cvars.farclip == "400" and cvars.gxMultisample == "1", "préréglage Bas 
 assert(cvars.ffxDeath == "1", "ffxDeath hors préréglage")
 SlashCmdList.PANORAMA("extra")
 assert(PanoramaDB.values.farclip == 2600 and cvars.gxMultisample == "8", "préréglage Extra écrit")
+
+-- Avancé : jamais écrit à la connexion tant que non touché, écrit après NS.Change.
+local ns2 = Load({ values = { rippleDetail = 0 } })
+written = {}
+handler(frame, "PLAYER_LOGIN")
+for _, name in ipairs(written) do assert(name ~= "rippleDetail", "avancé non touché écrit") end
+for _, setting in ipairs(ns2.settings) do
+    if setting.cvar == "rippleDetail" then
+        PanoramaDB.values.rippleDetail = 1
+        ns2.Change(setting)
+    end
+end
+assert(PanoramaDB.touched.rippleDetail and cvars.rippleDetail == "1", "NS.Change écrit et marque touché")
+-- Annulation : le préréglage est défait, rien à annuler ensuite.
+ns2 = Load(nil)
+assert(not ns2.CanUndo(), "rien à annuler au départ")
+SlashCmdList.PANORAMA("low")
+assert(cvars.farclip == "400" and ns2.CanUndo())
+SlashCmdList.PANORAMA("undo")
+assert(cvars.farclip == "1000" and PanoramaDB.values.farclip == 1000, "annulation restaure")
+assert(not ns2.CanUndo(), "annulation consommée")
 io.write("ok\n")

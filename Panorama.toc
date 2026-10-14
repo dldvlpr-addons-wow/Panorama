@@ -1,4 +1,4 @@
-## Interface: 11509, 11600, 16001, 20506, 30405, 40402, 50504, 120100
+## Interface: 16001
 ## Title: |cff5fd3f0Panorama|r
 ## Notes: Advanced graphics settings (view distance, shadows, water, camera...) adjustable in game and reapplied at every login. /pano
 ## Notes-frFR: Tes réglages graphiques avancés (distance de vue, ombres, eau, caméra...) réglables en jeu et réappliqués à chaque connexion. /pano
@@ -12,6 +12,8 @@
 ## Notes-zhCN: 高级图形设置（视野距离、阴影、水面、镜头……），可在游戏内调整，每次登录时重新应用。/pano
 ## Notes-zhTW: 進階圖形設定（視野距離、陰影、水面、鏡頭……），可在遊戲內調整，每次登入時重新套用。/pano
 ## Version: 1.2.0
+## X-Curse-Project-ID: 1706544
+## X-Wago-ID: 
 ## SavedVariables: PanoramaDB
 ## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
 ## X-License: GPL-3.0-or-later
@@ -33,3 +35,4 @@ Locale\zhCN.lua
 Locale\zhTW.lua
 Panorama.lua
 Options.lua
+Minimap.lua
