@@ -103,13 +103,11 @@ for _, setting in ipairs(NS.settings) do
 end
 
 local function GetCVarValue(name)
-    if C_CVar and C_CVar.GetCVar then return C_CVar.GetCVar(name) end
-    return GetCVar(name)
+    return C_CVar.GetCVar(name)
 end
 
 local function SetCVarValue(name, value)
-    if C_CVar and C_CVar.SetCVar then return C_CVar.SetCVar(name, value) end
-    return SetCVar(name, value)
+    return C_CVar.SetCVar(name, value)
 end
 
 function NS.Exists(setting)
@@ -167,7 +165,7 @@ end
 -- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées, texte de
 -- combat) ; repli sur setting.default si le client ne la donne pas.
 function NS.GameDefault(setting)
-    if (setting.advanced or setting.cvar:find("^floatingCombatText")) and GetCVarDefault then
+    if (setting.advanced or setting.cvar:find("^floatingCombatText")) then
         local raw = GetCVarDefault(setting.cvar)
         if type(setting.default) == "boolean" then
             if raw ~= nil then return raw == "1" or raw == "true" end
@@ -188,8 +186,6 @@ function NS.Change(setting)
     if setting.cvar:find("^floatingCombatText") then
         if CombatText and CombatText.UpdateDisplayedMessages then
             CombatText:UpdateDisplayedMessages()
-        elseif CombatText_UpdateDisplayedMessages then
-            CombatText_UpdateDisplayedMessages()
         end
     end
     if NS.RefreshOptions then NS.RefreshOptions() end

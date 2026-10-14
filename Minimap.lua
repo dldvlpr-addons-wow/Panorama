@@ -35,10 +35,6 @@ local function FollowCursor()
 end
 
 local function ShowMenu()
-    if not (MenuUtil and MenuUtil.CreateContextMenu) then
-        if NS.OpenOptions then NS.OpenOptions() end
-        return
-    end
     MenuUtil.CreateContextMenu(button, function(_, root)
         root:CreateTitle(L.OPT_PRESETS)
         for index, preset in ipairs(NS.presets) do

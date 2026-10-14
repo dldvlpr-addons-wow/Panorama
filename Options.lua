@@ -87,7 +87,7 @@ local function CreateSlider(parent, setting, onChange)
     slider:SetSize(170, 16)
     slider:SetMinMaxValues(setting.min, setting.max)
     slider:SetValueStep(setting.step)
-    if slider.SetObeyStepOnDrag then slider:SetObeyStepOnDrag(true) end
+    slider:SetObeyStepOnDrag(true)
     slider:SetThumbTexture("Interface\\Buttons\\UI-SliderBar-Button-Horizontal")
     local track = slider:CreateTexture(nil, "BACKGROUND")
     track:SetPoint("LEFT")
