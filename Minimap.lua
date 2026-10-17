@@ -60,15 +60,28 @@ end
 
 function NS.BuildMinimapButton()
     button = CreateFrame("Button", "PanoramaMinimapButton", Minimap)
-    button:SetSize(32, 32)
+    button:SetSize(31, 31)
     button:SetFrameStrata("MEDIUM")
     button:SetFrameLevel(8)
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     button:RegisterForDrag("LeftButton")
 
+    -- Gabarit rond des boutons de minimap : fond, logo masqué en cercle, anneau doré.
+    local background = button:CreateTexture(nil, "BACKGROUND")
+    background:SetSize(20, 20)
+    background:SetPoint("TOPLEFT", 7, -5)
+    background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+
     local icon = button:CreateTexture(nil, "ARTWORK")
-    icon:SetAllPoints()
+    icon:SetSize(17, 17)
+    icon:SetPoint("TOPLEFT", 7, -6)
     icon:SetTexture(LOGO)
+    icon:SetMask("Interface\\CharacterFrame\\TempPortraitAlphaMask")
+
+    local border = button:CreateTexture(nil, "OVERLAY")
+    border:SetSize(53, 53)
+    border:SetPoint("TOPLEFT")
+    border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
 
     button:SetScript("OnClick", function(_, mouseButton)
