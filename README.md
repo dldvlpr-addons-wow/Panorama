@@ -60,6 +60,8 @@ WoW Forever 1.60.1 (interface 16001).
   Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language.
 - To undo every change, use the Defaults button in the game's Graphics menu.
 
+Website: https://muscalab.com/addons/panorama
+
 Discord: https://discord.gg/EyYpyMq2km
 
 ## License

@@ -4,7 +4,7 @@
 
 <p style="text-align: center;">View distance, shadows, water, camera: 43 settings with sliders and checkboxes, for WoW Forever.</p>
 
-<p style="text-align: center;"><a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
+<p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
 ---
 
