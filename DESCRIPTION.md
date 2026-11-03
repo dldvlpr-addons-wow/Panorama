@@ -2,7 +2,7 @@
 
 <p style="text-align: center;"><strong>The graphics settings hidden behind <code>/console</code>, in one window, reapplied at every login.</strong></p>
 
-<p style="text-align: center;">View distance, shadows, water, camera: 43 settings with sliders and checkboxes, for WoW Forever.</p>
+<p style="text-align: center;">View distance, shadows, water, camera, nameplates: 58 settings with sliders and checkboxes, for WoW Forever.</p>
 
 <p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
@@ -10,7 +10,7 @@
 
 ## <span style="color: #ff6b35;">🎮 Your game, as far as the eye can see</span>
 
-Many graphics options of WoW Forever only exist as console commands. Panorama puts them in one window, with safe limits, and writes them again every time you log in.
+Many graphics options of WoW Forever only exist as console commands. Panorama puts them in one window and writes them again every time you log in.
 
 <p style="text-align: center;"><strong><span style="color: #9d9d9d;">Low</span> · <span style="color: #1eff00;">Medium</span> · <span style="color: #0070dd;">High</span> · <span style="color: #a335ee;">Extra</span></strong></p>
 
@@ -33,7 +33,8 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 | | Game Graphics menu | Panorama |
 |---|:---:|:---:|
 | Water reflections and ripples, terrain and building detail distance | ✖ | ✔ |
-| Floating combat text options | ✖ | ✔ |
+| Floating combat text options | Only with modern combat text | ✔ |
+| Nameplate size, enemy pets and totems | ✖ | ✔ |
 | Settings written again at every login | ✖ | ✔ |
 | Undo the last preset | ✖ | ✔ |
 | Every setting in one window, with a Default button per line | ✖ | ✔ |
@@ -43,8 +44,8 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 ## <span style="color: #0cf;">🧰 What you get</span>
 
 - <span style="color: #ffd100;"><strong>Its own window.</strong></span> Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
-- <span style="color: #ffd100;"><strong>43 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, camera and interface, advanced, floating combat text.
-- <span style="color: #ffd100;"><strong>Safe values.</strong></span> Sliders stay inside the limits the game accepts. A setting your client does not support is hidden and never written.
+- <span style="color: #ffd100;"><strong>58 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, camera and interface, nameplates, advanced, floating combat text.
+- <span style="color: #ffd100;"><strong>Your values are kept.</strong></span> A value set with `/console` beyond a slider's range stays and is written again at login. A setting your client does not support is hidden and never written.
 - <span style="color: #ffd100;"><strong>Stays in sync.</strong></span> A change made in the game's Graphics menu or with `/console` shows in the window.
 - <span style="color: #ffd100;"><strong>Reapply on login.</strong></span> Your values are written again at login, in case the game changed them between sessions. You can turn it off.
 - <span style="color: #ffd100;"><strong>Combat safe.</strong></span> A change made during combat is applied when combat ends.
@@ -83,7 +84,7 @@ Full list in the **Files** tab.
 
 ### <span style="color: #ff9800;">⚠ Works, with limits</span>
 
-- **Advanced settings** have estimated limits: they are not in the game's menus.
+- **Advanced settings**, nameplate size and zoom speed have estimated limits. Like the advanced settings, they are written only after you change them.
 
 ### <span style="color: #f44336;">✖ Does not do</span>
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.4.0
+
+### New
+- **Nameplates section**: enemy and friendly class colors, far, near and target nameplate size,
+  enemy pets and enemy totems. Nameplate distance moves here.
+- **Camera**: mouse wheel zoom speed and interface text size.
+- **Floating combat text**: absorb shields placed on you.
+- The new nameplate and camera settings are written only after you change them, like the advanced
+  settings.
+
+### Fixed
+- **Values set with `/console` are kept.** A value beyond the slider range (for example
+  `cameraDistanceMaxZoomFactor 4` or `farclip 7000`) is no longer reset at login or `/reload`.
+- **Wider sliders**: max camera distance goes up to 4, view distance (`farclip`) up to 7000.
+
 ## 1.3.1
 
 ### Changed

@@ -13,8 +13,26 @@ strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
 GetLocale = function() return "frFR" end
 local LOCALES = { "enUS", "frFR", "deDE", "esES", "itIT", "ptBR", "ruRU", "koKR", "zhCN", "zhTW" }
 
+-- .toc : chaque fichier listé existe et compile en Lua 5.1 (loadfile = luac -p), et chaque .lua
+-- livré est listé. tests/ et .claude/ ne sont pas livrés (.pkgmeta).
+local listed = {}
+for line in io.lines("Panorama.toc") do
+    line = line:gsub("\r$", "")
+    if line ~= "" and not line:find("^#") then
+        local path = line:gsub("%s*%[.*$", ""):gsub("\\", "/")
+        listed[path] = true
+        assert(loadfile(path))
+    end
+end
+local found = io.popen("find . -name '*.lua' -not -path './tests/*' -not -path './.*'")
+for path in found:lines() do
+    path = path:gsub("^%./", "")
+    assert(listed[path], path .. " absent du .toc")
+end
+found:close()
+
 local function Load(savedVariables)
-    cvars = { farclip = "1000", ffxDeath = "1", gxMultisample = "1", rippleDetail = "2" }
+    cvars = { cameraDistanceMaxZoomFactor = "2.6", farclip = "1000", ffxDeath = "1", gxMultisample = "1", rippleDetail = "2" }
     combat, written = false, {}
     local ns = {}
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
@@ -42,14 +60,15 @@ assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
 handler(frame, "PLAYER_LOGIN")
 assert(cvars.farclip == "1000" and cvars.ffxDeath == "1" and cvars.gxMultisample == "1", "rien de changé")
 
--- Changement hors du panneau : PanoramaDB suit la CVar, bornée.
-cvars.farclip = "99999"
+-- Changement hors du panneau (/console) : PanoramaDB suit la CVar, même au-delà du curseur.
+cvars.farclip = "9000"
 handler(frame, "CVAR_UPDATE", "farClip")
-assert(PanoramaDB.values.farclip == 2600, "CVAR_UPDATE suivi et borné")
+assert(PanoramaDB.values.farclip == 9000, "CVAR_UPDATE suivi sans borne")
 
 -- Valeurs sauvegardées hors limites, de mauvais type ou hors choix.
-Load({ values = { farclip = 99999, ffxDeath = "oui", gxMultisample = 3 } })
-assert(PanoramaDB.values.farclip == 2600, "farclip ramené au max")
+Load({ values = { farclip = 9000, cameraDistanceMaxZoomFactor = 4, ffxDeath = "oui", gxMultisample = 3 } })
+assert(PanoramaDB.values.farclip == 9000, "farclip /console gardé")
+assert(PanoramaDB.values.cameraDistanceMaxZoomFactor == 4, "zoom caméra /console gardé")
 assert(PanoramaDB.values.ffxDeath == false, "booléen invalide remplacé par défaut")
 assert(PanoramaDB.values.gxMultisample == 8, "choix invalide remplacé par défaut")
 assert(PanoramaDB.applyOnLogin == true)
@@ -60,9 +79,10 @@ handler(frame, "PLAYER_LOGIN")
 assert(#written == 0, "aucune écriture en combat")
 combat = false
 handler(frame, "PLAYER_REGEN_ENABLED")
-assert(cvars.farclip == "2600" and cvars.ffxDeath == "0" and cvars.gxMultisample == "8")
+assert(cvars.farclip == "9000" and cvars.ffxDeath == "0" and cvars.gxMultisample == "8")
 -- Seules les CVars connues du client sont écrites.
-assert(#written == 3, "CVars inconnues ignorées, écrit " .. #written)
+assert(cvars.cameraDistanceMaxZoomFactor == "4", "zoom caméra réécrit à 4")
+assert(#written == 4, "CVars inconnues ignorées, écrit " .. #written)
 
 -- Réapplication coupée : PanoramaDB reprend les valeurs du jeu au chargement.
 Load({ applyOnLogin = false, values = { farclip = 2000 } })
@@ -88,6 +108,15 @@ for _, setting in ipairs(ns2.settings) do
     end
 end
 assert(PanoramaDB.touched.rippleDetail and cvars.rippleDetail == "1", "NS.Change écrit et marque touché")
+-- `also` : userFontScaleGlue suit userFontScale.
+cvars.userFontScale, cvars.userFontScaleGlue = "1", "1"
+for _, setting in ipairs(ns2.settings) do
+    if setting.cvar == "userFontScale" then
+        PanoramaDB.values.userFontScale = 1.5
+        ns2.Change(setting)
+    end
+end
+assert(cvars.userFontScale == "1.5" and cvars.userFontScaleGlue == "1.5", "userFontScaleGlue écrite aussi")
 -- Annulation : le préréglage est défait, rien à annuler ensuite.
 ns2 = Load(nil)
 assert(not ns2.CanUndo(), "rien à annuler au départ")

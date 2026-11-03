@@ -8,14 +8,14 @@ if L ~= NS.locales.enUS then setmetatable(L, { __index = NS.locales.enUS }) end
 NS.L = L
 
 -- Une ligne sans `cvar` est un titre de section. Libellé et bulle d'aide : L[cvar] et L[cvar .. "_tip"].
--- Les bornes min/max sont celles des menus du jeu : le panneau ne permet pas d'en sortir,
--- et une valeur hors bornes dans PanoramaDB (fichier édité à la main) est ramenée dedans.
+-- Les bornes min/max sont celles du curseur du panneau. Une valeur posée hors bornes par
+-- /console est gardée et réappliquée telle quelle.
 -- Une CVar inconnue du client est ignorée : ni affichée, ni écrite.
 -- `levels` : valeurs des préréglages, dans l'ordre de NS.presets. Sans `levels`, un préréglage
 -- ne touche pas au réglage (caméra, souris, confort).
 NS.settings = {
     { title = L.SECTION_VIEW },
-    { cvar = "farclip", min = 185, max = 2600, step = 5, default = 1300, levels = { 400, 800, 1300, 2600 } },
+    { cvar = "farclip", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 1300, 2600 } },
     { cvar = "horizonfarclip", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
 
@@ -49,12 +49,34 @@ NS.settings = {
     { cvar = "spellClutter", default = false, levels = { true, false, false, false } },
 
     { title = L.SECTION_CAMERA },
-    { cvar = "cameraDistanceMaxZoomFactor", min = 1, max = 2.6, step = 0.1, default = 2.6 },
+    -- Max du curseur : relevé joueur (/console accepte 4 et farclip 7000). Le menu Forever
+    -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
+    { cvar = "cameraDistanceMaxZoomFactor", min = 1, max = 4, step = 0.1, default = 2.6 },
+    { cvar = "rawMouseEnable", default = true },
+    { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
+    -- Absentes du menu Forever. `advanced` : écrites seulement une fois touchées, défaut lu dans le jeu.
+    -- cameraZoomSpeed : lue par Blizzard_GamepadTargeting/TargetLogic.lua.
+    -- userFontScale : bornes 0.8 (TextSizeManager.lua) et 2 (menu retail, Mainline/Text.lua).
+    -- `also` : écrite en même temps, comme TextSizeManager:SetSettingValue (écran de connexion).
+    -- ponytail: maximum de cameraZoomSpeed estimé (50), à relever en jeu.
+    { cvar = "cameraZoomSpeed", advanced = true, min = 1, max = 50, step = 1, default = 20 },
+    { cvar = "userFontScale", also = "userFontScaleGlue", advanced = true, min = 0.8, max = 2, step = 0.1, default = 1 },
+
+    { title = L.SECTION_NAMEPLATES },
     -- Maximum imposé par le client : 60 sur retail, 41 sur les clients Classic.
     { cvar = "nameplateMaxDistance", min = 20,
       max = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) and 60 or 41, step = 1, default = 41 },
-    { cvar = "rawMouseEnable", default = true },
-    { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
+    -- Couleurs de classe : aussi dans le menu Nameplates de Forever (Camelot/NameplatesOverrides.lua).
+    -- Échelle, familiers, totems : écrits seulement par Blizzard_Commentator, absents du menu.
+    -- Toutes non vérifiées en jeu : même traitement `advanced`.
+    -- ponytail: bornes d'échelle estimées (0.5 à 2), à relever en jeu.
+    { cvar = "nameplateShowClassColor", advanced = true, default = true },
+    { cvar = "nameplateShowFriendlyClassColor", advanced = true, default = false },
+    { cvar = "nameplateMinScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 0.8 },
+    { cvar = "nameplateMaxScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 1 },
+    { cvar = "nameplateSelectedScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 1 },
+    { cvar = "nameplateShowEnemyPets", advanced = true, default = false },
+    { cvar = "nameplateShowEnemyTotems", advanced = true, default = false },
 
     -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
     -- BlizzardInterfaceCode). `advanced` : jamais écrites tant que le joueur n'a pas touché au réglage.
@@ -70,8 +92,11 @@ NS.settings = {
     { cvar = "particleMTDensity", advanced = true, min = 10, max = 100, step = 5, default = 20 },
     { cvar = "DepthBasedOpacity", advanced = true, default = false },
 
-    -- Texte de combat flottant : lu par Blizzard_CombatText, aucun contrôle dans les menus.
+    -- Texte de combat flottant : lu par Blizzard_CombatText. Le menu Combat de Forever n'affiche ces
+    -- cases que si classicStyleWorldText vaut "0" (Mainline/CombatOverrides.lua) ; sinon seul
+    -- Panorama les règle.
     { title = L.SECTION_COMBAT_TEXT },
+    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", default = false },
     { cvar = "floatingCombatTextCombatState_v2", default = false },
     { cvar = "floatingCombatTextDodgeParryMiss_v2", default = false },
     { cvar = "floatingCombatTextDamageReduction_v2", default = false },
@@ -121,20 +146,22 @@ local function ReadCVar(setting)
     return tonumber(raw)
 end
 
--- Ramène une valeur lue dans PanoramaDB dans les limites du réglage.
+-- Valide le type d'une valeur lue dans PanoramaDB ou dans le jeu (pas de borne min/max).
 function NS.Sanitize(setting, value)
     if type(setting.default) == "boolean" then
         if type(value) ~= "boolean" then return setting.default end
         return value
     end
-    if type(value) ~= "number" or value ~= value then return setting.default end
+    if type(value) ~= "number" or value ~= value or math.abs(value) == math.huge then return setting.default end
     if setting.choices then
         for _, choice in ipairs(setting.choices) do
             if choice == value then return value end
         end
         return setting.default
     end
-    return math.min(setting.max, math.max(setting.min, value))
+    -- Pas de borne min/max : une valeur posée par /console au-delà du curseur est gardée.
+    -- Le moteur borne lui-même ce qu'il accepte.
+    return value
 end
 
 local pending = false
@@ -151,6 +178,7 @@ function NS.Apply(setting)
     local value = NS.db.values[setting.cvar]
     if type(value) == "boolean" then value = value and 1 or 0 end
     SetCVarValue(setting.cvar, tostring(value))
+    if setting.also and GetCVarValue(setting.also) ~= nil then SetCVarValue(setting.also, tostring(value)) end
 end
 
 -- Un réglage avancé n'est écrit que s'il a été modifié par le joueur : sa valeur vient du jeu sinon.
