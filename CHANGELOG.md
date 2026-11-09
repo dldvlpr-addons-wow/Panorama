@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.1
 
 ### Fixed
 - **Water detail is capped at 2.** Level 3 crashes the game when entering the Ruins of Lordaeron.
