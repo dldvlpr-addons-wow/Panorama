@@ -8,10 +8,10 @@ you log in.
 
 ## Features
 
-- **48 settings** grouped by theme: view distance, vegetation, shadows and lighting, environment,
-  image, camera and interface.
-- **Safe values**: sliders stay inside the limits the game accepts. An out-of-range value in the
-  saved file is brought back into range.
+- **58 settings** grouped by theme: view distance, vegetation, shadows and lighting, environment,
+  image, camera and interface, nameplates, advanced, floating combat text.
+- **Your values are kept**: a value set with `/console` beyond a slider's range is kept and written
+  again at login. The game itself limits what it accepts.
 - **Safe on your client**: a setting that your client does not support is hidden and never
   written.
 - **Starts from your current values**: on first install, the panel reads your current game
@@ -23,7 +23,9 @@ you log in.
 - **Graphics restart button**: it applies settings such as anti-aliasing without leaving the game.
 - **Presets**: Low, Medium, High and Extra set every graphics setting at once. They do not change
   camera, mouse or comfort settings.
-- **Defaults button**: it restores the Panorama preset.
+- **Default button on every line**: it puts that setting back to its default. Advanced settings,
+  nameplate class colors, size, pets and totems, zoom speed, text size and combat text use the
+  game's own default.
 
 ## Settings
 
@@ -34,7 +36,8 @@ you log in.
 | Shadows and lighting | Shadow quality, soft shadows, shadow resolution, sun shafts, SSAO, screen space effects |
 | Environment | Water detail, sky detail, weather intensity, physics |
 | Image | MSAA, sharpening filter, sharpening strength, full-screen glow, death grey screen, violence level, projected textures, spell clutter |
-| Camera, mouse and interface | Max camera distance, nameplate distance, raw mouse input, screenshot quality |
+| Camera, mouse and interface | Max camera distance, raw mouse input, screenshot quality, zoom speed, text size |
+| Nameplates | Nameplate distance, enemy and friendly class colors, far, near and target nameplate size, enemy pets, enemy totems |
 
 ## Commands
 
@@ -59,6 +62,8 @@ WoW Forever 1.60.1 (interface 16001).
 - The in-game interface is available in English, French, German, Spanish, Italian, Portuguese,
   Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language.
 - To undo every change, use the Defaults button in the game's Graphics menu.
+
+Website: https://muscalab.com/addons/panorama
 
 Discord: https://discord.gg/EyYpyMq2km
 
