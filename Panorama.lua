@@ -33,7 +33,9 @@ NS.settings = {
     { cvar = "SSFX", default = true, levels = { false, true, true, true } },
 
     { title = L.SECTION_ENVIRONMENT },
-    { cvar = "waterDetail", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
+    -- waterDetail 3 fait planter le client à l'entrée des Ruines de Lordaeron (signalé par un joueur) :
+    -- plafond 2, imposé même à une valeur sauvegardée ou posée par /console (`hardMax`).
+    { cvar = "waterDetail", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
     { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
     { cvar = "physicsLevel", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
@@ -160,7 +162,8 @@ function NS.Sanitize(setting, value)
         return setting.default
     end
     -- Pas de borne min/max : une valeur posée par /console au-delà du curseur est gardée.
-    -- Le moteur borne lui-même ce qu'il accepte.
+    -- Le moteur borne lui-même ce qu'il accepte. Sauf `hardMax` : valeur au-delà dangereuse.
+    if setting.hardMax then return math.min(value, setting.max) end
     return value
 end
 
@@ -249,7 +252,7 @@ function NS.Undo()
     NS.db.undo = nil
     for _, setting in ipairs(NS.settings) do
         if setting.cvar and setting.levels and values[setting.cvar] ~= nil and NS.Exists(setting) then
-            SetValue(setting, values[setting.cvar])
+            SetValue(setting, NS.Sanitize(setting, values[setting.cvar]))
         end
     end
     print(L.PREFIX .. L.MSG_UNDONE)

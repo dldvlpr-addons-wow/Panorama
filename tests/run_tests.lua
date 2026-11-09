@@ -71,6 +71,13 @@ assert(PanoramaDB.values.farclip == 9000, "farclip /console gardé")
 assert(PanoramaDB.values.cameraDistanceMaxZoomFactor == 4, "zoom caméra /console gardé")
 assert(PanoramaDB.values.ffxDeath == false, "booléen invalide remplacé par défaut")
 assert(PanoramaDB.values.gxMultisample == 8, "choix invalide remplacé par défaut")
+-- waterDetail 3 fait planter le client : une valeur sauvegardée à 3 redescend à 2.
+Load({ values = { waterDetail = 3 } })
+assert(PanoramaDB.values.waterDetail == 2, "waterDetail plafonné à 2")
+cvars.waterDetail = "3"
+handler(frame, "PLAYER_LOGIN")
+assert(cvars.waterDetail == "2", "waterDetail réécrit à 2 à la connexion")
+Load({ values = { farclip = 9000, cameraDistanceMaxZoomFactor = 4, ffxDeath = "oui", gxMultisample = 3 } })
 assert(PanoramaDB.applyOnLogin == true)
 
 -- En combat : rien n'est écrit, tout part à la sortie du combat.

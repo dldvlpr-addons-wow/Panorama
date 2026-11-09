@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- **Water detail is capped at 2.** Level 3 crashes the game when entering the Ruins of Lordaeron.
+  The Extra preset now sets 2, and a saved value of 3 is lowered to 2 at login.
+
 ## 1.4.0
 
 ### New
