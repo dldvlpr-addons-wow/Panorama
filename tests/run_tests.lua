@@ -132,4 +132,9 @@ assert(cvars.farclip == "400" and ns2.CanUndo())
 SlashCmdList.PANORAMA("undo")
 assert(cvars.farclip == "1000" and PanoramaDB.values.farclip == 1000, "annulation restaure")
 assert(not ns2.CanUndo(), "annulation consommée")
+
+-- Recherche : casse ignorée hors ASCII (latin accentué, cyrillique).
+local options = { L = ns.L }
+assert(loadfile("Options.lua"))("Panorama", options)
+assert(options.Fold("Écran ÀÞ Дальность ЯЁ") == "écran àþ дальность яё", "recherche sans casse")
 io.write("ok\n")

@@ -13,11 +13,26 @@ local panel
 local items = {}      -- dans l'ordre d'affichage : { frame, section, height }
 local controls = {}   -- cvar -> { setting, refresh }
 local collapsed       -- NS.db.collapsed : section -> true ; « Avancé » replié au départ
+local filter = ""     -- texte de la barre de recherche, en minuscules
 local refreshing = false
 
 local function Round(value, step)
     return math.floor(value / step + 0.5) * step
 end
+
+-- Minuscules UTF-8 pour la recherche : strlower ne plie que l'ASCII.
+-- Couvre le latin accentué (À-Þ) et le cyrillique ; le coréen et le chinois n'ont pas de casse.
+local function Fold(text)
+    return (text:lower()
+        :gsub("\195([\128-\158])", function(c) return "\195" .. string.char(c:byte() + 32) end)
+        :gsub("\208\129", "\209\145")
+        :gsub("\208([\144-\175])", function(c)
+            local byte = c:byte()
+            if byte < 160 then return "\208" .. string.char(byte + 32) end
+            return "\209" .. string.char(byte - 32)
+        end))
+end
+NS.Fold = Fold
 
 local function FormatValue(setting, value)
     if type(value) == "boolean" then return value and L.OPT_ON or L.OPT_OFF end
@@ -26,10 +41,22 @@ local function FormatValue(setting, value)
 end
 
 -- Réaligne les lignes : une section repliée cache ses lignes.
+-- Pendant une recherche, seules les lignes qui correspondent et leurs titres restent, sections repliées comprises.
 local function Layout()
+    local matches = {}   -- section -> true si une de ses lignes correspond
+    for _, item in ipairs(items) do
+        item.match = filter ~= "" and item.text and item.text:find(filter, 1, true) ~= nil
+        if item.match then matches[item.section] = true end
+    end
     local y = 0
     for _, item in ipairs(items) do
-        if item.section and collapsed[item.section] then
+        local hidden
+        if filter ~= "" then
+            hidden = not (item.match or matches[item.header])
+        else
+            hidden = item.section and collapsed[item.section]
+        end
+        if hidden then
             item.frame:Hide()
         else
             item.frame:ClearAllPoints()
@@ -163,7 +190,8 @@ local function CreateRow(setting, section)
     reset:SetPoint("RIGHT", row, "RIGHT", -4, 0)
 
     controls[setting.cvar] = { setting = setting, refresh = refresh }
-    items[#items + 1] = { frame = row, section = section, height = ROW_HEIGHT }
+    items[#items + 1] = { frame = row, section = section, height = ROW_HEIGHT,
+        text = Fold(setting.label .. " " .. setting.tip .. " " .. setting.cvar) }
 end
 
 local function CreateHeader(title)
@@ -180,7 +208,7 @@ local function CreateHeader(title)
         Layout()
     end)
     update()
-    items[#items + 1] = { frame = header, height = HEADER_HEIGHT }
+    items[#items + 1] = { frame = header, header = title, height = HEADER_HEIGHT }
 end
 
 local function CreatePresetCards(parent)
@@ -254,6 +282,16 @@ function NS.BuildOptions()
     local restart = CreateButton(top, L.OPT_RESTART, 190, NS.RestartGraphics)
     restart:SetPoint("LEFT", panel.undo, "RIGHT", 8, 0)
     Tooltip(restart, L.OPT_RESTART_TIP)
+    local search = CreateFrame("EditBox", nil, top, "SearchBoxTemplate")
+    search:SetSize(170, 20)
+    search:SetPoint("LEFT", restart, "RIGHT", 16, 0)
+    search.Instructions:SetText(L.OPT_SEARCH)
+    -- HookScript : garde le script du gabarit (texte d'aide, bouton d'effacement).
+    search:HookScript("OnTextChanged", function(self)
+        filter = Fold(strtrim(self:GetText()))
+        panel.scroll:SetVerticalScroll(0)
+        Layout()
+    end)
 
     panel.applyOnLogin = CreateCheckbox(top, L.OPT_APPLY_ON_LOGIN, L.OPT_APPLY_ON_LOGIN_TIP, function(value)
         NS.db.applyOnLogin = value
@@ -266,6 +304,7 @@ function NS.BuildOptions()
     panel.showMinimap:SetPoint("LEFT", panel.applyOnLogin.text, "RIGHT", 40, 0)
 
     local scroll = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")
+    panel.scroll = scroll
     scroll:SetPoint("TOPLEFT", top, "BOTTOMLEFT", 8, -4)
     scroll:SetPoint("BOTTOMRIGHT", -30, 8)
     panel.content = CreateFrame("Frame", nil, scroll)

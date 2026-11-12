@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+
+### New
+- **Search bar** in the Panorama window: type a word to show only the matching settings.
+- **Volumetric fog quality** (0 to 3) in the View section. Presets set 0, 1, 3 and 3.
+
 ## 1.4.1
 
 ### Fixed

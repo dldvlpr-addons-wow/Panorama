@@ -31,7 +31,7 @@ you log in.
 
 | Section | Settings |
 |---|---|
-| View distance | Scenery distance, horizon distance, volumetric fog |
+| View distance | Scenery distance, horizon distance, volumetric fog and its quality |
 | Vegetation and details | Ground details, grass density, grass distance |
 | Shadows and lighting | Shadow quality, soft shadows, shadow resolution, sun shafts, SSAO, screen space effects |
 | Environment | Water detail, sky detail, weather intensity, physics |

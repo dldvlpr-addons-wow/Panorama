@@ -18,6 +18,8 @@ NS.settings = {
     { cvar = "farclip", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 1300, 2600 } },
     { cvar = "horizonfarclip", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
+    -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; curseur plafonné à 3 à la demande.
+    { cvar = "volumeFogLevel", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
 
     { title = L.SECTION_VEGETATION },
     { cvar = "detailDoodleDensity", min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
