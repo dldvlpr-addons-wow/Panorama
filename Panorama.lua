@@ -287,6 +287,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
                 db.values[setting.cvar] = NS.Sanitize(setting, value)
             end
         end
+        if NS.LoadFilters then NS.LoadFilters(db) end
         NS.db = db
         if NS.BuildOptions then NS.BuildOptions() end
         if NS.BuildMinimapButton then NS.BuildMinimapButton() end
@@ -294,6 +295,8 @@ events:SetScript("OnEvent", function(self, event, arg1)
         -- Réécrit les valeurs de la dernière session, au cas où le jeu les aurait changées entre-temps
         -- (Config.wtf, détection automatique). Premier lancement : les valeurs viennent du jeu, rien à écrire.
         if NS.db.applyOnLogin and not firstRun then NS.ApplyAll() end
+        -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non.
+        if NS.ApplyFilters then NS.ApplyFilters() end
         -- Écouté après la réécriture, pour qu'un CVAR_UPDATE du chargement n'écrase pas PanoramaDB.
         self:RegisterEvent("CVAR_UPDATE")
     elseif event == "CVAR_UPDATE" then

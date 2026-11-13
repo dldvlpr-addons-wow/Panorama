@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **Filters section, black bars**: top and bottom black bars, from 0 to 20 % of the screen each,
+  for a cinematic look. They write no CVar.
+  They hide part of the world but do not raise the frame rate.
+
 ## 1.4.0
 
 ### New

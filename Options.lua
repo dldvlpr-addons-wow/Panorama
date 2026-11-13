@@ -1,7 +1,7 @@
 -- Fenêtre Panorama, déplaçable et fermée par Échap : cartes de préréglage, sections repliables,
 -- une ligne par réglage (libellé, phrase d'aide, contrôle, bouton « Défaut »).
 -- Options > AddOns > Panorama n'affiche qu'un bouton qui ouvre cette fenêtre.
--- Chaque changement est écrit tout de suite dans la CVar (NS.Change).
+-- Chaque changement est écrit tout de suite : CVar par NS.Change, filtre par NS.ApplyFilters.
 local _, NS = ...
 local L = NS.L
 
@@ -11,7 +11,7 @@ local HEADER_HEIGHT = 30
 
 local panel
 local items = {}      -- dans l'ordre d'affichage : { frame, section, height }
-local controls = {}   -- cvar -> { setting, refresh }
+local controls = {}   -- cvar ou clé de filtre -> { setting, refresh }
 local collapsed       -- NS.db.collapsed : section -> true ; « Avancé » replié au départ
 local refreshing = false
 
@@ -44,7 +44,9 @@ end
 function NS.RefreshOptions()
     if not panel then return end
     refreshing = true
-    for cvar, control in pairs(controls) do control.refresh(NS.db.values[cvar]) end
+    for key, control in pairs(controls) do
+        control.refresh((control.setting.cvar and NS.db.values or NS.db.filters)[key])
+    end
     panel.applyOnLogin:SetChecked(NS.db.applyOnLogin)
     panel.showMinimap:SetChecked(NS.db.minimap.show)
     panel.undo:SetEnabled(NS.CanUndo())
@@ -115,9 +117,16 @@ local function CreateRow(setting, section)
     tip:SetMaxLines(2)
     tip:SetText(setting.restart and (setting.tip .. " " .. L.OPT_NEEDS_RESTART) or setting.tip)
 
+    -- Réglage de CVar (`cvar`) ou filtre (`key`, PanoramaDB.filters, aucune CVar).
     local function change(value)
-        NS.db.values[setting.cvar] = value
-        NS.Change(setting)
+        if setting.cvar then
+            NS.db.values[setting.cvar] = value
+            NS.Change(setting)
+        else
+            NS.db.filters[setting.key] = value
+            NS.ApplyFilters()
+            NS.RefreshOptions()
+        end
     end
 
     local valueText = row:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -159,10 +168,12 @@ local function CreateRow(setting, section)
         end
     end
 
-    local reset = CreateButton(row, L.OPT_DEFAULT, 70, function() change(NS.GameDefault(setting)) end)
+    local reset = CreateButton(row, L.OPT_DEFAULT, 70, function()
+        if setting.cvar then change(NS.GameDefault(setting)) else change(setting.default) end
+    end)
     reset:SetPoint("RIGHT", row, "RIGHT", -4, 0)
 
-    controls[setting.cvar] = { setting = setting, refresh = refresh }
+    controls[setting.cvar or setting.key] = { setting = setting, refresh = refresh }
     items[#items + 1] = { frame = row, section = section, height = ROW_HEIGHT }
 end
 
@@ -275,15 +286,17 @@ function NS.BuildOptions()
     collapsed = NS.db.collapsed
     -- Titre créé à la première ligne visible : pas de section vide sur un client sans ces CVars.
     local section, headerPending
-    for _, setting in ipairs(NS.settings) do
-        if setting.title then
-            section, headerPending = setting.title, true
-        elseif NS.Exists(setting) then
-            if headerPending then
-                CreateHeader(section)
-                headerPending = false
+    for _, list in ipairs({ NS.settings, NS.filterSettings }) do
+        for _, setting in ipairs(list) do
+            if setting.title then
+                section, headerPending = setting.title, true
+            elseif setting.key or NS.Exists(setting) then
+                if headerPending then
+                    CreateHeader(section)
+                    headerPending = false
+                end
+                CreateRow(setting, section)
             end
-            CreateRow(setting, section)
         end
     end
     Layout()

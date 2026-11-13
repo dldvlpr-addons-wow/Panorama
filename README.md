@@ -26,6 +26,8 @@ you log in.
 - **Default button on every line**: it puts that setting back to its default. Advanced settings,
   nameplate class colors, size, pets and totems, zoom speed, text size and combat text use the
   game's own default.
+- **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
+  cinematic look. They change no CVar.
 
 ## Settings
 
@@ -61,7 +63,10 @@ WoW Forever 1.60.1 (interface 16001).
 
 - The in-game interface is available in English, French, German, Spanish, Italian, Portuguese,
   Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language.
-- To undo every change, use the Defaults button in the game's Graphics menu.
+- To undo every change, use the Defaults button in the game's Graphics menu. The black bars are
+  not a game setting: set them to 0 in `/pano`.
+- The black bars hide part of the world. The game still renders it, so they do not raise your
+  frame rate.
 
 Website: https://muscalab.com/addons/panorama
 

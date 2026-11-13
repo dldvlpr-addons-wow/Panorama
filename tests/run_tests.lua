@@ -5,8 +5,19 @@ C_CVar = {
     SetCVar = function(name, value) cvars[name] = value; written[#written + 1] = name end,
 }
 InCombatLockdown = function() return combat end
+local bands
 frame = { RegisterEvent = function() end, UnregisterEvent = function() end,
-          SetScript = function(_, _, fn) handler = fn end }
+          SetScript = function(_, script, fn) if script == "OnEvent" then handler = fn end end,
+          -- Calque des filtres (Filter.lua) : écran de 1000 de haut.
+          SetAllPoints = function() end, SetFrameStrata = function() end, GetHeight = function() return 1000 end,
+          SetShown = function(self, shown) self.shown = shown end,
+          CreateTexture = function()
+              local band = { SetColorTexture = function() end, SetPoint = function() end,
+                             SetHeight = function(self, height) self.height = height end }
+              bands[#bands + 1] = band
+              return band
+          end }
+WorldFrame = {}
 CreateFrame = function() return frame end
 SlashCmdList = {}
 strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
@@ -37,6 +48,7 @@ local function Load(savedVariables)
     local ns = {}
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
     assert(loadfile("Panorama.lua"))("Panorama", ns)
+    assert(loadfile("Filter.lua"))("Panorama", ns)
     PanoramaDB = savedVariables
     handler(frame, "ADDON_LOADED", "Panorama")
     return ns
@@ -51,8 +63,11 @@ for _, code in ipairs(LOCALES) do
         assert(ns.locales.enUS[key], code .. " : clé inconnue de enUS " .. key)
     end
 end
-for _, setting in ipairs(ns.settings) do
-    assert(setting.title or (setting.label and setting.tip), "texte manquant " .. tostring(setting.cvar))
+for _, list in ipairs({ ns.settings, ns.filterSettings }) do
+    for _, setting in ipairs(list) do
+        assert(setting.title or (setting.label and setting.tip),
+            "texte manquant " .. tostring(setting.cvar or setting.key))
+    end
 end
 assert(ns.presets[3].label == "Élevé" and ns.L.PREFIX == ns.locales.frFR.PREFIX, "langue du client")
 assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
@@ -125,4 +140,19 @@ assert(cvars.farclip == "400" and ns2.CanUndo())
 SlashCmdList.PANORAMA("undo")
 assert(cvars.farclip == "1000" and PanoramaDB.values.farclip == 1000, "annulation restaure")
 assert(not ns2.CanUndo(), "annulation consommée")
+
+-- Filtres : rien n'est créé à 0, valeur invalide remplacée par 0, bandes à 10 % de l'écran.
+bands = {}
+Load(nil)
+handler(frame, "PLAYER_LOGIN")
+assert(PanoramaDB.filters.letterbox == 0 and #bands == 0, "aucun calque sans filtre")
+Load({ values = {}, filters = { letterbox = 99 } })
+assert(PanoramaDB.filters.letterbox == 0, "bandes hors bornes remplacées")
+local ns3 = Load({ values = {}, filters = { letterbox = 10 } })
+handler(frame, "PLAYER_LOGIN")
+assert(#bands == 2 and bands[1].height == 100 and bands[2].height == 100 and frame.shown,
+    "bandes posées à 10 %")
+PanoramaDB.filters.letterbox = 0
+ns3.ApplyFilters()
+assert(frame.shown == false and #bands == 2, "bandes cachées à 0, sans recréation")
 io.write("ok\n")

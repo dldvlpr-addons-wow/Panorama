@@ -35,5 +35,6 @@ Locale\koKR.lua
 Locale\zhCN.lua
 Locale\zhTW.lua
 Panorama.lua
+Filter.lua
 Options.lua
 Minimap.lua

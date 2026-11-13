@@ -50,6 +50,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 - <span style="color: #ffd100;"><strong>Reapply on login.</strong></span> Your values are written again at login, in case the game changed them between sessions. You can turn it off.
 - <span style="color: #ffd100;"><strong>Combat safe.</strong></span> A change made during combat is applied when combat ends.
 - <span style="color: #ffd100;"><strong>Default button on every line,</strong></span> and an <strong>Undo</strong> button for the last preset.
+- <span style="color: #ffd100;"><strong>Black bars filter:</strong></span> top and bottom black bars for a cinematic look. No CVar changed.
 - <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo and graphics restart.
 - <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese.
 
@@ -85,10 +86,11 @@ Full list in the **Files** tab.
 ### <span style="color: #ff9800;">⚠ Works, with limits</span>
 
 - **Advanced settings**, nameplate size and zoom speed have estimated limits. Like the advanced settings, they are written only after you change them.
+- **Black bars** hide part of the world but the game still renders it: no frame rate gain.
 
 ### <span style="color: #f44336;">✖ Does not do</span>
 
-- It does not change the game's Graphics menu presets. To undo every change, use the **Defaults** button in that menu.
+- It does not change the game's Graphics menu presets. To undo every change, use the **Defaults** button in that menu. The black bars are not a game setting: set them to 0 in `/pano`.
 
 ---
 
