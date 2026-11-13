@@ -7,6 +7,18 @@
   for a cinematic look. They write no CVar.
   They hide part of the world but do not raise the frame rate.
 
+## 1.5.0
+
+### New
+- **Search bar** in the Panorama window: type a word to show only the matching settings.
+- **Volumetric fog quality** (0 to 3) in the View section. Presets set 0, 1, 3 and 3.
+
+## 1.4.1
+
+### Fixed
+- **Water detail is capped at 2.** Level 3 crashes the game when entering the Ruins of Lordaeron.
+  The Extra preset now sets 2, and a saved value of 3 is lowered to 2 at login.
+
 ## 1.4.0
 
 ### New

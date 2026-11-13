@@ -1,1 +1,2 @@
 - [Combat text CVar cache](combat-text-cvar-cache.md) — floatingCombatText*_v2 via SetCVar inert until /reload; check UpdateDisplayedMessages call
+- [strlower and UTF-8 locales](strlower-utf8-locales.md) — :lower() ASCII only; search over frFR/deDE/ruRU text misses accented/Cyrillic capitals
