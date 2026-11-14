@@ -1,11 +1,43 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
 
 ### New
 - **Filters section, black bars**: top and bottom black bars, from 0 to 20 % of the screen each,
   for a cinematic look. They write no CVar.
   They hide part of the world but do not raise the frame rate.
+- **Filters section, vignette, film grain and tint**: darkened screen edges, animated film grain,
+  and a sepia, warm, cold, night, emerald or dusk tint with its own strength. They write no CVar.
+- **Image section, low latency mode**: Auto, Off, Built-in, Reflex, Reflex + Boost or XeLL.
+  Presets do not change it.
+
+### Changed
+- **Settings also set by a game menu are marked** with a yellow star. Hover it to see which menu:
+  that menu does not read the value back and may show another level.
+- **Reapply on login writes only the settings you changed in Panorama.** The others follow the
+  game's Graphics menu, so a change made there is no longer undone at the next login. A saved value
+  that differs from the game's is kept as changed when you update.
+- **Presets match the game's Graphics menu.** Low, Medium and High now set the same values as
+  the game's Low, Medium and High levels. Extra is High with the view distance at 7000.
+- **Sliders write the setting when you release the mouse button**, not at every step. Dragging
+  view distance no longer reloads the scenery hundreds of times.
+- **Easier to read window**: the line under the mouse is highlighted, and a thin line separates
+  each setting and each section.
+
+### Fixed
+- **Water detail cap at 2 always applies**: on first install, with reapply on login turned off,
+  and when the game's menu or `/console` sets 3.
+- **Undo during combat** is now written when combat ends.
+- **Floating combat text changed during combat** now shows when combat ends, without a `/reload`.
+- **Anti-aliasing mentions removed** from the preset message and the restart tooltip: the setting
+  does not exist on WoW Forever.
+- **Tint tooltip** lists all six tints.
+- **Lighter login**: a setting that already has the right value is no longer written again.
+- **Unknown `/pano` command** message now lists `apply` and `restart`.
+- **Sharpening reduction**: the ResampleSharpness label said the opposite of what it does.
+  0 gives the strongest sharpening, 2 the weakest.
+- **Nameplate scale sliders removed**: far, near and target nameplate size are fixed at 1 on
+  WoW Forever and ignored any value.
 
 ## 1.5.0
 

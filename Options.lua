@@ -36,6 +36,7 @@ NS.Fold = Fold
 
 local function FormatValue(setting, value)
     if type(value) == "boolean" then return value and L.OPT_ON or L.OPT_OFF end
+    if setting.names then return setting.names[value] or tostring(value) end
     if setting.step and setting.step < 1 then return ("%.1f"):format(value) end
     return tostring(value)
 end
@@ -68,8 +69,9 @@ local function Layout()
     panel.content:SetHeight(y + 10)
 end
 
+-- Panneau caché : rien à rafraîchir, OnShow relit tout à l'ouverture.
 function NS.RefreshOptions()
-    if not panel then return end
+    if not panel or not panel:IsShown() then return end
     refreshing = true
     for key, control in pairs(controls) do
         control.refresh((control.setting.cvar and NS.db.values or NS.db.filters)[key])
@@ -109,8 +111,9 @@ local function CreateCheckbox(parent, text, tip, onChange)
     return check
 end
 
--- Curseur sans gabarit (OptionsSliderTemplate est déprécié).
-local function CreateSlider(parent, setting, onChange)
+-- Curseur sans gabarit (OptionsSliderTemplate est déprécié). Bouton tenu : seule la valeur affichée
+-- suit (`onPreview`), la CVar est écrite au relâchement, pas à chaque pas (farclip : ~1400 pas).
+local function CreateSlider(parent, setting, onChange, onPreview)
     local slider = CreateFrame("Slider", nil, parent)
     slider:SetOrientation("HORIZONTAL")
     slider:SetSize(170, 16)
@@ -123,8 +126,21 @@ local function CreateSlider(parent, setting, onChange)
     track:SetPoint("RIGHT")
     track:SetHeight(6)
     track:SetColorTexture(0, 0, 0, 0.6)
+    local held, moved = false, false
     slider:SetScript("OnValueChanged", function(_, value)
-        if not refreshing then onChange(Round(value, setting.step)) end
+        if refreshing then return end
+        if held then
+            moved = true
+            onPreview(Round(value, setting.step))
+        else
+            onChange(Round(value, setting.step))
+        end
+    end)
+    slider:SetScript("OnMouseDown", function(_, button) held = button == "LeftButton" end)
+    -- Clic sans mouvement : rien d'écrit, le réglage n'est pas marqué touché.
+    slider:SetScript("OnMouseUp", function(self)
+        if held and moved then onChange(Round(self:GetValue(), setting.step)) end
+        held, moved = false, false
     end)
     return slider
 end
@@ -133,9 +149,42 @@ local function CreateRow(setting, section)
     local row = CreateFrame("Frame", nil, panel.content)
     row:SetSize(CONTENT_WIDTH, ROW_HEIGHT)
 
+    -- Filet gris sous chaque réglage : sépare les lignes.
+    local divider = row:CreateTexture(nil, "BACKGROUND")
+    divider:SetColorTexture(1, 1, 1, 0.08)
+    divider:SetHeight(1)
+    divider:SetPoint("BOTTOMLEFT", 8, 0)
+    divider:SetPoint("BOTTOMRIGHT", -4, 0)
+
+    -- Surbrillance de la ligne sous le pointeur, contrôles compris : chacun relance le test à l'entrée et à la sortie.
+    -- IsMouseOver est géométrique : le test du scroll éteint une ligne à moitié défilée.
+    local highlight = row:CreateTexture(nil, "BACKGROUND")
+    highlight:SetColorTexture(1, 1, 1, 0.06)
+    highlight:SetAllPoints()
+    highlight:Hide()
+    local function updateHover()
+        highlight:SetShown(row:IsVisible() and row:IsMouseOver() and panel.scroll:IsMouseOver())
+    end
+    local function hoverWith(frame)
+        frame:HookScript("OnEnter", updateHover)
+        frame:HookScript("OnLeave", updateHover)
+    end
+    row:EnableMouse(true)
+    hoverWith(row)
+    row:HookScript("OnHide", function() highlight:Hide() end)
+
     local label = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
     label:SetPoint("TOPLEFT", 8, -6)
     label:SetText(setting.label)
+    -- Réglage aussi écrit par un menu du jeu : étoile après le nom, menu nommé au survol.
+    if setting.menu then
+        label:SetText(setting.label .. " |cffffd100*|r")
+        local hover = CreateFrame("Frame", nil, row)
+        hover:SetAllPoints(label)
+        hover:EnableMouse(true)
+        Tooltip(hover, L.ALSO_IN_MENU:format(setting.menu))
+        hoverWith(hover)
+    end
 
     local tip = row:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
     tip:SetPoint("TOPLEFT", label, "BOTTOMLEFT", 0, -3)
@@ -165,6 +214,7 @@ local function CreateRow(setting, section)
     if type(setting.default) == "boolean" then
         local check = CreateCheckbox(row, "", setting.tip, change)
         check:SetPoint("RIGHT", row, "RIGHT", -140, 0)
+        hoverWith(check)
         refresh = function(value)
             check:SetChecked(value)
             valueText:SetText(FormatValue(setting, value))
@@ -175,6 +225,9 @@ local function CreateRow(setting, section)
         for index = #setting.choices, 1, -1 do
             local choice = setting.choices[index]
             local button = CreateButton(row, tostring(choice), 36, function() change(choice) end)
+            -- Survol gardé sur le choix courant désactivé, sinon la ligne s'éteint sous le pointeur.
+            button:SetMotionScriptsWhileDisabled(true)
+            hoverWith(button)
             if previous then
                 button:SetPoint("RIGHT", previous, "LEFT", -2, 0)
             else
@@ -187,8 +240,11 @@ local function CreateRow(setting, section)
         end
         valueText:Hide()
     else
-        local slider = CreateSlider(row, setting, change)
+        local slider = CreateSlider(row, setting, change, function(value)
+            valueText:SetText(FormatValue(setting, value))
+        end)
         slider:SetPoint("RIGHT", valueText, "LEFT", -10, 0)
+        hoverWith(slider)
         refresh = function(value)
             slider:SetValue(value)
             valueText:SetText(FormatValue(setting, value))
@@ -199,15 +255,25 @@ local function CreateRow(setting, section)
         if setting.cvar then change(NS.GameDefault(setting)) else change(setting.default) end
     end)
     reset:SetPoint("RIGHT", row, "RIGHT", -4, 0)
+    hoverWith(reset)
 
     controls[setting.cvar or setting.key] = { setting = setting, refresh = refresh }
     items[#items + 1] = { frame = row, section = section, height = ROW_HEIGHT,
-        text = Fold(setting.label .. " " .. setting.tip .. " " .. (setting.cvar or setting.key)) }
+        text = Fold(setting.label .. " " .. setting.tip .. " " .. (setting.cvar or setting.key) .. " " .. (setting.menu or "")) }
 end
 
 local function CreateHeader(title)
     local header = CreateFrame("Button", nil, panel.content)
     header:SetSize(CONTENT_WIDTH, HEADER_HEIGHT)
+    -- Filet sous le titre et surbrillance au survol : chaque section se détache de la précédente.
+    local rule = header:CreateTexture(nil, "BORDER")
+    rule:SetColorTexture(1, 1, 1, 0.25)
+    rule:SetHeight(1)
+    rule:SetPoint("BOTTOMLEFT", 4, 0)
+    rule:SetPoint("BOTTOMRIGHT", -4, 0)
+    local hover = header:CreateTexture(nil, "HIGHLIGHT")
+    hover:SetColorTexture(1, 1, 1, 0.06)
+    hover:SetAllPoints()
     local text = header:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
     text:SetPoint("LEFT", 8, -4)
     local function update()

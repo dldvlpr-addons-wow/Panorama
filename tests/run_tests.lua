@@ -10,12 +10,18 @@ frame = { RegisterEvent = function() end, UnregisterEvent = function() end,
           SetScript = function(_, script, fn) if script == "OnEvent" then handler = fn end end,
           -- Calque des filtres (Filter.lua) : écran de 1000 de haut.
           SetAllPoints = function() end, SetFrameStrata = function() end, GetHeight = function() return 1000 end,
+          GetWidth = function() return 1600 end,
           SetShown = function(self, shown) self.shown = shown end,
           CreateTexture = function()
-              local band = { SetColorTexture = function() end, SetPoint = function() end,
-                             SetHeight = function(self, height) self.height = height end }
-              bands[#bands + 1] = band
-              return band
+              local noop = function() end
+              local texture = { SetPoint = noop, SetAllPoints = noop, SetTexture = noop, SetBlendMode = noop,
+                                SetTexCoord = noop,
+                                SetColorTexture = function(self, r, g, b) self.color = { r, g, b } end,
+                                SetHeight = function(self, height) self.height = height end,
+                                SetShown = function(self, shown) self.shown = shown end,
+                                SetAlpha = function(self, alpha) self.alpha = alpha end }
+              bands[#bands + 1] = texture
+              return texture
           end }
 WorldFrame = {}
 CreateFrame = function() return frame end
@@ -42,8 +48,9 @@ for path in found:lines() do
 end
 found:close()
 
-local function Load(savedVariables)
+local function Load(savedVariables, extraCVars)
     cvars = { cameraDistanceMaxZoomFactor = "2.6", farclip = "1000", ffxDeath = "1", gxMultisample = "1", rippleDetail = "2" }
+    for name, value in pairs(extraCVars or {}) do cvars[name] = value end
     combat, written = false, {}
     local ns = {}
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
@@ -69,6 +76,11 @@ for _, list in ipairs({ ns.settings, ns.filterSettings }) do
             "texte manquant " .. tostring(setting.cvar or setting.key))
     end
 end
+local doubled = 0
+for _, setting in ipairs(ns.settings) do
+    if setting.menu then doubled = doubled + 1 end
+end
+assert(doubled == 39 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
 assert(ns.presets[3].label == "Élevé" and ns.L.PREFIX == ns.locales.frFR.PREFIX, "langue du client")
 assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
     and PanoramaDB.values.gxMultisample == 1, "valeurs du jeu reprises")
@@ -92,6 +104,16 @@ assert(PanoramaDB.values.waterDetail == 2, "waterDetail plafonné à 2")
 cvars.waterDetail = "3"
 handler(frame, "PLAYER_LOGIN")
 assert(cvars.waterDetail == "2", "waterDetail réécrit à 2 à la connexion")
+-- Plafond aussi au premier lancement, réapplication coupée, et après un CVAR_UPDATE à 3.
+Load(nil, { waterDetail = "3" })
+handler(frame, "PLAYER_LOGIN")
+assert(cvars.waterDetail == "2", "plafond au premier lancement")
+Load({ applyOnLogin = false, values = {} }, { waterDetail = "3" })
+handler(frame, "PLAYER_LOGIN")
+assert(cvars.waterDetail == "2" and #written == 1, "plafond seul, réapplication coupée")
+cvars.waterDetail = "3"
+handler(frame, "CVAR_UPDATE", "waterDetail")
+assert(cvars.waterDetail == "2", "plafond après CVAR_UPDATE")
 Load({ values = { farclip = 9000, cameraDistanceMaxZoomFactor = 4, ffxDeath = "oui", gxMultisample = 3 } })
 assert(PanoramaDB.applyOnLogin == true)
 
@@ -106,6 +128,25 @@ assert(cvars.farclip == "9000" and cvars.ffxDeath == "0" and cvars.gxMultisample
 assert(cvars.cameraDistanceMaxZoomFactor == "4", "zoom caméra réécrit à 4")
 assert(#written == 4, "CVars inconnues ignorées, écrit " .. #written)
 
+-- Ticket #11 : seul un réglage touché dans Panorama est réécrit ; les autres suivent le jeu.
+Load({ schema = 2, values = { farclip = 2000, ffxDeath = false }, touched = { ffxDeath = true } })
+assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == false, "non touché : valeur du jeu")
+handler(frame, "PLAYER_LOGIN")
+assert(cvars.farclip == "1000" and cvars.ffxDeath == "0" and #written == 1, "seul le réglage touché écrit")
+-- Valeur déjà égale dans le jeu : aucune écriture (une écriture peut recharger le décor).
+written = {}
+handler(frame, "PLAYER_LOGIN")
+assert(#written == 0, "valeur égale réécrite")
+-- Migration depuis une ancienne sauvegarde : valeur égale au jeu non marquée, différente marquée.
+Load({ values = { farclip = 1000, gxMultisample = 4 }, touched = {} })
+assert(PanoramaDB.schema == 2 and not PanoramaDB.touched.farclip and PanoramaDB.touched.gxMultisample,
+    "migration des réglages touchés")
+Load({ values = { ResampleSharpness = 0.1 + 0.2 } }, { ResampleSharpness = "0.3" })
+assert(PanoramaDB.values.ResampleSharpness == 0.3, "CVar de test présente")
+assert(not PanoramaDB.touched.ResampleSharpness, "migration : arrondi du curseur ignoré")
+Load({ applyOnLogin = false, values = { gxMultisample = 4 }, touched = {} })
+assert(not PanoramaDB.touched.gxMultisample, "migration ignorée si réapplication coupée")
+
 -- Réapplication coupée : PanoramaDB reprend les valeurs du jeu au chargement.
 Load({ applyOnLogin = false, values = { farclip = 2000 } })
 assert(PanoramaDB.values.farclip == 1000, "valeur du jeu reprise")
@@ -116,7 +157,7 @@ SlashCmdList.PANORAMA("low")
 assert(cvars.farclip == "400" and cvars.gxMultisample == "1", "préréglage Bas écrit")
 assert(cvars.ffxDeath == "1", "ffxDeath hors préréglage")
 SlashCmdList.PANORAMA("extra")
-assert(PanoramaDB.values.farclip == 2600 and cvars.gxMultisample == "8", "préréglage Extra écrit")
+assert(PanoramaDB.values.farclip == 7000 and cvars.gxMultisample == "8", "préréglage Extra écrit")
 
 -- Avancé : jamais écrit à la connexion tant que non touché, écrit après NS.Change.
 local ns2 = Load({ values = { rippleDetail = 0 } })
@@ -147,24 +188,45 @@ assert(cvars.farclip == "400" and ns2.CanUndo())
 SlashCmdList.PANORAMA("undo")
 assert(cvars.farclip == "1000" and PanoramaDB.values.farclip == 1000, "annulation restaure")
 assert(not ns2.CanUndo(), "annulation consommée")
+assert(not PanoramaDB.touched.farclip, "annulation : réglage rendu au jeu")
+-- Annulation en combat : écrite à la sortie du combat, même pour un réglage rendu au jeu.
+SlashCmdList.PANORAMA("low")
+combat = true
+SlashCmdList.PANORAMA("undo")
+assert(cvars.farclip == "400", "rien d'écrit en combat")
+combat = false
+handler(frame, "PLAYER_REGEN_ENABLED")
+assert(cvars.farclip == "1000", "annulation écrite après le combat")
 
 -- Recherche : casse ignorée hors ASCII (latin accentué, cyrillique).
 local options = { L = ns.L }
 assert(loadfile("Options.lua"))("Panorama", options)
 assert(options.Fold("Écran ÀÞ Дальность ЯЁ") == "écran àþ дальность яё", "recherche sans casse")
 
--- Filtres : rien n'est créé à 0, valeur invalide remplacée par 0, bandes à 10 % de l'écran.
+-- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut, bandes à 10 % de l'écran.
+-- Textures créées dans l'ordre : bande haute, bande basse, teinte, vignette, grain.
 bands = {}
 Load(nil)
 handler(frame, "PLAYER_LOGIN")
-assert(PanoramaDB.filters.letterbox == 0 and #bands == 0, "aucun calque sans filtre")
-Load({ values = {}, filters = { letterbox = 99 } })
-assert(PanoramaDB.filters.letterbox == 0, "bandes hors bornes remplacées")
+assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tintStrength == 50 and #bands == 0,
+    "aucun calque sans filtre")
+Load({ values = {}, filters = { letterbox = 99, tint = 1.5, vignette = "oui" } })
+assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
+    "filtres invalides remplacés")
 local ns3 = Load({ values = {}, filters = { letterbox = 10 } })
 handler(frame, "PLAYER_LOGIN")
-assert(#bands == 2 and bands[1].height == 100 and bands[2].height == 100 and frame.shown,
+assert(#bands == 5 and bands[1].height == 100 and bands[2].height == 100 and bands[1].shown and frame.shown,
     "bandes posées à 10 %")
-PanoramaDB.filters.letterbox = 0
+assert(not bands[3].shown and not bands[4].shown and not bands[5].shown, "seules les bandes visibles")
+-- Teinte choisie mais intensité à 0 : rien. Sépia à 100 % : couleur sépia multipliée.
+PanoramaDB.filters.letterbox, PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 0, 1, 0
 ns3.ApplyFilters()
-assert(frame.shown == false and #bands == 2, "bandes cachées à 0, sans recréation")
+assert(frame.shown == false and #bands == 5, "calque caché à 0, sans recréation")
+PanoramaDB.filters.tintStrength = 100
+ns3.ApplyFilters()
+assert(frame.shown and bands[3].shown and bands[3].color[2] == 0.82 and not bands[1].shown, "teinte sépia")
+PanoramaDB.filters.tint, PanoramaDB.filters.vignette, PanoramaDB.filters.grain = 0, 50, 100
+ns3.ApplyFilters()
+assert(not bands[3].shown and bands[4].shown and bands[4].alpha == 0.5 and bands[5].shown,
+    "vignette et grain")
 io.write("ok\n")

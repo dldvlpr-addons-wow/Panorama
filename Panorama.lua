@@ -13,106 +13,116 @@ NS.L = L
 -- Une CVar inconnue du client est ignorée : ni affichée, ni écrite.
 -- `levels` : valeurs des préréglages, dans l'ordre de NS.presets. Sans `levels`, un préréglage
 -- ne touche pas au réglage (caméra, souris, confort).
+-- Bas, Moyen, Élevé : valeurs écrites par les niveaux Bas, Moyen, Élevé du menu Graphismes
+-- (relevé en jeu 2026-11-14), pour les CVars présentes sur Forever ; celles absentes du client
+-- (horizonfarclip, detailDoodleDensity, shadowLevel, SSFX, gxMultisample) gardent des valeurs
+-- estimées. Extra : Élevé, et farclip au maximum du curseur.
+-- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
+-- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
     { title = L.SECTION_VIEW },
-    { cvar = "farclip", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 1300, 2600 } },
-    { cvar = "horizonfarclip", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
+    { cvar = "farclip", menu = L.MENU_VIEW_DISTANCE, min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
+    { cvar = "horizonfarclip", menu = L.MENU_VIEW_DISTANCE, min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
     -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; curseur plafonné à 3 à la demande.
     { cvar = "volumeFogLevel", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
 
     { title = L.SECTION_VEGETATION },
-    { cvar = "detailDoodleDensity", min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
-    { cvar = "groundEffectDensity", min = 16, max = 256, step = 8, default = 256, levels = { 32, 96, 160, 256 } },
-    { cvar = "groundEffectDist", min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 140, 300 } },
+    { cvar = "detailDoodleDensity", menu = L.MENU_ENVIRONMENT, min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
+    { cvar = "groundEffectDensity", menu = L.MENU_GROUND_CLUTTER, min = 16, max = 256, step = 8, default = 256, levels = { 32, 96, 256, 256 } },
+    { cvar = "groundEffectDist", menu = L.MENU_GROUND_CLUTTER, min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 300, 300 } },
 
     { title = L.SECTION_SHADOWS },
-    { cvar = "shadowLevel", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "shadowSoft", default = true, levels = { false, false, true, true } },
-    { cvar = "shadowTextureSize", choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
+    { cvar = "shadowLevel", menu = L.MENU_SHADOWS, min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "shadowSoft", menu = L.MENU_SHADOWS, default = true, levels = { false, false, true, true } },
+    { cvar = "shadowTextureSize", menu = L.MENU_SHADOWS, choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
     { cvar = "sunShafts", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "SSAO", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
+    { cvar = "SSAO", menu = L.MENU_SSAO, min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "SSFX", default = true, levels = { false, true, true, true } },
 
     { title = L.SECTION_ENVIRONMENT },
     -- waterDetail 3 fait planter le client à l'entrée des Ruines de Lordaeron (signalé par un joueur) :
     -- plafond 2, imposé même à une valeur sauvegardée ou posée par /console (`hardMax`).
-    { cvar = "waterDetail", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
-    { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 2, 3 } },
-    { cvar = "physicsLevel", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "waterDetail", menu = L.MENU_LIQUID, min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
+    { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
+    { cvar = "physicsLevel", menu = L.MENU_PHYSICS, min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
     { title = L.SECTION_IMAGE },
-    { cvar = "gxMultisample", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
+    { cvar = "gxMultisample", menu = L.MENU_MSAA, restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
     { cvar = "ResampleAlwaysSharpen", default = true },
-    { cvar = "ResampleSharpness", min = 0, max = 2, step = 0.1, default = 0.5 },
+    -- Sens inverse du nom : 0 = netteté la plus forte, 2 = la plus faible (menu natif, 1.60.1.70938).
+    { cvar = "ResampleSharpness", menu = L.MENU_SHARPNESS, min = 0, max = 2, step = 0.1, default = 0.5 },
+    -- Valeurs relevées en jeu (1.60.1.70790) : 0 auto, 1 aucun, 2 intégré, 3 Reflex, 4 Reflex + Boost, 5 XeLL.
+    { cvar = "LowLatencyMode", menu = L.MENU_LOW_LATENCY, min = 0, max = 5, step = 1, default = 0,
+      names = { [0] = L.LATENCY_AUTO, L.OPT_OFF, L.LATENCY_BUILTIN, "Reflex", "Reflex + Boost", "XeLL" } },
     { cvar = "ffxGlow", default = true, levels = { false, true, true, true } },
     { cvar = "ffxDeath", default = false },
     { cvar = "violenceLevel", min = 0, max = 5, step = 1, default = 5 },
-    { cvar = "ProjectedTextures", default = true, levels = { false, true, true, true } },
-    { cvar = "spellClutter", default = false, levels = { true, false, false, false } },
+    { cvar = "ProjectedTextures", menu = L.MENU_PROJECTED, default = true, levels = { false, true, true, true } },
+    { cvar = "spellClutter", menu = L.MENU_SPELL_DENSITY, default = false, levels = { true, false, false, false } },
 
     { title = L.SECTION_CAMERA },
     -- Max du curseur : relevé joueur (/console accepte 4 et farclip 7000). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
-    { cvar = "cameraDistanceMaxZoomFactor", min = 1, max = 4, step = 0.1, default = 2.6 },
+    { cvar = "cameraDistanceMaxZoomFactor", menu = L.MENU_CAMERA, min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
-    -- Absentes du menu Forever. `advanced` : écrites seulement une fois touchées, défaut lu dans le jeu.
+    -- Absentes du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
     -- cameraZoomSpeed : lue par Blizzard_GamepadTargeting/TargetLogic.lua.
     -- userFontScale : bornes 0.8 (TextSizeManager.lua) et 2 (menu retail, Mainline/Text.lua).
     -- `also` : écrite en même temps, comme TextSizeManager:SetSettingValue (écran de connexion).
-    -- ponytail: maximum de cameraZoomSpeed estimé (50), à relever en jeu.
+    -- cameraZoomSpeed : le moteur accepte 1 à 50 (relevé 1.60.1.70938).
     { cvar = "cameraZoomSpeed", advanced = true, min = 1, max = 50, step = 1, default = 20 },
     { cvar = "userFontScale", also = "userFontScaleGlue", advanced = true, min = 0.8, max = 2, step = 0.1, default = 1 },
 
     { title = L.SECTION_NAMEPLATES },
-    -- Maximum imposé par le client : 60 sur retail, 41 sur les clients Classic.
+    -- Maximum imposé par le client : 60 sur retail, 41 sur les clients Classic (41 relevé sur Forever).
     { cvar = "nameplateMaxDistance", min = 20,
       max = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) and 60 or 41, step = 1, default = 41 },
     -- Couleurs de classe : aussi dans le menu Nameplates de Forever (Camelot/NameplatesOverrides.lua).
-    -- Échelle, familiers, totems : écrits seulement par Blizzard_Commentator, absents du menu.
-    -- Toutes non vérifiées en jeu : même traitement `advanced`.
-    -- ponytail: bornes d'échelle estimées (0.5 à 2), à relever en jeu.
-    { cvar = "nameplateShowClassColor", advanced = true, default = true },
-    { cvar = "nameplateShowFriendlyClassColor", advanced = true, default = false },
-    { cvar = "nameplateMinScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 0.8 },
-    { cvar = "nameplateMaxScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 1 },
-    { cvar = "nameplateSelectedScale", advanced = true, min = 0.5, max = 2, step = 0.1, default = 1 },
+    -- Familiers, totems : écrits seulement par Blizzard_Commentator, absents du menu.
+    -- Non vérifiées en jeu : même traitement `advanced`.
+    -- nameplateMinScale, nameplateMaxScale, nameplateSelectedScale absentes : figées à 1 sur Forever,
+    -- toute écriture ignorée, /console compris (1.60.1.70938).
+    { cvar = "nameplateShowClassColor", menu = L.MENU_CLASS_COLORS, advanced = true, default = true },
+    { cvar = "nameplateShowFriendlyClassColor", menu = L.MENU_CLASS_COLORS, advanced = true, default = false },
     { cvar = "nameplateShowEnemyPets", advanced = true, default = false },
     { cvar = "nameplateShowEnemyTotems", advanced = true, default = false },
 
     -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
-    -- BlizzardInterfaceCode). `advanced` : jamais écrites tant que le joueur n'a pas touché au réglage.
-    -- ponytail: bornes estimées, non lues dans le source Blizzard. À confirmer en jeu par
-    -- /run SetCVar("<nom>", "<valeur>"), puis resserrer.
+    -- BlizzardInterfaceCode). `advanced` : défaut lu dans le jeu, comme plus haut.
+    -- Bornes relevées en jeu (1.60.1.70938) : le moteur refuse une valeur hors bornes et garde
+    -- l'ancienne. reflectionMode accepte 0 à 4, effet de 4 non vu : curseur à 3.
+    -- rippleDetail max 2, particleMTDensity max 100. LOD et doodadLodScale : aucune borne moteur,
+    -- maximum du curseur choisi par Panorama.
     { title = L.SECTION_ADVANCED },
-    { cvar = "reflectionMode", advanced = true, min = 0, max = 3, step = 1, default = 0 },
-    { cvar = "rippleDetail", advanced = true, min = 0, max = 2, step = 1, default = 0 },
-    { cvar = "terrainLodDist", advanced = true, min = 50, max = 1000, step = 10, default = 200 },
-    { cvar = "wmoLodDist", advanced = true, min = 50, max = 1000, step = 10, default = 250 },
-    { cvar = "entityLodDist", advanced = true, min = 1, max = 50, step = 1, default = 5 },
-    { cvar = "doodadLodScale", advanced = true, min = 0, max = 100, step = 5, default = 50 },
-    { cvar = "particleMTDensity", advanced = true, min = 10, max = 100, step = 5, default = 20 },
+    { cvar = "reflectionMode", menu = L.MENU_LIQUID, advanced = true, min = 0, max = 3, step = 1, default = 0 },
+    { cvar = "rippleDetail", menu = L.MENU_LIQUID, advanced = true, min = 0, max = 2, step = 1, default = 0 },
+    { cvar = "terrainLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 50, max = 1000, step = 10, default = 200 },
+    { cvar = "wmoLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 50, max = 1000, step = 10, default = 250 },
+    { cvar = "entityLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 1, max = 50, step = 1, default = 5 },
+    { cvar = "doodadLodScale", menu = L.MENU_ENVIRONMENT, advanced = true, min = 0, max = 100, step = 5, default = 50 },
+    { cvar = "particleMTDensity", menu = L.MENU_PARTICLES, advanced = true, min = 10, max = 100, step = 5, default = 20 },
     { cvar = "DepthBasedOpacity", advanced = true, default = false },
 
     -- Texte de combat flottant : lu par Blizzard_CombatText. Le menu Combat de Forever n'affiche ces
     -- cases que si classicStyleWorldText vaut "0" (Mainline/CombatOverrides.lua) ; sinon seul
     -- Panorama les règle.
     { title = L.SECTION_COMBAT_TEXT },
-    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", default = false },
-    { cvar = "floatingCombatTextCombatState_v2", default = false },
-    { cvar = "floatingCombatTextDodgeParryMiss_v2", default = false },
-    { cvar = "floatingCombatTextDamageReduction_v2", default = false },
-    { cvar = "floatingCombatTextFriendlyHealers_v2", default = false },
-    { cvar = "floatingCombatTextAuras_v2", default = false },
-    { cvar = "floatingCombatTextReactives_v2", default = false },
-    { cvar = "floatingCombatTextEnergyGains_v2", default = false },
-    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", default = false },
-    { cvar = "floatingCombatTextComboPoints_v2", default = false },
-    { cvar = "floatingCombatTextLowManaHealth_v2", default = false },
-    { cvar = "floatingCombatTextHonorGains_v2", default = false },
-    { cvar = "floatingCombatTextRepChanges_v2", default = false },
+    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextCombatState_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextDodgeParryMiss_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextDamageReduction_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextFriendlyHealers_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextAuras_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextReactives_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextEnergyGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextComboPoints_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextLowManaHealth_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextHonorGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { cvar = "floatingCombatTextRepChanges_v2", menu = L.MENU_COMBAT_TEXT, default = false },
 }
 
 NS.presets = {
@@ -169,27 +179,52 @@ function NS.Sanitize(setting, value)
     return value
 end
 
-local pending = false
+-- Une écriture, même à valeur égale, peut recharger le décor ou les shaders (gel à la connexion,
+-- où tous les réglages touchés sont réécrits) : n'écrire que ce qui change.
+local function WriteIfChanged(name, value)
+    local current = GetCVarValue(name)
+    if current == value or (tonumber(current) ~= nil and tonumber(current) == tonumber(value)) then return end
+    SetCVarValue(name, value)
+end
+
+-- Réglages à écrire à la sortie du combat, touchés ou non (une annulation rend un réglage au jeu).
+local pending = {}
 local events = CreateFrame("Frame")
 
 function NS.Apply(setting)
     if not NS.Exists(setting) then return end
-    -- Certaines CVars refusent l'écriture en combat : tout est réappliqué à la sortie du combat.
+    -- Certaines CVars refusent l'écriture en combat : écrites à la sortie du combat.
     if InCombatLockdown() then
-        pending = true
+        pending[setting] = true
         events:RegisterEvent("PLAYER_REGEN_ENABLED")
         return
     end
     local value = NS.db.values[setting.cvar]
     if type(value) == "boolean" then value = value and 1 or 0 end
-    SetCVarValue(setting.cvar, tostring(value))
-    if setting.also and GetCVarValue(setting.also) ~= nil then SetCVarValue(setting.also, tostring(value)) end
+    WriteIfChanged(setting.cvar, tostring(value))
+    if setting.also and GetCVarValue(setting.also) ~= nil then WriteIfChanged(setting.also, tostring(value)) end
 end
 
--- Un réglage avancé n'est écrit que s'il a été modifié par le joueur : sa valeur vient du jeu sinon.
-function NS.ApplyAll()
+-- Blizzard_CombatText ne relit ses CVars qu'à UpdateDisplayedMessages. Appelé seulement sur un
+-- changement du joueur, jamais à la connexion : l'appel depuis l'addon peut teinter CombatText.
+-- Changé en combat : rafraîchi à la sortie du combat, avec l'écriture différée.
+local combatTextAfterCombat = {}
+local function RefreshCombatText(setting)
+    if not setting.cvar:find("^floatingCombatText") then return end
+    if InCombatLockdown() then
+        combatTextAfterCombat[setting] = true
+    elseif CombatText and CombatText.UpdateDisplayedMessages then
+        CombatText:UpdateDisplayedMessages()
+    end
+end
+
+-- Seuls les réglages modifiés dans Panorama sont réécrits : les autres suivent le jeu et son menu
+-- Graphismes. Exception : une valeur du jeu au-delà de `hardMax` est toujours ramenée au maximum.
+-- `capOnly` : seulement le plafond `hardMax` (premier lancement, réapplication coupée).
+function NS.ApplyAll(capOnly)
     for _, setting in ipairs(NS.settings) do
-        if setting.cvar and (not setting.advanced or NS.db.touched[setting.cvar]) then
+        if setting.cvar and ((not capOnly and NS.db.touched[setting.cvar])
+                or (setting.hardMax and NS.Exists(setting) and (ReadCVar(setting) or 0) > setting.max)) then
             NS.Apply(setting)
         end
     end
@@ -210,18 +245,16 @@ function NS.GameDefault(setting)
     return setting.default
 end
 
+-- Vrai pendant un préréglage ou une annulation : le panneau est rafraîchi une fois, à la fin.
+local batching = false
+
 -- Appelé à chaque changement du joueur (panneau, préréglage, annulation) : NS.db.values est
 -- déjà à jour. Le panneau relit les valeurs pour que ses contrôles suivent.
 function NS.Change(setting)
-    if setting.advanced then NS.db.touched[setting.cvar] = true end
+    NS.db.touched[setting.cvar] = true
     NS.Apply(setting)
-    -- Blizzard_CombatText ne relit ses CVars qu'à UpdateDisplayedMessages.
-    if setting.cvar:find("^floatingCombatText") then
-        if CombatText and CombatText.UpdateDisplayedMessages then
-            CombatText:UpdateDisplayedMessages()
-        end
-    end
-    if NS.RefreshOptions then NS.RefreshOptions() end
+    RefreshCombatText(setting)
+    if NS.RefreshOptions and not batching then NS.RefreshOptions() end
 end
 
 local function SetValue(setting, value)
@@ -229,19 +262,25 @@ local function SetValue(setting, value)
     NS.Change(setting)
 end
 
--- Valeurs d'avant le dernier préréglage, gardées dans PanoramaDB.undo.
+-- Valeurs d'avant le dernier préréglage, gardées dans PanoramaDB.undo, et réglages touchés à ce
+-- moment dans PanoramaDB.undoTouched : l'annulation rend aussi au jeu ceux qu'il gérait.
 function NS.CanUndo()
     return NS.db.undo ~= nil
 end
 
 function NS.ApplyPreset(index)
     NS.db.undo = {}
+    NS.db.undoTouched = {}
     for cvar, value in pairs(NS.db.values) do NS.db.undo[cvar] = value end
+    for cvar, touched in pairs(NS.db.touched) do NS.db.undoTouched[cvar] = touched end
+    batching = true
     for _, setting in ipairs(NS.settings) do
         if setting.levels and NS.Exists(setting) then
             SetValue(setting, NS.Sanitize(setting, setting.levels[index]))
         end
     end
+    batching = false
+    if NS.RefreshOptions then NS.RefreshOptions() end
     print(L.PREFIX .. L.MSG_PRESET:format(NS.presets[index].label))
 end
 
@@ -250,13 +289,17 @@ function NS.Undo()
         print(L.PREFIX .. L.MSG_NOTHING_TO_UNDO)
         return
     end
-    local values = NS.db.undo
-    NS.db.undo = nil
+    local values, touched = NS.db.undo, NS.db.undoTouched
+    NS.db.undo, NS.db.undoTouched = nil, nil
+    batching = true
     for _, setting in ipairs(NS.settings) do
         if setting.cvar and setting.levels and values[setting.cvar] ~= nil and NS.Exists(setting) then
             SetValue(setting, NS.Sanitize(setting, values[setting.cvar]))
+            if touched then NS.db.touched[setting.cvar] = touched[setting.cvar] end
         end
     end
+    batching = false
+    if NS.RefreshOptions then NS.RefreshOptions() end
     print(L.PREFIX .. L.MSG_UNDONE)
 end
 
@@ -275,7 +318,13 @@ events:SetScript("OnEvent", function(self, event, arg1)
         if type(db.values) ~= "table" then db.values = {} end
         if db.applyOnLogin == nil then db.applyOnLogin = true end
         if type(db.touched) ~= "table" then db.touched = {} end
+        -- Avant le schéma 2, tout réglage non avancé était réécrit à la connexion. Migration : un
+        -- réglage dont la valeur sauvegardée diffère du jeu est marqué touché, pour la garder.
+        -- Réapplication coupée : rien n'était réécrit, rien à garder.
+        local migrate = not firstRun and db.schema ~= 2 and db.applyOnLogin
+        db.schema = 2
         if type(db.undo) ~= "table" then db.undo = nil end
+        if type(db.undoTouched) ~= "table" then db.undoTouched = nil end
         if type(db.collapsed) ~= "table" then db.collapsed = { [L.SECTION_ADVANCED] = true } end
         if type(db.minimap) ~= "table" then db.minimap = {} end
         if type(db.minimap.angle) ~= "number" then db.minimap.angle = 200 end
@@ -283,10 +332,18 @@ events:SetScript("OnEvent", function(self, event, arg1)
         for _, setting in ipairs(NS.settings) do
             if setting.cvar then
                 local value = db.values[setting.cvar]
-                -- Premier lancement, réapplication coupée, ou réglage avancé jamais touché :
+                if migrate and not setting.advanced and value ~= nil and NS.Exists(setting) then
+                    local saved, game = NS.Sanitize(setting, value), NS.Sanitize(setting, ReadCVar(setting))
+                    -- Curseur arrondi (0.30000000000000004) contre CVar relue ("0.3") : écart sous le pas.
+                    if type(saved) == "number" and math.abs(saved - game) >= (setting.step or 1) / 2
+                            or type(saved) == "boolean" and saved ~= game then
+                        db.touched[setting.cvar] = true
+                    end
+                end
+                -- Premier lancement, réapplication coupée, ou réglage jamais touché dans Panorama :
                 -- on part des valeurs actuelles du jeu.
                 if NS.Exists(setting) and (value == nil or not db.applyOnLogin
-                        or (setting.advanced and not db.touched[setting.cvar])) then
+                        or not db.touched[setting.cvar]) then
                     value = ReadCVar(setting)
                 end
                 db.values[setting.cvar] = NS.Sanitize(setting, value)
@@ -297,9 +354,10 @@ events:SetScript("OnEvent", function(self, event, arg1)
         if NS.BuildOptions then NS.BuildOptions() end
         if NS.BuildMinimapButton then NS.BuildMinimapButton() end
     elseif event == "PLAYER_LOGIN" then
-        -- Réécrit les valeurs de la dernière session, au cas où le jeu les aurait changées entre-temps
+        -- Réécrit les réglages modifiés dans Panorama, au cas où le jeu les aurait changés entre-temps
         -- (Config.wtf, détection automatique). Premier lancement : les valeurs viennent du jeu, rien à écrire.
-        if NS.db.applyOnLogin and not firstRun then NS.ApplyAll() end
+        -- Le plafond `hardMax` est écrit dans tous les cas.
+        NS.ApplyAll(not NS.db.applyOnLogin or firstRun)
         -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non.
         if NS.ApplyFilters then NS.ApplyFilters() end
         -- Écouté après la réécriture, pour qu'un CVAR_UPDATE du chargement n'écrase pas PanoramaDB.
@@ -309,14 +367,18 @@ events:SetScript("OnEvent", function(self, event, arg1)
         local setting = NS.db and type(arg1) == "string" and settingsByCVar[arg1:lower()]
         if setting then
             NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting))
-            if NS.RefreshOptions then NS.RefreshOptions() end
+            -- Au-delà du plafond `hardMax` (menu du jeu, /console) : ramenée au maximum.
+            if setting.hardMax and (ReadCVar(setting) or 0) > setting.max then NS.Apply(setting) end
+            if NS.RefreshOptions and not batching then NS.RefreshOptions() end
         end
     elseif event == "PLAYER_REGEN_ENABLED" then
         self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-        if pending then
-            pending = false
-            NS.ApplyAll()
-        end
+        local settings = pending
+        pending = {}
+        for setting in pairs(settings) do NS.Apply(setting) end
+        local combatText = combatTextAfterCombat
+        combatTextAfterCombat = {}
+        for setting in pairs(combatText) do RefreshCombatText(setting) end
     end
 end)
 

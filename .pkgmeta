@@ -6,6 +6,9 @@ manual-changelog:
 
 ignore:
   - tests
+  - .claude
+  - .github
   - DESCRIPTION.md
+  - Media/curseforge
   - "*.zip"
   - "*.png"
