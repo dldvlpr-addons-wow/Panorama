@@ -114,6 +114,10 @@ assert(cvars.waterDetail == "2" and #written == 1, "plafond seul, réapplication
 cvars.waterDetail = "3"
 handler(frame, "CVAR_UPDATE", "waterDetail")
 assert(cvars.waterDetail == "2", "plafond après CVAR_UPDATE")
+-- Brouillard : le jeu le repasse à 4, ramené à 3 (plafond du curseur).
+cvars.volumeFogLevel = "4"
+handler(frame, "CVAR_UPDATE", "volumeFogLevel")
+assert(cvars.volumeFogLevel == "3" and PanoramaDB.values.volumeFogLevel == 3, "volumeFogLevel plafonné à 3")
 Load({ values = { farclip = 9000, cameraDistanceMaxZoomFactor = 4, ffxDeath = "oui", gxMultisample = 3 } })
 assert(PanoramaDB.applyOnLogin == true)
 
@@ -229,4 +233,87 @@ PanoramaDB.filters.tint, PanoramaDB.filters.vignette, PanoramaDB.filters.grain =
 ns3.ApplyFilters()
 assert(not bands[3].shown and bands[4].shown and bands[4].alpha == 0.5 and bands[5].shown,
     "vignette et grain")
+
+-- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.
+local ns4 = Load({ tab = "inconnu" })
+assert(PanoramaDB.tab == "quality" and next(PanoramaDB.collapsed) == nil, "onglet et sections par défaut")
+Load({ tab = "filters" })
+assert(PanoramaDB.tab == "filters", "onglet retenu")
+Load({ collapsed = { ["Advanced"] = true } })
+assert(next(PanoramaDB.collapsed) == nil and PanoramaDB.layout == 2, "ancien repli de la 1.6.0 purgé")
+Load({ collapsed = { ["Advanced"] = true }, layout = 2 })
+assert(PanoramaDB.collapsed.Advanced, "repli choisi gardé")
+ns4 = Load(nil)
+assert(loadfile("Options.lua"))("Panorama", ns4)
+-- Saisie : virgule acceptée, bornée, arrondie au pas ; texte non numérique refusé.
+local fov = { min = 0, max = 2, step = 0.1 }
+local value, inRange = ns4.ParseInput(fov, " 0,5 ")
+assert(math.abs(value - 0.5) < 1e-9 and inRange, "virgule décimale")
+value, inRange = ns4.ParseInput(fov, "7")
+assert(value == 2 and not inRange, "borne haute")
+value = ns4.ParseInput({ min = 0, max = 100, step = 5 }, "42")
+assert(value == 40, "arrondi au pas")
+assert(ns4.ParseInput(fov, "abc") == nil and ns4.ParseInput(fov, "") == nil and ns4.ParseInput(fov, "inf") == nil,
+    "saisie refusée")
+-- Ligne grisée tant que le réglage requis est coupé.
+PanoramaDB.values.volumeFog = false
+assert(not ns4.IsAvailable({ cvar = "volumeFogLevel", requires = "volumeFog" }), "brouillard coupé")
+PanoramaDB.values.volumeFog = true
+assert(ns4.IsAvailable({ cvar = "volumeFogLevel", requires = "volumeFog" }), "brouillard actif")
+PanoramaDB.filters.tint = 0
+assert(not ns4.IsAvailable({ key = "tintStrength", requires = "tint" }), "teinte aucune")
+assert(ns4.IsAvailable({ cvar = "farclip" }), "sans dépendance")
+-- Chaque `requires` nomme un réglage de la même liste : une faute de frappe ne grise jamais rien.
+for _, list in ipairs({ ns4.settings, ns4.filterSettings }) do
+    local names = {}
+    for _, setting in ipairs(list) do
+        if setting.cvar or setting.key then names[setting.cvar or setting.key] = true end
+    end
+    for _, setting in ipairs(list) do
+        assert(not setting.requires or names[setting.requires], "requires inconnu " .. tostring(setting.requires))
+    end
+end
+for _, id in ipairs(ns4.tabs) do
+    assert(ns4.L["TAB_" .. id:upper()], "onglet sans libellé " .. id)
+end
+-- Préréglage reconnu après application.
+SlashCmdList.PANORAMA("low")
+assert(ns4.CurrentPreset() == 1, "préréglage Faible reconnu")
+SlashCmdList.PANORAMA("extra")
+assert(ns4.CurrentPreset() == 4, "préréglage Extra reconnu")
+
+-- Langue choisie : remplace celle du client (frFR) partout, langue inconnue retombe sur le client.
+local de = Load({ locale = "deDE" })
+local tint
+for _, setting in ipairs(de.filterSettings) do if setting.key == "tint" then tint = setting end end
+assert(de.presets[3].label == de.locales.deDE.PRESET_HIGH and de.L.OPT_UNDO == de.locales.deDE.OPT_UNDO and de.L.PREFIX == de.locales.enUS.PREFIX
+    and de.settings[1].title == de.locales.deDE.SECTION_VIEW and de.settings[2].menu == de.locales.deDE.MENU_VIEW_DISTANCE
+    and de.filterSettings[1].title == de.locales.deDE.SECTION_FILTERS and tint.names[1] == de.locales.deDE.TINT_SEPIA
+    and tint.label == de.locales.deDE.tint, "langue choisie appliquée")
+local lowLatency
+for _, setting in ipairs(de.settings) do if setting.cvar == "LowLatencyMode" then lowLatency = setting end end
+assert(lowLatency.names[0] == de.locales.deDE.LATENCY_AUTO and lowLatency.names[3] == "Reflex", "noms de valeur traduits")
+local unknown = Load({ locale = "xxXX" })
+assert(PanoramaDB.locale == nil and unknown.presets[3].label == "Élevé", "langue inconnue : langue du client")
+
+-- Guide en jeu : Guide/<code>.lua à jour de son .md (sinon : lua5.1 tests/build_guide.lua),
+-- blocs connus, plus de markdown brut, une ligne de tableau a ses deux colonnes.
+local build = dofile("tests/build_guide.lua")
+local guides = {}
+for _, code in ipairs(build.codes) do
+    local file = assert(io.open("Guide/" .. code .. ".lua", "rb"))
+    assert(file:read("*a") == build.Generate(code), "Guide/" .. code .. ".lua périmé : lua5.1 tests/build_guide.lua")
+    file:close()
+    assert(loadfile("Guide/" .. code .. ".lua"))("Panorama", guides)
+    local blocks = guides.guides[code]
+    assert(blocks[1][1] == "h1" and #blocks > 40, "guide " .. code .. " incomplet")
+    for _, block in ipairs(blocks) do
+        assert(({ h1 = 1, h2 = 1, h3 = 1, p = 1, li = 1, row = 1 })[block[1]], "bloc inconnu " .. block[1])
+        assert(block[1] ~= "row" or block[3] ~= "", "colonne vide dans " .. code)
+        for _, text in ipairs(block) do
+            assert(not text:find("%*%*") and not text:find("`") and not text:find("%]%("), "markdown brut dans " .. code)
+        end
+    end
+end
+assert(guides.guides.esMX == guides.guides.esES, "esMX lit le guide espagnol")
 io.write("ok\n")

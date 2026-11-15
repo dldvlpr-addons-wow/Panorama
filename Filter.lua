@@ -2,7 +2,6 @@
 -- l'interface. Aucune CVar écrite, donc aucun conflit avec les menus du jeu.
 -- Réglages dans PanoramaDB.filters, une valeur par clé de NS.filterSettings.
 local _, NS = ...
-local L = NS.L
 
 local MEDIA = "Interface\\AddOns\\Panorama\\Media\\"
 -- Couleur multipliée à l'image (mode MOD) à 100 % d'intensité, index = valeur du réglage `tint`.
@@ -14,24 +13,24 @@ local TINTS = {
     { 0.7, 1, 0.78 },    -- émeraude
     { 1, 0.72, 0.88 },   -- crépuscule
 }
+-- Lu par les vignettes de la fenêtre (Options.lua) : mêmes couleurs que le filtre.
+NS.tints = TINTS
 local GRAIN_SIZE = 128   -- côté d'une tuile de grain, en unités d'interface
 local GRAIN_FRAME = 1 / 24
 
 -- Même forme que NS.settings, avec `key` à la place de `cvar`. `names` : texte affiché par valeur.
 NS.filterSettings = {
-    { title = L.SECTION_FILTERS },
-    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
-    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
+    { title = "SECTION_FILTERS", tab = "filters" },
+    -- Teinte en tête : la fenêtre l'affiche en vignettes cliquables (Options.lua).
+    { key = "tint", min = 0, max = #TINTS, step = 1, default = 0,
+      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
+                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
+    { key = "tintStrength", requires = "tint", min = 0, max = 100, step = 5, default = 50 },
     { key = "vignette", min = 0, max = 100, step = 5, default = 0 },
     { key = "grain", min = 0, max = 100, step = 5, default = 0 },
-    { key = "tint", min = 0, max = #TINTS, step = 1, default = 0,
-      names = { [0] = L.TINT_NONE, L.TINT_SEPIA, L.TINT_WARM, L.TINT_COLD,
-                L.TINT_NIGHT, L.TINT_EMERALD, L.TINT_DUSK } },
-    { key = "tintStrength", min = 0, max = 100, step = 5, default = 50 },
+    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
+    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
 }
-for _, setting in ipairs(NS.filterSettings) do
-    if setting.key then setting.label, setting.tip = L[setting.key], L[setting.key .. "_tip"] end
-end
 
 -- Valeurs lues dans PanoramaDB : nombre hors bornes, hors choix ou d'un autre type remplacé par le défaut.
 function NS.LoadFilters(db)

@@ -2,12 +2,17 @@
 -- Le panneau d'options est dans Options.lua.
 local addonName, NS = ...
 
--- Langue du client, enUS pour toute clé non traduite. Les traductions sont dans Locale/.
-local L = NS.locales[GetLocale()] or NS.locales.enUS
-if L ~= NS.locales.enUS then setmetatable(L, { __index = NS.locales.enUS }) end
+-- Langue de Panorama : NS.language, celle du client jusqu'à ADDON_LOADED, qui lit PanoramaDB.locale.
+-- enUS pour toute clé non traduite. Les traductions sont dans Locale/.
+NS.language = GetLocale()
+local L = setmetatable({}, { __index = function(_, key)
+    local locale = NS.locales[NS.language]
+    return locale and locale[key] or NS.locales.enUS[key]
+end })
 NS.L = L
 
 -- Une ligne sans `cvar` est un titre de section. Libellé et bulle d'aide : L[cvar] et L[cvar .. "_tip"].
+-- `title`, `menu`, `names` et les `label` de NS.presets sont des clés de locale (voir Localize).
 -- Les bornes min/max sont celles du curseur du panneau. Une valeur posée hors bornes par
 -- /console est gardée et réappliquée telle quelle.
 -- Une CVar inconnue du client est ignorée : ni affichée, ni écrite.
@@ -17,55 +22,70 @@ NS.L = L
 -- (relevé en jeu 2026-11-14), pour les CVars présentes sur Forever ; celles absentes du client
 -- (horizonfarclip, detailDoodleDensity, shadowLevel, SSFX, gxMultisample) gardent des valeurs
 -- estimées. Extra : Élevé, et farclip au maximum du curseur.
+-- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `requires` : réglage grisé tant que
+-- la CVar nommée est coupée (false ou 0).
 -- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
 -- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
-    { title = L.SECTION_VIEW },
-    { cvar = "farclip", menu = L.MENU_VIEW_DISTANCE, min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
-    { cvar = "horizonfarclip", menu = L.MENU_VIEW_DISTANCE, min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
+    { title = "SECTION_VIEW", tab = "quality" },
+    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
+    { cvar = "horizonfarclip", menu = "MENU_VIEW_DISTANCE", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
-    -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; curseur plafonné à 3 à la demande.
-    { cvar = "volumeFogLevel", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
+    -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; plafond 3 à la demande, imposé
+    -- (`hardMax`) : le jeu la repasse parfois à 4, que le curseur ne sait pas afficher.
+    { cvar = "volumeFogLevel", requires = "volumeFog", min = 0, max = 3, hardMax = true, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
 
-    { title = L.SECTION_VEGETATION },
-    { cvar = "detailDoodleDensity", menu = L.MENU_ENVIRONMENT, min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
-    { cvar = "groundEffectDensity", menu = L.MENU_GROUND_CLUTTER, min = 16, max = 256, step = 8, default = 256, levels = { 32, 96, 256, 256 } },
-    { cvar = "groundEffectDist", menu = L.MENU_GROUND_CLUTTER, min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 300, 300 } },
+    { title = "SECTION_VEGETATION", tab = "quality" },
+    { cvar = "detailDoodleDensity", menu = "MENU_ENVIRONMENT", min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
+    { cvar = "groundEffectDensity", menu = "MENU_GROUND_CLUTTER", min = 16, max = 256, step = 8, default = 256, levels = { 32, 96, 256, 256 } },
+    { cvar = "groundEffectDist", menu = "MENU_GROUND_CLUTTER", min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 300, 300 } },
 
-    { title = L.SECTION_SHADOWS },
-    { cvar = "shadowLevel", menu = L.MENU_SHADOWS, min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "shadowSoft", menu = L.MENU_SHADOWS, default = true, levels = { false, false, true, true } },
-    { cvar = "shadowTextureSize", menu = L.MENU_SHADOWS, choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
+    { title = "SECTION_SHADOWS", tab = "quality" },
+    { cvar = "shadowLevel", menu = "MENU_SHADOWS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "shadowSoft", menu = "MENU_SHADOWS", default = true, levels = { false, false, true, true } },
+    { cvar = "shadowTextureSize", menu = "MENU_SHADOWS", choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
     { cvar = "sunShafts", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "SSAO", menu = L.MENU_SSAO, min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
+    { cvar = "SSAO", menu = "MENU_SSAO", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "SSFX", default = true, levels = { false, true, true, true } },
 
-    { title = L.SECTION_ENVIRONMENT },
+    { title = "SECTION_ENVIRONMENT", tab = "quality" },
     -- waterDetail 3 fait planter le client à l'entrée des Ruines de Lordaeron (signalé par un joueur) :
     -- plafond 2, imposé même à une valeur sauvegardée ou posée par /console (`hardMax`).
-    { cvar = "waterDetail", menu = L.MENU_LIQUID, min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "waterDetail", menu = "MENU_LIQUID", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
-    { cvar = "physicsLevel", menu = L.MENU_PHYSICS, min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "physicsLevel", menu = "MENU_PHYSICS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
-    { title = L.SECTION_IMAGE },
-    { cvar = "gxMultisample", menu = L.MENU_MSAA, restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
+    { title = "SECTION_IMAGE", tab = "quality" },
+    { cvar = "gxMultisample", menu = "MENU_MSAA", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
     { cvar = "ResampleAlwaysSharpen", default = true },
     -- Sens inverse du nom : 0 = netteté la plus forte, 2 = la plus faible (menu natif, 1.60.1.70938).
-    { cvar = "ResampleSharpness", menu = L.MENU_SHARPNESS, min = 0, max = 2, step = 0.1, default = 0.5 },
+    { cvar = "ResampleSharpness", menu = "MENU_SHARPNESS", min = 0, max = 2, step = 0.1, default = 0.5 },
     -- Valeurs relevées en jeu (1.60.1.70790) : 0 auto, 1 aucun, 2 intégré, 3 Reflex, 4 Reflex + Boost, 5 XeLL.
-    { cvar = "LowLatencyMode", menu = L.MENU_LOW_LATENCY, min = 0, max = 5, step = 1, default = 0,
-      names = { [0] = L.LATENCY_AUTO, L.OPT_OFF, L.LATENCY_BUILTIN, "Reflex", "Reflex + Boost", "XeLL" } },
+    { cvar = "LowLatencyMode", menu = "MENU_LOW_LATENCY", min = 0, max = 5, step = 1, default = 0,
+      names = { [0] = "LATENCY_AUTO", "OPT_OFF", "LATENCY_BUILTIN", "Reflex", "Reflex + Boost", "XeLL" } },
     { cvar = "ffxGlow", default = true, levels = { false, true, true, true } },
     { cvar = "ffxDeath", default = false },
     { cvar = "violenceLevel", min = 0, max = 5, step = 1, default = 5 },
-    { cvar = "ProjectedTextures", menu = L.MENU_PROJECTED, default = true, levels = { false, true, true, true } },
-    { cvar = "spellClutter", menu = L.MENU_SPELL_DENSITY, default = false, levels = { true, false, false, false } },
+    { cvar = "ProjectedTextures", menu = "MENU_PROJECTED", default = true, levels = { false, true, true, true } },
+    { cvar = "spellClutter", menu = "MENU_SPELL_DENSITY", default = false, levels = { true, false, false, false } },
 
-    { title = L.SECTION_CAMERA },
+    -- HDR : absent des menus et de l'interface Blizzard Forever. Défauts relevés en jeu (2026-11-15).
+    -- Sans useHDRPeakBrightness ou useHDRBrightness, HDROutput seul assombrit l'image (forum
+    -- Blizzard) ; HDRFactor actif seulement sous useHDRPeakBrightness. Bornes des curseurs choisies par
+    -- Panorama, celles du moteur non relevées.
+    { title = "SECTION_HDR", tab = "advanced" },
+    { cvar = "HDROutput", advanced = true, default = false },
+    { cvar = "useHDRPeakBrightness", advanced = true, default = false },
+    { cvar = "HDRPeakBrightness", requires = "useHDRPeakBrightness", advanced = true, min = 80, max = 2000, step = 10, default = 400 },
+    { cvar = "HDRFactor", requires = "useHDRPeakBrightness", advanced = true, min = 0, max = 2, step = 0.1, default = 2 },
+    { cvar = "useHDRBrightness", advanced = true, default = false },
+    { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
+
+    { title = "SECTION_CAMERA", tab = "interface" },
     -- Max du curseur : relevé joueur (/console accepte 4 et farclip 7000). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
-    { cvar = "cameraDistanceMaxZoomFactor", menu = L.MENU_CAMERA, min = 1, max = 4, step = 0.1, default = 2.6 },
+    { cvar = "cameraDistanceMaxZoomFactor", menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
     -- Absentes du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
@@ -76,7 +96,7 @@ NS.settings = {
     { cvar = "cameraZoomSpeed", advanced = true, min = 1, max = 50, step = 1, default = 20 },
     { cvar = "userFontScale", also = "userFontScaleGlue", advanced = true, min = 0.8, max = 2, step = 0.1, default = 1 },
 
-    { title = L.SECTION_NAMEPLATES },
+    { title = "SECTION_NAMEPLATES", tab = "interface" },
     -- Maximum imposé par le client : 60 sur retail, 41 sur les clients Classic (41 relevé sur Forever).
     { cvar = "nameplateMaxDistance", min = 20,
       max = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) and 60 or 41, step = 1, default = 41 },
@@ -85,8 +105,8 @@ NS.settings = {
     -- Non vérifiées en jeu : même traitement `advanced`.
     -- nameplateMinScale, nameplateMaxScale, nameplateSelectedScale absentes : figées à 1 sur Forever,
     -- toute écriture ignorée, /console compris (1.60.1.70938).
-    { cvar = "nameplateShowClassColor", menu = L.MENU_CLASS_COLORS, advanced = true, default = true },
-    { cvar = "nameplateShowFriendlyClassColor", menu = L.MENU_CLASS_COLORS, advanced = true, default = false },
+    { cvar = "nameplateShowClassColor", menu = "MENU_CLASS_COLORS", advanced = true, default = true },
+    { cvar = "nameplateShowFriendlyClassColor", menu = "MENU_CLASS_COLORS", advanced = true, default = false },
     { cvar = "nameplateShowEnemyPets", advanced = true, default = false },
     { cvar = "nameplateShowEnemyTotems", advanced = true, default = false },
 
@@ -96,40 +116,43 @@ NS.settings = {
     -- l'ancienne. reflectionMode accepte 0 à 4, effet de 4 non vu : curseur à 3.
     -- rippleDetail max 2, particleMTDensity max 100. LOD et doodadLodScale : aucune borne moteur,
     -- maximum du curseur choisi par Panorama.
-    { title = L.SECTION_ADVANCED },
-    { cvar = "reflectionMode", menu = L.MENU_LIQUID, advanced = true, min = 0, max = 3, step = 1, default = 0 },
-    { cvar = "rippleDetail", menu = L.MENU_LIQUID, advanced = true, min = 0, max = 2, step = 1, default = 0 },
-    { cvar = "terrainLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 50, max = 1000, step = 10, default = 200 },
-    { cvar = "wmoLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 50, max = 1000, step = 10, default = 250 },
-    { cvar = "entityLodDist", menu = L.MENU_ENVIRONMENT, advanced = true, min = 1, max = 50, step = 1, default = 5 },
-    { cvar = "doodadLodScale", menu = L.MENU_ENVIRONMENT, advanced = true, min = 0, max = 100, step = 5, default = 50 },
-    { cvar = "particleMTDensity", menu = L.MENU_PARTICLES, advanced = true, min = 10, max = 100, step = 5, default = 20 },
+    { title = "SECTION_ADVANCED", tab = "advanced" },
+    { cvar = "reflectionMode", menu = "MENU_LIQUID", advanced = true, min = 0, max = 3, step = 1, default = 0 },
+    { cvar = "rippleDetail", menu = "MENU_LIQUID", advanced = true, min = 0, max = 2, step = 1, default = 0 },
+    { cvar = "terrainLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 50, max = 1000, step = 10, default = 200 },
+    { cvar = "wmoLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 50, max = 1000, step = 10, default = 250 },
+    { cvar = "entityLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 1, max = 50, step = 1, default = 5 },
+    { cvar = "doodadLodScale", menu = "MENU_ENVIRONMENT", advanced = true, min = 0, max = 100, step = 5, default = 50 },
+    { cvar = "particleMTDensity", menu = "MENU_PARTICLES", advanced = true, min = 10, max = 100, step = 5, default = 20 },
     { cvar = "DepthBasedOpacity", advanced = true, default = false },
 
     -- Texte de combat flottant : lu par Blizzard_CombatText. Le menu Combat de Forever n'affiche ces
     -- cases que si classicStyleWorldText vaut "0" (Mainline/CombatOverrides.lua) ; sinon seul
     -- Panorama les règle.
-    { title = L.SECTION_COMBAT_TEXT },
-    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextCombatState_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextDodgeParryMiss_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextDamageReduction_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextFriendlyHealers_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextAuras_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextReactives_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextEnergyGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextComboPoints_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextLowManaHealth_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextHonorGains_v2", menu = L.MENU_COMBAT_TEXT, default = false },
-    { cvar = "floatingCombatTextRepChanges_v2", menu = L.MENU_COMBAT_TEXT, default = false },
+    { title = "SECTION_COMBAT_TEXT", tab = "interface" },
+    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextCombatState_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextDodgeParryMiss_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextDamageReduction_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextFriendlyHealers_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextAuras_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextReactives_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextEnergyGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextComboPoints_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextLowManaHealth_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextHonorGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
+    { cvar = "floatingCombatTextRepChanges_v2", menu = "MENU_COMBAT_TEXT", default = false },
 }
 
+-- Onglets de la fenêtre, dans l'ordre. Le premier est ouvert au premier lancement.
+NS.tabs = { "quality", "filters", "interface", "advanced" }
+
 NS.presets = {
-    { id = "low", label = L.PRESET_LOW },
-    { id = "medium", label = L.PRESET_MEDIUM },
-    { id = "high", label = L.PRESET_HIGH },
-    { id = "extra", label = L.PRESET_EXTRA },
+    { id = "low", label = "PRESET_LOW" },
+    { id = "medium", label = "PRESET_MEDIUM" },
+    { id = "high", label = "PRESET_HIGH" },
+    { id = "extra", label = "PRESET_EXTRA" },
 }
 
 -- Nom de CVar en minuscules -> réglage, pour l'événement CVAR_UPDATE.
@@ -137,7 +160,19 @@ local settingsByCVar = {}
 for _, setting in ipairs(NS.settings) do
     if setting.cvar then
         settingsByCVar[setting.cvar:lower()] = setting
-        setting.label, setting.tip = L[setting.cvar], L[setting.cvar .. "_tip"]
+    end
+end
+
+-- Les tables de réglages portent des clés de locale (titre, menu, noms de valeur, préréglages) :
+-- traduites une fois à ADDON_LOADED, quand la langue choisie est connue. `idField` : cvar ou key.
+local function Localize(settings, idField)
+    for _, setting in ipairs(settings) do
+        if setting.title then setting.titleKey, setting.title = setting.title, L[setting.title] end
+        if setting.menu then setting.menu = L[setting.menu] end
+        -- Nom sans clé de locale ("Reflex") : gardé tel quel.
+        for value, key in pairs(setting.names or {}) do setting.names[value] = L[key] or key end
+        local id = setting[idField]
+        if id then setting.label, setting.tip = L[id], L[id .. "_tip"] end
     end
 end
 
@@ -174,7 +209,7 @@ function NS.Sanitize(setting, value)
         return setting.default
     end
     -- Pas de borne min/max : une valeur posée par /console au-delà du curseur est gardée.
-    -- Le moteur borne lui-même ce qu'il accepte. Sauf `hardMax` : valeur au-delà dangereuse.
+    -- Le moteur borne lui-même ce qu'il accepte. Sauf `hardMax` : valeur au-delà refusée.
     if setting.hardMax then return math.min(value, setting.max) end
     return value
 end
@@ -315,6 +350,12 @@ events:SetScript("OnEvent", function(self, event, arg1)
         firstRun = type(PanoramaDB) ~= "table" or type(PanoramaDB.values) ~= "table"
         PanoramaDB = type(PanoramaDB) == "table" and PanoramaDB or {}
         local db = PanoramaDB
+        -- Langue choisie dans la fenêtre ; absente ou inconnue : langue du client.
+        if db.locale ~= nil and not NS.locales[db.locale] then db.locale = nil end
+        NS.language = db.locale or GetLocale()
+        Localize(NS.settings, "cvar")
+        if NS.filterSettings then Localize(NS.filterSettings, "key") end
+        for _, preset in ipairs(NS.presets) do preset.label = L[preset.label] end
         if type(db.values) ~= "table" then db.values = {} end
         if db.applyOnLogin == nil then db.applyOnLogin = true end
         if type(db.touched) ~= "table" then db.touched = {} end
@@ -325,7 +366,12 @@ events:SetScript("OnEvent", function(self, event, arg1)
         db.schema = 2
         if type(db.undo) ~= "table" then db.undo = nil end
         if type(db.undoTouched) ~= "table" then db.undoTouched = nil end
-        if type(db.collapsed) ~= "table" then db.collapsed = { [L.SECTION_ADVANCED] = true } end
+        -- Fenêtre à onglets (layout 2) : sections toutes dépliées, l'ancien « Avancé replié » tombe une fois.
+        if type(db.collapsed) ~= "table" or db.layout ~= 2 then db.collapsed = {} end
+        db.layout = 2
+        local knownTab = false
+        for _, tab in ipairs(NS.tabs) do knownTab = knownTab or db.tab == tab end
+        if not knownTab then db.tab = NS.tabs[1] end
         if type(db.minimap) ~= "table" then db.minimap = {} end
         if type(db.minimap.angle) ~= "number" then db.minimap.angle = 200 end
         if type(db.minimap.show) ~= "boolean" then db.minimap.show = true end

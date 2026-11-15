@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.7.0
+
+### New
+- **HDR section (Advanced tab)**: HDR output, peak brightness or reference brightness, and HDR
+  intensity. These settings exist only as console commands in the game. Turn on one of the two
+  brightness modes, or the image goes dark. HDR intensity works only with peak brightness.
+  Your system and monitor must have HDR on. Turn off Auto HDR in Windows.
+- **Language selector**: right of the tabs. Pick the game language or any of the ten languages
+  of Panorama. Changing it reloads the interface.
+- **In-game guide**: the Guide button, left of the language selector, opens the user guide in a
+  window of its own, in the language of Panorama.
+
+### Changed
+- **New window layout**: four tabs (Quality, Filters, Interface, Advanced). Presets sit on the
+  Quality tab, and the preset that matches your current settings is highlighted. Search looks
+  through every tab. Sections open unfolded; the open tab is remembered.
+- **Type a value**: each slider has a box next to it. Enter or clicking away applies the value,
+  Escape cancels, Tab moves to the next box. A comma works as decimal point; values are kept
+  within the slider's range.
+- **Tint thumbnails**: the tint is picked from seven thumbnails that show its colour. A click
+  applies it right away.
+- **Each setting has its own Default button**, and a gold mark shows the settings you changed.
+- **Settings that depend on another one are greyed out** while it is off: fog density without
+  volumetric fog, tint strength without a tint, HDR brightness values without their switch.
+
 ## 1.6.0
 
 ### New

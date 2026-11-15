@@ -6,10 +6,14 @@ Many graphics options are only available through `/console` commands. Panorama p
 window of its own with sliders, checkboxes and buttons. It reapplies your values every time
 you log in.
 
+How to use it, and how to set up HDR on Windows: see [GUIDE.md](GUIDE.md), also in German,
+Spanish, French, Italian, Portuguese, Russian, Korean and Chinese (`GUIDE.<language>.md`). The
+Guide button in the panel opens the same guide in the game.
+
 ## Features
 
-- **52 settings and 5 filters** grouped by theme: view distance, vegetation, shadows and lighting,
-  environment, image, camera and interface, nameplates, advanced, floating combat text, filters.
+- **58 settings and 5 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+  environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
 - **Safe on your client**: a setting that your client does not support is hidden and never
@@ -69,7 +73,8 @@ WoW Forever 1.60.1 (interface 16001).
 ## Notes
 
 - The in-game interface is available in English, French, German, Spanish, Italian, Portuguese,
-  Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language.
+  Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language
+  by default; the selector right of the tabs picks another one and reloads the interface.
 - A setting marked with a yellow star is also set by a game menu: hover the star to see which one.
   That menu does not read the value back, so it may show a level that no longer matches.
 - The Defaults button in the game's Graphics menu resets only the settings that menu manages, and
