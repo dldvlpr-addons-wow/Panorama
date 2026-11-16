@@ -60,6 +60,13 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ---
 
+## <span style="color: #3c3;">🔧 Fixed in 1.7.1</span>
+
+- <span style="color: #ffd100;"><strong>Settings no longer reset at login or /reload:</strong></span> Panorama waits until the game has finished loading, then applies your settings again.
+- <span style="color: #ffd100;"><strong>The window shows what the game really applies</strong></span> when the game refuses or rounds a value.
+
+---
+
 ## <span style="color: #3c3;">🆕 New in 1.7.0</span>
 
 - <span style="color: #ffd100;"><strong>New window in four tabs:</strong></span> Quality, Filters, Interface, Advanced. The preset that matches your settings is highlighted, and search looks through every tab.

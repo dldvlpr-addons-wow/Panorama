@@ -5,8 +5,13 @@ C_CVar = {
     SetCVar = function(name, value) cvars[name] = value; written[#written + 1] = name end,
 }
 InCombatLockdown = function() return combat end
+-- Minuteries gardées sans être lancées : le test les déclenche lui-même.
+local timers = {}
+C_Timer = { After = function(delay, callback) timers[#timers + 1] = { delay = delay, callback = callback } end }
 local bands
-frame = { RegisterEvent = function() end, UnregisterEvent = function() end,
+frame = { events = {},
+          RegisterEvent = function(self, event) self.events[event] = true end,
+          UnregisterEvent = function(self, event) self.events[event] = nil end,
           SetScript = function(_, script, fn) if script == "OnEvent" then handler = fn end end,
           -- Calque des filtres (Filter.lua) : écran de 1000 de haut.
           SetAllPoints = function() end, SetFrameStrata = function() end, GetHeight = function() return 1000 end,
@@ -52,6 +57,8 @@ local function Load(savedVariables, extraCVars)
     cvars = { cameraDistanceMaxZoomFactor = "2.6", farclip = "1000", ffxDeath = "1", gxMultisample = "1", rippleDetail = "2" }
     for name, value in pairs(extraCVars or {}) do cvars[name] = value end
     combat, written = false, {}
+    frame.events = {}
+    for index = #timers, 1, -1 do timers[index] = nil end
     local ns = {}
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
     assert(loadfile("Panorama.lua"))("Panorama", ns)
@@ -91,6 +98,29 @@ assert(cvars.farclip == "1000" and cvars.ffxDeath == "1" and cvars.gxMultisample
 cvars.farclip = "9000"
 handler(frame, "CVAR_UPDATE", "farClip")
 assert(PanoramaDB.values.farclip == 9000, "CVAR_UPDATE suivi sans borne")
+
+-- Le client charge ses CVars après PLAYER_LOGIN : réglage touché réécrit par-dessus, réglage du
+-- jeu relu, CVAR_UPDATE écouté seulement une fois VARIABLES_LOADED, PLAYER_ENTERING_WORLD et le
+-- délai après PLAYER_LOGIN passés, dans n'importe quel ordre.
+for _, order in ipairs({ { "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD", "timer" },
+                         { "PLAYER_ENTERING_WORLD", "timer", "VARIABLES_LOADED" },
+                         { "timer", "VARIABLES_LOADED", "PLAYER_ENTERING_WORLD" } }) do
+    Load({ schema = 2, values = { farclip = 3000 }, touched = { farclip = true } })
+    handler(frame, "PLAYER_LOGIN")
+    assert(cvars.farclip == "3000" and not frame.events.CVAR_UPDATE, "CVAR_UPDATE pas écouté à PLAYER_LOGIN")
+    assert(#timers == 1 and timers[1].delay == 4.35, "délai programmé à PLAYER_LOGIN")
+    cvars.farclip, cvars.cameraDistanceMaxZoomFactor = "1000", "3.5"
+    local function Step(name)
+        if name == "timer" then table.remove(timers, 1).callback() else handler(frame, name) end
+    end
+    Step(order[1])
+    Step(order[2])
+    assert(cvars.farclip == "1000" and not frame.events.CVAR_UPDATE, "attente de la dernière étape")
+    Step(order[3])
+    assert(cvars.farclip == "3000" and PanoramaDB.values.farclip == 3000, "réglage touché réécrit après le chargement")
+    assert(PanoramaDB.values.cameraDistanceMaxZoomFactor == 3.5, "réglage du jeu relu après le chargement")
+    assert(frame.events.CVAR_UPDATE and not frame.events.PLAYER_ENTERING_WORLD, "CVAR_UPDATE écouté, une seule passe")
+end
 
 -- Valeurs sauvegardées hors limites, de mauvais type ou hors choix.
 Load({ values = { farclip = 9000, cameraDistanceMaxZoomFactor = 4, ffxDeath = "oui", gxMultisample = 3 } })
@@ -184,6 +214,29 @@ for _, setting in ipairs(ns2.settings) do
     end
 end
 assert(cvars.userFontScale == "1.5" and cvars.userFontScaleGlue == "1.5", "userFontScaleGlue écrite aussi")
+-- Écriture refusée sans erreur par le client : le panneau reprend la valeur du jeu.
+local setCVar = C_CVar.SetCVar
+C_CVar.SetCVar = function() return false end
+for _, setting in ipairs(ns2.settings) do
+    if setting.cvar == "farclip" then
+        PanoramaDB.values.farclip = 3000
+        ns2.Change(setting)
+    end
+end
+assert(PanoramaDB.values.farclip == 1000, "valeur refusée remplacée par celle du jeu")
+-- Même refus pour un changement fait en combat : relu après l'écriture de sortie de combat.
+combat = true
+for _, setting in ipairs(ns2.settings) do
+    if setting.cvar == "farclip" then
+        PanoramaDB.values.farclip = 3000
+        ns2.Change(setting)
+    end
+end
+assert(PanoramaDB.values.farclip == 3000, "en combat : valeur gardée jusqu'à l'écriture")
+combat = false
+handler(frame, "PLAYER_REGEN_ENABLED")
+C_CVar.SetCVar = setCVar
+assert(PanoramaDB.values.farclip == 1000, "refus après le combat : valeur du jeu reprise")
 -- Annulation : le préréglage est défait, rien à annuler ensuite.
 ns2 = Load(nil)
 assert(not ns2.CanUndo(), "rien à annuler au départ")

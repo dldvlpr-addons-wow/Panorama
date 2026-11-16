@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.1
+
+### Fixed
+- **Settings changed in Panorama no longer reset at login or `/reload`.** The game could load
+  its own values after Panorama had applied yours, and Panorama then saved them over your
+  choice. Panorama now waits until loading is done (a few seconds after login), then writes your
+  settings again and only then starts following changes made in the game's menu.
+- **The window shows what the game really applies.** When the game refuses or rounds a value,
+  the slider now moves back to the game's value instead of showing one that is not in effect.
+
 ## 1.7.0
 
 ### New

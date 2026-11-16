@@ -283,11 +283,21 @@ end
 -- Vrai pendant un préréglage ou une annulation : le panneau est rafraîchi une fois, à la fin.
 local batching = false
 
+-- Le client peut refuser ou arrondir une valeur sans erreur (rendu, matériel, CVar protégée) :
+-- un changement du joueur est relu après l'écriture, pour que le panneau montre ce que le jeu
+-- applique. Pas à la connexion, où un refus passager effacerait la valeur gardée.
+-- Changé en combat : relu à la sortie du combat, après l'écriture différée.
+local readBackAfterCombat = {}
+local function ReadBack(setting)
+    if NS.Exists(setting) then NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting)) end
+end
+
 -- Appelé à chaque changement du joueur (panneau, préréglage, annulation) : NS.db.values est
 -- déjà à jour. Le panneau relit les valeurs pour que ses contrôles suivent.
 function NS.Change(setting)
     NS.db.touched[setting.cvar] = true
     NS.Apply(setting)
+    if InCombatLockdown() then readBackAfterCombat[setting] = true else ReadBack(setting) end
     RefreshCombatText(setting)
     if NS.RefreshOptions and not batching then NS.RefreshOptions() end
 end
@@ -342,9 +352,42 @@ function NS.RestartGraphics()
     ConsoleExec("gxRestart")
 end
 
+-- Réglage qui suit le jeu : jamais touché dans Panorama, ou réapplication coupée.
+local function FollowsGame(db, setting)
+    return not db.applyOnLogin or not db.touched[setting.cvar]
+end
+
 events:RegisterEvent("ADDON_LOADED")
 events:RegisterEvent("PLAYER_LOGIN")
+-- Le client charge encore des CVars après PLAYER_LOGIN (stockées serveur, posées par l'interface
+-- par défaut) : VARIABLES_LOADED n'a pas d'ordre garanti, parfois après PLAYER_ENTERING_WORLD
+-- (warcraft.wiki.gg). Deuxième passe une fois les deux reçus, avant d'écouter CVAR_UPDATE.
+-- VARIABLES_LOADED part bien sur Forever : le panneau Settings de Blizzard l'attend aussi
+-- (Blizzard_SettingsRegistrar.lua, source 1.60.1.70862).
+events:RegisterEvent("VARIABLES_LOADED")
+events:RegisterEvent("PLAYER_ENTERING_WORLD")
 local firstRun = false
+local variablesLoaded, enteredWorld, loginSettled = false, false, false
+-- Délai après PLAYER_LOGIN avant la passe finale : le client peut encore changer des CVars après
+-- l'entrée dans le monde. KelaGraphics attend 4 s avant de comparer ses valeurs, puis 0,35 s avant
+-- de les réécrire.
+local LOGIN_SETTLE_SECONDS = 4.35
+
+-- Fin du chargement : les réglages qui suivent le jeu relisent sa valeur définitive, les réglages
+-- touchés sont réécrits par-dessus ce que le client a chargé, puis CVAR_UPDATE est écouté.
+-- Écouté plus tôt, il enregistrerait dans PanoramaDB les valeurs chargées par le client.
+local function FinishLoading()
+    events:UnregisterEvent("VARIABLES_LOADED")
+    events:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    for _, setting in ipairs(NS.settings) do
+        if setting.cvar and NS.Exists(setting) and FollowsGame(NS.db, setting) then
+            NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting))
+        end
+    end
+    NS.ApplyAll(not NS.db.applyOnLogin or firstRun)
+    events:RegisterEvent("CVAR_UPDATE")
+    if NS.RefreshOptions then NS.RefreshOptions() end
+end
 events:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
         firstRun = type(PanoramaDB) ~= "table" or type(PanoramaDB.values) ~= "table"
@@ -388,8 +431,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
                 end
                 -- Premier lancement, réapplication coupée, ou réglage jamais touché dans Panorama :
                 -- on part des valeurs actuelles du jeu.
-                if NS.Exists(setting) and (value == nil or not db.applyOnLogin
-                        or not db.touched[setting.cvar]) then
+                if NS.Exists(setting) and (value == nil or FollowsGame(db, setting)) then
                     value = ReadCVar(setting)
                 end
                 db.values[setting.cvar] = NS.Sanitize(setting, value)
@@ -406,8 +448,13 @@ events:SetScript("OnEvent", function(self, event, arg1)
         NS.ApplyAll(not NS.db.applyOnLogin or firstRun)
         -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non.
         if NS.ApplyFilters then NS.ApplyFilters() end
-        -- Écouté après la réécriture, pour qu'un CVAR_UPDATE du chargement n'écrase pas PanoramaDB.
-        self:RegisterEvent("CVAR_UPDATE")
+        C_Timer.After(LOGIN_SETTLE_SECONDS, function()
+            loginSettled = true
+            if variablesLoaded and enteredWorld and NS.db then FinishLoading() end
+        end)
+    elseif event == "VARIABLES_LOADED" or event == "PLAYER_ENTERING_WORLD" then
+        if event == "VARIABLES_LOADED" then variablesLoaded = true else enteredWorld = true end
+        if variablesLoaded and enteredWorld and loginSettled and NS.db then FinishLoading() end
     elseif event == "CVAR_UPDATE" then
         -- Changement venu du menu Graphismes ou de /console : le panneau suit la vraie valeur.
         local setting = NS.db and type(arg1) == "string" and settingsByCVar[arg1:lower()]
@@ -422,6 +469,10 @@ events:SetScript("OnEvent", function(self, event, arg1)
         local settings = pending
         pending = {}
         for setting in pairs(settings) do NS.Apply(setting) end
+        local readBack = readBackAfterCombat
+        readBackAfterCombat = {}
+        for setting in pairs(readBack) do ReadBack(setting) end
+        if next(readBack) and NS.RefreshOptions then NS.RefreshOptions() end
         local combatText = combatTextAfterCombat
         combatTextAfterCombat = {}
         for setting in pairs(combatText) do RefreshCombatText(setting) end
