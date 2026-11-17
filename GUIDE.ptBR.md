@@ -2,6 +2,8 @@
 
 Como usar o Panorama no WoW Forever e como configurar o HDR no Windows.
 
+**Faça antes um backup das suas configurações.** O Panorama altera configurações do jogo, e remover o addon não as desfaz. Antes de mudar qualquer coisa, feche o jogo e copie a pasta `WTF` da sua instalação do jogo para um lugar seguro. Para voltar atrás, feche o jogo e coloque essa cópia de volta no lugar.
+
 ## 1. Abrir a janela
 
 - Digite `/pano`, ou clique com o botão esquerdo no botão do Panorama no minimapa.
@@ -19,7 +21,7 @@ O botão do minimapa:
 | Parte | O que faz |
 |---|---|
 | Caixa de busca (canto superior direito) | Digite uma palavra para listar as configurações correspondentes de todas as abas. Limpe-a para voltar. |
-| Abas | Qualidade, Filtros, Interface, Avançado. A aba aberta é lembrada. |
+| Abas | Qualidade, Filtros, Ambiente, Interface, Avançado. A aba aberta é lembrada. |
 | Seletor de idioma (à direita das abas) | Idioma do jogo ou um de dez idiomas. Mudar o idioma recarrega a interface. |
 | Guia (à esquerda do seletor de idioma) | Abre este guia no jogo. |
 | Predefinições (aba Qualidade) | Baixa, Média, Alta, Extra. A predefinição que combina com suas configurações fica destacada. |
@@ -61,10 +63,33 @@ A aba Filtros adiciona efeitos sobre a imagem. Eles não mudam nenhuma configura
 
 - **Tonalidade**: clique em uma miniatura para aplicá-la na hora (sépia, quente, fria, noite, esmeralda, crepúsculo).
   **Intensidade da tonalidade** define a força.
+- **Céu**: as mesmas cores em gradiente, cheias no alto da tela e mais claras embaixo.
+  **Intensidade do céu** define a força.
 - **Vinheta**: escurece as bordas da tela.
 - **Granulação**: granulação animada.
-- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas
-  escondem, então não aumentam a taxa de quadros.
+
+### Ambiente
+
+A aba Ambiente muda sozinha o tom, o céu, a vinheta e a granulação conforme o lugar onde você está.
+
+- **Ambiente automático**: ligado, esses filtros seguem o lugar e a hora do dia. Desligado por padrão.
+  Os valores da aba Filtros continuam salvos e voltam quando você o desliga.
+- **Lugar**: define o tom, a vinheta e a granulação. Ordem: masmorra ou raide, interior, clima (chuva,
+  neve, tempestade de areia), depois o tipo de zona: terras temperadas, desertos e terras áridas,
+  terras nevadas, selva e pântano, terras corrompidas, terras vulcânicas, florestas arcanas. Uma zona
+  ainda desconhecida conta como temperada. O clima só conta quando Intensidade do clima é maior que
+  0.
+- **Hora do dia**: define o céu (dia, amanhecer e entardecer, noite). A noite segue o dia e a noite
+  do jogo; o amanhecer e o entardecer seguem a hora do servidor. Sem céu em interiores nem em
+  masmorras.
+- A linha à direita mostra o lugar e a hora do dia detectados agora. Quando uma masmorra, um
+  interior ou o clima vem antes de uma zona que você ajustou, ela indica isso.
+- **Contexto a editar**: escolha um contexto e ajuste seus filtros abaixo. O botão Padrão devolve o
+  valor fornecido para esse contexto.
+- **Esta zona**: primeira opção do mesmo menu, com o nome da zona em que você está. Escolha-a para dar
+  a esta zona seu próprio tom, vinheta e granulação, partindo do seu tipo de zona. Ela passa então
+  antes do tipo de zona, mas depois de masmorra, interior e clima. As zonas que você ajusta
+  continuam no menu. **Tipo de zona** remove os valores da zona: ela volta a seguir seu tipo de zona.
 
 ## 5. Seus valores e o jogo
 

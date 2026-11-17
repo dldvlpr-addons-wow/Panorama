@@ -12,7 +12,9 @@ local bands
 frame = { events = {},
           RegisterEvent = function(self, event) self.events[event] = true end,
           UnregisterEvent = function(self, event) self.events[event] = nil end,
-          SetScript = function(_, script, fn) if script == "OnEvent" then handler = fn end end,
+          SetScript = function(self, script, fn)
+              if script == "OnEvent" then handler = fn elseif script == "OnUpdate" then self.onUpdate = fn end
+          end,
           -- Calque des filtres (Filter.lua) : écran de 1000 de haut.
           SetAllPoints = function() end, SetFrameStrata = function() end, GetHeight = function() return 1000 end,
           GetWidth = function() return 1600 end,
@@ -21,14 +23,15 @@ frame = { events = {},
               local noop = function() end
               local texture = { SetPoint = noop, SetAllPoints = noop, SetTexture = noop, SetBlendMode = noop,
                                 SetTexCoord = noop,
+                                SetGradient = function(self, _, bottom, top) self.gradient = { bottom, top } end,
                                 SetColorTexture = function(self, r, g, b) self.color = { r, g, b } end,
-                                SetHeight = function(self, height) self.height = height end,
                                 SetShown = function(self, shown) self.shown = shown end,
                                 SetAlpha = function(self, alpha) self.alpha = alpha end }
               bands[#bands + 1] = texture
               return texture
           end }
 WorldFrame = {}
+CreateColor = function(r, g, b, a) return { r = r, g = g, b = b, a = a } end
 CreateFrame = function() return frame end
 SlashCmdList = {}
 strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
@@ -63,6 +66,7 @@ local function Load(savedVariables, extraCVars)
     for _, code in ipairs(LOCALES) do assert(loadfile("Locale/" .. code .. ".lua"))("Panorama", ns) end
     assert(loadfile("Panorama.lua"))("Panorama", ns)
     assert(loadfile("Filter.lua"))("Panorama", ns)
+    assert(loadfile("Ambiance.lua"))("Panorama", ns)
     PanoramaDB = savedVariables
     handler(frame, "ADDON_LOADED", "Panorama")
     return ns
@@ -260,32 +264,148 @@ local options = { L = ns.L }
 assert(loadfile("Options.lua"))("Panorama", options)
 assert(options.Fold("Écran ÀÞ Дальность ЯЁ") == "écran àþ дальность яё", "recherche sans casse")
 
--- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut, bandes à 10 % de l'écran.
--- Textures créées dans l'ordre : bande haute, bande basse, teinte, vignette, grain.
+-- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut.
+-- Textures créées dans l'ordre : teinte, vignette, grain, ciel.
 bands = {}
 Load(nil)
 handler(frame, "PLAYER_LOGIN")
-assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tintStrength == 50 and #bands == 0,
+assert(PanoramaDB.filters.tint == 0 and PanoramaDB.filters.tintStrength == 50 and #bands == 0,
     "aucun calque sans filtre")
-Load({ values = {}, filters = { letterbox = 99, tint = 1.5, vignette = "oui" } })
-assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
+Load({ values = {}, filters = { grain = 101, tint = 1.5, vignette = "oui" } })
+assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
     "filtres invalides remplacés")
-local ns3 = Load({ values = {}, filters = { letterbox = 10 } })
+-- Un réglage bandes noires d'une ancienne version est ignoré.
+local ns3 = Load({ values = {}, filters = { letterbox = 10, vignette = 50 } })
 handler(frame, "PLAYER_LOGIN")
-assert(#bands == 5 and bands[1].height == 100 and bands[2].height == 100 and bands[1].shown and frame.shown,
-    "bandes posées à 10 %")
-assert(not bands[3].shown and not bands[4].shown and not bands[5].shown, "seules les bandes visibles")
+assert(#bands == 4 and frame.shown and bands[2].shown and not bands[1].shown and not bands[3].shown
+    and not bands[4].shown, "seule la vignette visible")
 -- Teinte choisie mais intensité à 0 : rien. Sépia à 100 % : couleur sépia multipliée.
-PanoramaDB.filters.letterbox, PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 0, 1, 0
+PanoramaDB.filters.vignette, PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 0, 1, 0
 ns3.ApplyFilters()
-assert(frame.shown == false and #bands == 5, "calque caché à 0, sans recréation")
+assert(frame.shown == false and #bands == 4, "calque caché à 0, sans recréation")
 PanoramaDB.filters.tintStrength = 100
 ns3.ApplyFilters()
-assert(frame.shown and bands[3].shown and bands[3].color[2] == 0.82 and not bands[1].shown, "teinte sépia")
+assert(frame.shown and bands[1].shown and bands[1].color[2] == 0.82, "teinte sépia")
 PanoramaDB.filters.tint, PanoramaDB.filters.vignette, PanoramaDB.filters.grain = 0, 50, 100
 ns3.ApplyFilters()
-assert(not bands[3].shown and bands[4].shown and bands[4].alpha == 0.5 and bands[5].shown,
+assert(not bands[1].shown and bands[2].shown and bands[2].alpha == 0.5 and bands[3].shown,
     "vignette et grain")
+-- Ciel nuit à 100 % : couleur pleine en haut, 40 % de sa force en bas.
+PanoramaDB.filters.vignette, PanoramaDB.filters.grain, PanoramaDB.filters.sky, PanoramaDB.filters.skyStrength = 0, 0, 4, 100
+ns3.ApplyFilters()
+local bottom, top = bands[4].gradient[1], bands[4].gradient[2]
+assert(frame.shown and bands[4].shown and top.r == 0.55 and top.b == 1 and math.abs(bottom.r - 0.82) < 1e-9,
+    "ciel en dégradé")
+PanoramaDB.filters.skyStrength = 0
+ns3.ApplyFilters()
+assert(frame.shown == false, "ciel à 0 : calque caché")
+
+-- Ambiance. Contexte du joueur simulé : hors instance, dehors, temps clair, midi, en Elwynn (1429).
+-- Cartes : 1426 Dun Morogh -> 1415 Royaumes de l'Est -> 947 Azeroth ; 9999 inconnue sous 1414 Kalimdor.
+local instance, indoors, weather, hour, mapID = { false }, false, { type = 0, intensity = 0 }, 12, 1429
+local parents = { [1426] = 1415, [1415] = 947, [947] = 0, [9999] = 1414, [1414] = 947, [5555] = 1426 }
+IsInInstance = function() return instance[1], instance[2] end
+IsIndoors = function() return indoors end
+C_Weather = { GetCurrentWeather = function() return weather end }
+GetGameTime = function() return hour, 0 end
+local isDayTime   -- nil : signal du jeu absent, heure seule
+C_DateAndTime = { IsDayTime = function() return isDayTime end }
+C_Map = { GetBestMapForUnit = function() return mapID end,
+          GetMapInfo = function(id) return parents[id] and { mapID = id, parentMapID = parents[id] } end }
+-- Ambiance : coupée par défaut, valeurs livrées par contexte, valeur invalide remplacée.
+local ns5 = Load({ values = {}, filters = { tint = 5, tintStrength = 80 },
+                   ambiance = { enabled = true, contexts = { night = { sky = 99, skyStrength = 60 }, rain = "x" } } })
+assert(ns5.AppliedFilters() ~= PanoramaDB.filters, "ambiance enregistrée active")
+assert(PanoramaDB.ambiance.contexts.night.sky == 4 and PanoramaDB.ambiance.contexts.night.skyStrength == 60
+    and PanoramaDB.ambiance.contexts.rain.tint == 3, "ambiance invalide remplacée, valeur choisie gardée")
+assert(PanoramaDB.ambiance.contexts.night.tint == nil and PanoramaDB.ambiance.contexts.desert.sky == nil,
+    "un contexte ne garde que ses clés")
+assert(Load(nil) and PanoramaDB.ambiance.enabled == false and PanoramaDB.ambiance.contexts.temperate.tint == 2,
+    "ambiance coupée par défaut")
+-- Lieu : biome de la zone, de sa carte parente, sinon tempéré. Moment : heure du serveur.
+local function Detect()
+    local place, moment = ns5.DetectAmbiance()
+    return place .. (moment and " " .. moment or "")
+end
+assert(Detect() == "temperate day", "Elwynn de jour")
+hour = 20
+assert(Detect() == "temperate dusk", "crépuscule")
+hour = 2
+assert(Detect() == "temperate night", "nuit")
+-- Signal jour/nuit du jeu prioritaire sur l'heure ; aube et crépuscule à l'heure, dans son jour.
+hour, isDayTime = 12, false
+assert(Detect() == "temperate night", "jeu dit nuit à midi : nuit")
+hour, isDayTime = 22, true
+assert(Detect() == "temperate dusk", "jeu dit jour à 22 h : crépuscule")
+hour, isDayTime = 2, nil
+mapID = 1426
+assert(Detect() == "frozen night", "Dun Morogh enneigé")
+mapID = 5555
+assert(Detect() == "frozen night" and select(3, ns5.DetectAmbiance()) == 1426, "sous-zone : biome et zone parents")
+mapID = 9999
+assert(Detect() == "temperate night" and select(3, ns5.DetectAmbiance()) == 9999, "zone inconnue : tempéré")
+mapID = 1426
+Detect()
+mapID = nil
+assert(Detect() == "frozen night" and select(3, ns5.DetectAmbiance()) == 1426, "carte illisible : dernière zone gardée")
+mapID = 1427
+weather.type = 2
+assert(Detect() == "snow night", "météo avant le biome")
+cvars.WeatherDensity = "0"
+assert(Detect() == "volcanic night", "effets météo coupés : pas d'ambiance météo")
+cvars.WeatherDensity = nil
+indoors = true
+assert(Detect() == "indoor", "intérieur : pas de ciel")
+instance = { true, "pvp" }
+assert(Detect() == "indoor", "champ de bataille : pas un donjon")
+instance = { true, "raid" }
+assert(Detect() == "dungeon", "raid")
+-- Ambiance active : lieu et ciel du moment, filtres de base intacts.
+ns5 = Load({ values = {}, filters = { tint = 5, tintStrength = 80 }, ambiance = { enabled = true } })
+local applied = ns5.AppliedFilters()
+assert(applied.tint == 4 and applied.vignette == 40 and applied.sky == 0 and applied.skyStrength == 0,
+    "ambiance donjon appliquée, sans ciel")
+instance, indoors, weather.type, hour, mapID = { false }, false, 0, 2, 1427
+applied = ns5.AppliedFilters()
+assert(applied.tint == 0 and applied.tintStrength == 30 and applied.sky == 4 and applied.skyStrength == 45,
+    "Gorge des Vents brûlants de nuit")
+assert(PanoramaDB.filters.tint == 5 and PanoramaDB.filters.tintStrength == 80 and PanoramaDB.filters.vignette == 0,
+    "filtres de base intacts")
+-- Zone réglée : copie de son biome, puis ses propres valeurs ; sous la pluie, la météo passe avant.
+local volcano = ns5.CustomizeZone(1427)
+assert(volcano.tint == 0 and volcano.vignette == 30 and volcano.sky == nil and ns5.CustomizeZone(1427) == volcano,
+    "zone copiée de son biome")
+volcano.vignette = 70
+assert(ns5.AppliedFilters().vignette == 70 and PanoramaDB.ambiance.contexts.volcanic.vignette == 30, "zone réglée appliquée")
+weather.type = 1
+assert(ns5.AppliedFilters().vignette == 25, "pluie avant la zone")
+weather.type = 0
+PanoramaDB.ambiance.enabled = false
+assert(ns5.AppliedFilters() == PanoramaDB.filters, "ambiance coupée : filtres de base")
+-- Fondu : changement de contexte de l'ambiance, de l'écran vers les valeurs du nouveau contexte ;
+-- réglage du joueur posé tout de suite. bands[2] = vignette, bands[1] = teinte.
+bands = {}
+local ns6 = Load({ values = {}, ambiance = { enabled = true } })
+hour, mapID = 12, 1429
+ns6.ApplyFilters()
+assert(bands[2].alpha == 0.15 and not frame.onUpdate, "Elwynn posé sans fondu")
+mapID = 1427
+ns6.UpdateAmbiance()
+assert(bands[2].alpha == 0.15 and frame.onUpdate, "fondu lancé vers le volcan")
+frame.onUpdate(frame, 0.75)
+assert(math.abs(bands[2].alpha - 0.225) < 1e-9 and bands[1].shown, "mi-fondu")
+frame.onUpdate(frame, 1)
+assert(bands[2].alpha == 0.3 and not bands[1].shown and frame.onUpdate, "fondu fini, grain animé")
+PanoramaDB.ambiance.enabled = false
+ns6.UpdateAmbiance()
+ns6.ApplyFilters()
+assert(frame.shown == false and not frame.onUpdate, "ambiance coupée : calque caché sans fondu")
+-- Zone illisible supprimée, valeur invalide remplacée par celle du biome enregistré.
+Load({ ambiance = { contexts = { frozen = { vignette = 55 } },
+                    zones = { [1426] = { tint = 3, tintStrength = 40, vignette = "x" }, abc = {}, [1429] = 5 } } })
+local zones = PanoramaDB.ambiance.zones
+assert(zones[1426].tintStrength == 40 and zones[1426].vignette == 55 and zones[1426].grain == 0
+    and zones.abc == nil and zones[1429] == nil, "zones relues")
 
 -- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.
 local ns4 = Load({ tab = "inconnu" })
@@ -316,6 +436,11 @@ assert(ns4.IsAvailable({ cvar = "volumeFogLevel", requires = "volumeFog" }), "br
 PanoramaDB.filters.tint = 0
 assert(not ns4.IsAvailable({ key = "tintStrength", requires = "tint" }), "teinte aucune")
 assert(ns4.IsAvailable({ cvar = "farclip" }), "sans dépendance")
+-- Ambiance auto : ses filtres de base grisés dans l'onglet Filtres, pas dans l'éditeur.
+ns4.db.ambiance.enabled = true
+assert(not ns4.IsAvailable({ key = "vignette" }), "vignette suit l'ambiance")
+assert(ns4.IsAvailable({ key = "vignette", ambiance = true }), "éditeur actif")
+ns4.db.ambiance.enabled = false
 -- Chaque `requires` nomme un réglage de la même liste : une faute de frappe ne grise jamais rien.
 for _, list in ipairs({ ns4.settings, ns4.filterSettings }) do
     local names = {}

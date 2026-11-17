@@ -6,13 +6,17 @@ Many graphics options are only available through `/console` commands. Panorama p
 window of its own with sliders, checkboxes and buttons. It reapplies your values every time
 you log in.
 
+**Back up your settings first.** Panorama changes game settings, and removing the addon does not
+change them back. Before you install it, quit the game and copy the `WTF` folder of your game
+install somewhere safe. To go back, quit the game and put that copy back in place.
+
 How to use it, and how to set up HDR on Windows: see [GUIDE.md](GUIDE.md), also in German,
 Spanish, French, Italian, Portuguese, Russian, Korean and Chinese (`GUIDE.<language>.md`). The
 Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **58 settings and 5 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **58 settings and 6 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -32,10 +36,14 @@ Guide button in the panel opens the same guide in the game.
 - **Default button on every line**: it puts that setting back to its default. Advanced settings,
   nameplate class colors, pets and totems, zoom speed, text size and combat text use the
   game's own default.
-- **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
-  cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a
   sepia, warm, cold, night, emerald or dusk tint with its own strength. They change no CVar.
+- **Sky filter**: a color gradient from the top of the screen, with the tint colors.
+- **Automatic ambiance** (off by default): tint, vignette and grain follow the place (dungeon,
+  indoors, rain, snow, sandstorm, then the kind of zone: temperate, desert, snowy, jungle, corrupted,
+  volcanic, arcane); the sky follows the time of day (day, dawn and dusk, night). Each context has
+  its own values, editable in the Ambiance tab, and any zone can get its own values. Your Filters
+  tab values stay saved.
 
 ## Settings
 
@@ -50,7 +58,8 @@ Guide button in the panel opens the same guide in the game.
 | Nameplates | Nameplate distance, enemy and friendly class colors, enemy pets, enemy totems |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, particle density, depth-based transparency |
 | Floating combat text | Absorb shields, combat state, dodges/parries/misses, absorbed/blocked/resisted damage, healer names, buffs and debuffs, reactive abilities, resource gains, periodic resource gains, combo points, low mana and health, honor gains, reputation changes |
-| Filters | Black bars, vignette, film grain, color tint, tint strength |
+| Filters | Vignette, film grain, color tint, tint strength, sky, sky strength |
+| Ambiance | Automatic ambiance; tint, tint strength, vignette and film grain for each place; sky and sky strength for each time of day |
 
 ## Commands
 
@@ -80,8 +89,6 @@ WoW Forever 1.60.1 (interface 16001).
 - The Defaults button in the game's Graphics menu resets only the settings that menu manages, and
   Panorama follows it. To reset the others, and the filters, use the Default button on each line
   in `/pano`.
-- The black bars hide part of the world. The game still renders it, so they do not raise your
-  frame rate.
 
 Website: https://muscalab.com/addons/panorama
 

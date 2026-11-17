@@ -36,6 +36,7 @@ Locale\zhCN.lua
 Locale\zhTW.lua
 Panorama.lua
 Filter.lua
+Ambiance.lua
 Guide\enUS.lua
 Guide\frFR.lua
 Guide\deDE.lua

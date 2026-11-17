@@ -1,5 +1,5 @@
 -- Fenêtre Panorama, déplaçable et fermée par Échap. Mise en page : DESIGN.md.
--- En-tête et recherche, 4 onglets, préréglages (onglet Qualité), liste défilante de sections
+-- En-tête et recherche, 5 onglets, préréglages (onglet Qualité), bloc Ambiance (onglet Ambiance), liste défilante de sections
 -- repliables, pied (cases et redémarrage du moteur). Une ligne par réglage : libellé, aide,
 -- contrôle (case, boutons radio, curseur et boîte de saisie, vignettes de teinte), bouton Défaut.
 -- Options > AddOns > Panorama n'affiche qu'un bouton qui ouvre cette fenêtre.
@@ -14,16 +14,18 @@ local DEFAULT_X = 532
 local HEADER_HEIGHT = 30
 local HELP = 0.72       -- gris de l'aide et du sous-titre
 local DISABLED = 0.5    -- gris d'une ligne désactivée, et de rien d'autre
-local TAB_LABELS = { quality = "TAB_QUALITY", filters = "TAB_FILTERS", interface = "TAB_INTERFACE",
-                     advanced = "TAB_ADVANCED" }
+local TAB_LABELS = { quality = "TAB_QUALITY", filters = "TAB_FILTERS", ambiance = "TAB_AMBIANCE",
+                     interface = "TAB_INTERFACE", advanced = "TAB_ADVANCED" }
 
 local panel
 local items = {}      -- dans l'ordre d'affichage : { frame, tab, section ou header, height, text }
-local controls = {}   -- cvar ou clé de filtre -> { setting, refresh }
+local controls = {}   -- table du réglage (ou sa copie d'ambiance) -> { setting, refresh }
 local inputs = {}     -- boîtes de saisie dans l'ordre d'affichage, pour Tab
 local collapsed       -- NS.db.collapsed : clé de locale du titre de section -> true
 local filter = ""     -- texte de la barre de recherche, en minuscules
 local refreshing = false
+local editedContext = "day"   -- contexte d'ambiance ouvert dans l'éditeur (NS.ambianceContexts), ou "zone"
+local editedZone              -- uiMapID édité quand editedContext vaut "zone"
 
 local function Round(value, step)
     return math.floor(value / step + 0.5) * step
@@ -52,11 +54,53 @@ function NS.ParseInput(setting, text)
     return math.max(setting.min, math.min(value, setting.max)), number >= setting.min and number <= setting.max
 end
 
+local function Context(id)
+    for _, context in ipairs(NS.ambianceContexts) do
+        if context.id == id then return context end
+    end
+end
+
+-- Contexte livré du contexte édité ; une zone suit celui de son biome.
+local function EditedContext()
+    return Context(editedContext == "zone" and NS.ZoneBiome(editedZone) or editedContext)
+end
+
+-- Valeur du bouton Défaut d'une ligne d'éditeur : valeur livrée, ou valeur du biome pour une zone.
+local function AmbianceDefault(key)
+    if editedContext == "zone" then return NS.db.ambiance.contexts[NS.ZoneBiome(editedZone)][key] end
+    return Context(editedContext).values[key]
+end
+
+-- Table lue et écrite par une ligne : CVars, filtres de base, ou ambiance du contexte édité
+-- (copie d'un filtre marquée `ambiance`). `write` : la table va être modifiée.
+local function Store(setting, write)
+    if setting.cvar then return NS.db.values end
+    if setting.ambiance then
+        if editedContext == "zone" then
+            -- Zone sans réglage propre : lue dans son biome, copiée à la première modification.
+            return NS.db.ambiance.zones[editedZone] or (write and NS.CustomizeZone(editedZone))
+                or NS.db.ambiance.contexts[NS.ZoneBiome(editedZone)]
+        end
+        return NS.db.ambiance.contexts[editedContext]
+    end
+    return NS.db.filters
+end
+
+-- Filtre de base remplacé par l'ambiance auto : sa ligne de l'onglet Filtres est grisée.
+local function FollowsAmbiance(setting)
+    if setting.cvar or setting.ambiance or not NS.db.ambiance.enabled then return false end
+    for _, key in ipairs(NS.ambianceKeys) do
+        if key == setting.key then return true end
+    end
+    return false
+end
+
 -- Faux tant que le réglage nommé par `requires` est coupé (false ou 0). Réglage requis absent
 -- du client (nil) : rien à griser.
 function NS.IsAvailable(setting)
+    if FollowsAmbiance(setting) then return false end
     if not setting.requires then return true end
-    local value = (setting.cvar and NS.db.values or NS.db.filters)[setting.requires]
+    local value = Store(setting)[setting.requires]
     return value ~= false and value ~= 0
 end
 
@@ -87,6 +131,7 @@ end
 
 local function DefaultValue(setting)
     if setting.cvar then return NS.GameDefault(setting) end
+    if setting.ambiance then return AmbianceDefault(setting.key) end
     return setting.default
 end
 
@@ -106,6 +151,7 @@ local function Layout()
             visible = item.match or matches[item.header]
         else
             visible = item.tab == NS.db.tab and not (item.section and collapsed[item.section])
+                and (not item.ambianceKey or EditedContext().values[item.ambianceKey] ~= nil)
         end
         if visible then
             item.frame:ClearAllPoints()
@@ -119,9 +165,13 @@ local function Layout()
     panel.content:SetHeight(y + 10)
     panel.noResult:SetShown(searching and y == 0)
 
+    -- Bloc préréglages (Qualité) ou bloc Ambiance : même hauteur, liste en dessous.
     local presets = not searching and NS.db.tab == "quality"
+    local ambiance = not searching and NS.db.tab == "ambiance"
     panel.presets:SetShown(presets)
-    panel.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 14, presets and -166 or -110)
+    panel.ambiance:SetShown(ambiance)
+    panel.ambianceReset:SetShown(editedContext == "zone")
+    panel.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 14, (presets or ambiance) and -166 or -110)
     for index, tab in ipairs(panel.tabs) do
         if not searching and NS.tabs[index] == NS.db.tab then
             PanelTemplates_SelectTab(tab)
@@ -135,9 +185,24 @@ end
 function NS.RefreshOptions()
     if not panel or not panel:IsShown() then return end
     refreshing = true
-    for key, control in pairs(controls) do
-        control.refresh((control.setting.cvar and NS.db.values or NS.db.filters)[key])
+    for setting, control in pairs(controls) do
+        local value = Store(setting)[setting.cvar or setting.key]
+        -- Ligne d'éditeur d'une clé que le contexte édité n'a pas (ciel d'un lieu) : cachée, rien à relire.
+        if value ~= nil or not setting.ambiance then control.refresh(value) end
     end
+    panel.ambianceEnabled:SetChecked(NS.db.ambiance.enabled)
+    local place, moment, zone = NS.DetectAmbiance()
+    local detected = zone and NS.db.ambiance.zones[zone] and NS.ZoneName(zone) or L[Context(place).label]
+    if not zone then
+        -- Donjon, intérieur ou météo : le réglage propre de la zone attend, le dire.
+        local current = NS.CurrentZone()
+        if current and NS.db.ambiance.zones[current] then
+            detected = L.AMBIANCE_OVER_ZONE:format(detected, NS.ZoneName(current))
+        end
+    end
+    if moment then detected = detected .. " · " .. L[Context(moment).label] end
+    panel.ambianceStatus:SetText(L.AMBIANCE_DETECTED:format(detected))
+    panel.ambianceMenu:GenerateMenu()   -- libellé « Cette zone » relu au changement de zone
     panel.applyOnLogin:SetChecked(NS.db.applyOnLogin)
     panel.showMinimap:SetChecked(NS.db.minimap.show)
     panel.undo:SetEnabled(NS.CanUndo())
@@ -217,8 +282,9 @@ local function CreateSlider(parent, setting, width, onChange, onPreview)
     track:SetHeight(6)
     track:SetColorTexture(0, 0, 0, 0.6)
     -- Repère de la valeur par défaut : la poignée (32) reste dans le curseur, son centre va de 16 à width - 16.
-    local default = DefaultValue(setting)
-    if default >= setting.min and default <= setting.max then
+    -- Éditeur d'ambiance : défaut propre à chaque contexte, pas de repère fixe.
+    local default = not setting.ambiance and DefaultValue(setting)
+    if default and default >= setting.min and default <= setting.max then
         local mark = slider:CreateTexture(nil, "BORDER")
         mark:SetColorTexture(1, 1, 1, 0.35)
         mark:SetSize(1, 10)
@@ -355,7 +421,12 @@ local function CreateRowBase(setting, tipWidth)
     -- Réglage aussi écrit par un menu du jeu : étoile après le nom, menu nommé dans l'infobulle.
     row.label:SetText(setting.menu and (setting.label .. " |cffb8b8b8*|r") or setting.label)
 
-    local tipText = setting.restart and (setting.tip .. " " .. L.OPT_NEEDS_RESTART) or setting.tip
+    local tipText = setting.tip
+    if setting.restart == "client" then
+        tipText = tipText .. " " .. L.OPT_NEEDS_CLIENT_RESTART
+    elseif setting.restart then
+        tipText = tipText .. " " .. L.OPT_NEEDS_RESTART
+    end
     row.tip = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     row.tip:SetPoint("TOPLEFT", row.label, "BOTTOMLEFT", 0, -4)
     row.tip:SetWidth(tipWidth)
@@ -378,16 +449,16 @@ local function CreateRowBase(setting, tipWidth)
     hover:SetScript("OnLeave", function() GameTooltip:Hide() end)
     row.HoverWith(hover)
 
-    -- Réglage de CVar (`cvar`) ou filtre (`key`, PanoramaDB.filters, aucune CVar).
+    -- Réglage de CVar (`cvar`) ou filtre (`key`, PanoramaDB.filters ou ambiance, aucune CVar).
     function row.Current()
-        return (setting.cvar and NS.db.values or NS.db.filters)[setting.cvar or setting.key]
+        return Store(setting)[setting.cvar or setting.key]
     end
     function row.Change(value)
         if setting.cvar then
             NS.db.values[setting.cvar] = value
             NS.Change(setting)
         else
-            NS.db.filters[setting.key] = value
+            Store(setting, true)[setting.key] = value
             NS.ApplyFilters()
             NS.RefreshOptions()
         end
@@ -421,7 +492,7 @@ end
 -- Fin commune : marqueur et bouton Défaut suivent la valeur, ligne grisée si `requires` est coupé.
 local function Register(row, setting, section, tab, height, refreshControl, setEnabled)
     row:SetHeight(height)
-    controls[setting.cvar or setting.key] = { setting = setting, refresh = function(value)
+    controls[setting] = { setting = setting, refresh = function(value)
         refreshControl(value)
         local modified = not SameValue(setting, value, DefaultValue(setting))
         row.marker:SetShown(modified)
@@ -434,8 +505,12 @@ local function Register(row, setting, section, tab, height, refreshControl, setE
         row.tip:SetTextColor(tipShade, tipShade, tipShade)
         setEnabled(available)
     end }
+    -- Éditeur d'ambiance hors recherche : ses lignes doubleraient celles de l'onglet Filtres.
+    -- `ambianceKey` : ligne d'éditeur, cachée quand le contexte édité n'a pas cette clé.
     items[#items + 1] = { frame = row, section = section, tab = tab, height = height,
-        text = Fold(setting.label .. " " .. setting.tip .. " " .. (setting.cvar or setting.key) .. " " .. (setting.menu or "")) }
+        ambianceKey = setting.ambiance and setting.key or nil,
+        text = not setting.ambiance and Fold(setting.label .. " " .. setting.tip .. " " .. (setting.cvar or setting.key)
+            .. " " .. (setting.menu or "")) or nil }
 end
 
 local function CreateRow(setting, section, tab)
@@ -561,9 +636,16 @@ local function CreateTintRow(setting, section, tab)
             GameTooltip:Hide()
         end)
         thumbnail:SetScript("OnClick", function()
-            if value ~= 0 and NS.db.filters.tintStrength == 0 then
+            local current = Store(setting)
+            -- Vignette déjà choisie, intensité déjà là : rien à écrire (pas de zone réglée pour rien).
+            if current.tint == value and (value == 0 or current.tintStrength ~= 0) then return end
+            local values = Store(setting, true)
+            if value ~= 0 and values.tintStrength == 0 then
                 for _, other in ipairs(NS.filterSettings) do
-                    if other.key == "tintStrength" then NS.db.filters.tintStrength = other.default end
+                    if other.key == "tintStrength" then
+                        local strength = setting.ambiance and AmbianceDefault("tintStrength") or 0
+                        values.tintStrength = strength > 0 and strength or other.default
+                    end
                 end
             end
             row.Change(value)
@@ -642,6 +724,80 @@ local function CreatePresets()
         button:SetScript("OnLeave", function() GameTooltip:Hide() end)
         panel.presetButtons[index] = button
     end
+end
+
+-- Bloc de l'onglet Ambiance, à la place des préréglages : case « Ambiance auto », contexte détecté,
+-- menu du contexte édité par les lignes de filtres en dessous (ciel pour un moment, teinte,
+-- vignette et grain pour un lieu). Zone du joueur dans le menu : la choisir lui crée un réglage
+-- propre, copié de son biome ; « Type de zone » le supprime.
+-- Saisie en cours validée dans le contexte qu'elle vise, avant de changer ou de vider ce contexte.
+local function CommitTyping()
+    local focus = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
+    if focus then focus:ClearFocus() end
+end
+
+local function CreateAmbiance()
+    local block = CreateFrame("Frame", nil, panel)
+    block:SetPoint("TOPLEFT", 0, -110)
+    block:SetPoint("TOPRIGHT", 0, -110)
+    block:SetHeight(48)
+    panel.ambiance = block
+    panel.ambianceEnabled = CreateCheckbox(block, L.AMBIANCE_AUTO, L.AMBIANCE_AUTO_TIP, function(value)
+        NS.db.ambiance.enabled = value
+        NS.ApplyFilters()
+        NS.RefreshOptions()
+    end)
+    panel.ambianceEnabled:SetPoint("LEFT", block, "TOPLEFT", 10, -10)
+    panel.ambianceStatus = block:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    panel.ambianceStatus:SetTextColor(HELP, HELP, HELP)
+    panel.ambianceStatus:SetPoint("RIGHT", block, "TOPRIGHT", -14, -10)
+    local label = block:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    label:SetPoint("LEFT", block, "TOPLEFT", 14, -36)
+    label:SetText(L.AMBIANCE_EDIT)
+    local dropdown = CreateFrame("DropdownButton", nil, block, "WowStyle1DropdownTemplate")
+    dropdown:SetWidth(200)   -- noms de zone longs
+    dropdown:SetPoint("LEFT", label, "RIGHT", 8, 0)
+    panel.ambianceMenu = dropdown
+    -- `id` : uiMapID (nombre) pour une zone, id de NS.ambianceContexts sinon.
+    local function IsSelected(id)
+        if type(id) == "number" then return editedContext == "zone" and editedZone == id end
+        return editedContext == id
+    end
+    local function Edit(id)
+        CommitTyping()
+        if type(id) == "number" then
+            editedContext, editedZone = "zone", id
+        else
+            editedContext = id
+        end
+        Layout()
+        NS.RefreshOptions()
+    end
+    panel.ambianceReset = CreateButton(block, L.AMBIANCE_ZONE_RESET, 100, function()
+        CommitTyping()
+        NS.db.ambiance.zones[editedZone] = nil
+        Edit(NS.ZoneBiome(editedZone))
+        NS.ApplyFilters()
+    end)
+    panel.ambianceReset:SetPoint("LEFT", dropdown, "RIGHT", 8, 0)
+    Tooltip(panel.ambianceReset, L.AMBIANCE_ZONE_RESET_TIP)
+    dropdown:SetupMenu(function(_, root)
+        local current = NS.CurrentZone()
+        if current then root:CreateRadio(L.AMBIANCE_ZONE:format(NS.ZoneName(current)), IsSelected, Edit, current) end
+        local saved = {}
+        for mapID in pairs(NS.db.ambiance.zones) do
+            if mapID ~= current then saved[#saved + 1] = mapID end
+        end
+        -- Zone quittée sans réglage propre, encore ouverte dans l'éditeur.
+        if editedContext == "zone" and editedZone ~= current and not NS.db.ambiance.zones[editedZone] then
+            saved[#saved + 1] = editedZone
+        end
+        table.sort(saved)
+        for _, mapID in ipairs(saved) do root:CreateRadio(NS.ZoneName(mapID), IsSelected, Edit, mapID) end
+        for _, context in ipairs(NS.ambianceContexts) do
+            root:CreateRadio(L[context.label], IsSelected, Edit, context.id)
+        end
+    end)
 end
 
 local function CreateTabs(search)
@@ -780,6 +936,7 @@ function NS.BuildOptions()
     CreateTabs(search)
     CreateLanguage()
     CreatePresets()
+    CreateAmbiance()
     CreateFooter()
 
     local scroll = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")
@@ -810,6 +967,19 @@ function NS.BuildOptions()
                 else
                     CreateRow(setting, section, tab)
                 end
+            end
+        end
+    end
+    -- Éditeur d'ambiance : les lignes de filtres reprises, liées au contexte édité.
+    local ambianceKeys = {}
+    for _, key in ipairs(NS.ambianceKeys) do ambianceKeys[key] = true end
+    for _, setting in ipairs(NS.filterSettings) do
+        if ambianceKeys[setting.key] then
+            local copy = setmetatable({ ambiance = true }, { __index = setting })
+            if setting.key == "tint" then
+                CreateTintRow(copy, nil, "ambiance")
+            else
+                CreateRow(copy, nil, "ambiance")
             end
         end
     end

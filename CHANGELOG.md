@@ -1,5 +1,34 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **Sky filter (Filters tab)**: a color gradient from the top of the screen, with the tint colors
+  and its own strength.
+- **Automatic ambiance (Ambiance tab)**: off by default. When on, tint, vignette and film grain
+  follow the place: dungeon or raid, indoors, rain, snow, sandstorm, then the kind of zone
+  (temperate, desert, snowy, jungle and marsh, corrupted, volcanic, arcane forest). The sky follows
+  the time of day: day, dawn and dusk, night, outdoors only. The tab shows the place and time
+  detected now and lets you edit the values of each context. When the context changes, the filters
+  fade to the new values over 1.5 seconds. Your
+  Filters tab values stay saved, and their lines are greyed out while the automatic ambiance is on.
+- **Per-zone ambiance**: "This zone" in the Ambiance tab menu gives the zone you are in its own tint,
+  vignette and grain. "Zone type" removes them.
+- **Four distance settings (Advanced tab)**: small object culling (`lodObjectCullSize`), object
+  fade distance (`lodObjectFadeScale`), horizon start (`horizonStart`) and grass fade distance
+  (`groundEffectFade`). Like the other advanced settings, they are written only after you change
+  them.
+
+### Fixed
+- **View distance (`farclip`) slider goes up to 10000.** A view distance set above 7000 with
+  `/console` showed in Panorama, but the slider and the input box could not go back above 7000.
+  The Extra preset stays at 7000.
+- **Physics tooltip** now says the setting needs a game restart, like the game's own menu.
+
+### Removed
+- **Black bars filter.** The bars hid part of the screen without any frame rate gain. A saved
+  black bars value is ignored.
+
 ## 1.7.1
 
 ### Fixed

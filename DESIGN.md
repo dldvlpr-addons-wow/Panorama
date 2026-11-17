@@ -22,9 +22,10 @@ Fenêtre `BasicFrameTemplate` 610 x 640, déplaçable, fermée par Échap (incha
 |---|---|---|
 | Barre de titre | 0-24 | gabarit, bouton fermer ; aucun texte ajouté |
 | En-tête | 26-66 | logo 32 x 32, titre, sous-titre ; recherche à droite |
-| Onglets | 70-102 | 4 onglets, filet sous la rangée à y 102 |
+| Onglets | 70-102 | 5 onglets, filet sous la rangée à y 102 |
 | Bloc préréglages | 110-158 | onglet Qualité seulement |
-| Liste défilante | 166 (Qualité) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
+| Bloc ambiance | 110-158 | onglet Ambiance seulement : case « Ambiance auto » et lieu · moment détectés (ligne 1), menu du contexte à modifier, largeur 200, puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
+| Liste défilante | 166 (Qualité, Ambiance) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
 | Pied | 596-632 | filet à y 596, 2 cases à gauche, moteur graphique à droite |
 
 ### Onglets (nouveau)
@@ -50,14 +51,15 @@ par `tests/build_guide.lua`.
 | Onglet | Sections, dans l'ordre | Lignes |
 |---|---|---|
 | Qualité | Vue, Végétation, Ombres, Environnement, Image | ~22 |
-| Filtres | Filtres | 5 |
+| Filtres | Filtres | 6 |
+| Ambiance | — | 4 pour un lieu, 2 pour un moment (clés du contexte choisi seulement, hors recherche) |
 | Caméra et interface | Caméra, Barres de noms, Texte de combat | ~22 |
 | Avancé | HDR, Avancé (console seulement) | ~14 |
 
 Raison : les préréglages ne touchent que l'onglet Qualité (réglages à `levels`), ils y vivent seuls.
 Les réglages « console seulement » (HDR, LOD) sortent du chemin courant. Les filtres, visuels,
-ont leur propre page. Libellés d'onglet : 4 clés de locale neuves (`TAB_QUALITY`, `TAB_FILTERS`,
-`TAB_INTERFACE`, `TAB_ADVANCED`), courtes (« Avancé », pas « Avancé (console seulement) »).
+ont leur propre page. Libellés d'onglet : 5 clés de locale (`TAB_QUALITY`, `TAB_FILTERS`,
+`TAB_AMBIANCE`, `TAB_INTERFACE`, `TAB_ADVANCED`), courtes (« Avancé », pas « Avancé (console seulement) »).
 
 Toutes les sections sont ouvertes par défaut ; le repli reste (`NS.db.collapsed`), l'ancien défaut
 « Avancé replié » tombe puisque l'onglet sépare déjà.
@@ -210,7 +212,7 @@ Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé
 ## 8. Composant : grille de vignettes de teinte
 
 Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, en tête de l'onglet Filtres,
-suivie de Intensité de teinte, Vignettage, Grain, Bandes noires.
+suivie de Intensité de teinte, Ciel, Intensité du ciel, Vignettage, Grain.
 
 - Libellé et aide comme une ligne normale, aide en largeur 500 ; bouton Défaut à x 532, y -14.
 - Grille sous l'aide (+8), à x 10 : **7 vignettes sur une rangée** (Aucune + 6 teintes, ordre de

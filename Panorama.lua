@@ -21,14 +21,14 @@ NS.L = L
 -- Bas, Moyen, Élevé : valeurs écrites par les niveaux Bas, Moyen, Élevé du menu Graphismes
 -- (relevé en jeu 2026-11-14), pour les CVars présentes sur Forever ; celles absentes du client
 -- (horizonfarclip, detailDoodleDensity, shadowLevel, SSFX, gxMultisample) gardent des valeurs
--- estimées. Extra : Élevé, et farclip au maximum du curseur.
+-- estimées. Extra : Élevé, et farclip 7000.
 -- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `requires` : réglage grisé tant que
 -- la CVar nommée est coupée (false ou 0).
 -- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
 -- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
     { title = "SECTION_VIEW", tab = "quality" },
-    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
+    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 10000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
     { cvar = "horizonfarclip", menu = "MENU_VIEW_DISTANCE", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
     -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; plafond 3 à la demande, imposé
@@ -54,7 +54,8 @@ NS.settings = {
     { cvar = "waterDetail", menu = "MENU_LIQUID", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
-    { cvar = "physicsLevel", menu = "MENU_PHYSICS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    -- Le menu natif demande de relancer le client (ClientRestart, Graphics.lua:1427, 1.60.1.70862).
+    { cvar = "physicsLevel", menu = "MENU_PHYSICS", restart = "client", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
     { title = "SECTION_IMAGE", tab = "quality" },
     { cvar = "gxMultisample", menu = "MENU_MSAA", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
@@ -83,7 +84,7 @@ NS.settings = {
     { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
 
     { title = "SECTION_CAMERA", tab = "interface" },
-    -- Max du curseur : relevé joueur (/console accepte 4 et farclip 7000). Le menu Forever
+    -- Max du curseur : relevés joueurs (/console accepte 4, et farclip 10000 gardé par le jeu). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
     { cvar = "cameraDistanceMaxZoomFactor", menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
@@ -123,6 +124,12 @@ NS.settings = {
     { cvar = "wmoLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 50, max = 1000, step = 10, default = 250 },
     { cvar = "entityLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 1, max = 50, step = 1, default = 5 },
     { cvar = "doodadLodScale", menu = "MENU_ENVIRONMENT", advanced = true, min = 0, max = 100, step = 5, default = 50 },
+    -- Absentes du source UI ; défauts relevés en jeu (1.60.1.70790) : 15, 100, 800, 70. Bornes et sens
+    -- non relevés : curseurs choisis par Panorama.
+    { cvar = "lodObjectCullSize", advanced = true, min = 0, max = 100, step = 1, default = 15 },
+    { cvar = "lodObjectFadeScale", advanced = true, min = 25, max = 400, step = 5, default = 100 },
+    { cvar = "horizonStart", advanced = true, min = 100, max = 5000, step = 50, default = 800 },
+    { cvar = "groundEffectFade", advanced = true, min = 0, max = 310, step = 5, default = 70 },
     { cvar = "particleMTDensity", menu = "MENU_PARTICLES", advanced = true, min = 10, max = 100, step = 5, default = 20 },
     { cvar = "DepthBasedOpacity", advanced = true, default = false },
 
@@ -146,7 +153,7 @@ NS.settings = {
 }
 
 -- Onglets de la fenêtre, dans l'ordre. Le premier est ouvert au premier lancement.
-NS.tabs = { "quality", "filters", "interface", "advanced" }
+NS.tabs = { "quality", "filters", "ambiance", "interface", "advanced" }
 
 NS.presets = {
     { id = "low", label = "PRESET_LOW" },
@@ -288,6 +295,10 @@ local batching = false
 -- applique. Pas à la connexion, où un refus passager effacerait la valeur gardée.
 -- Changé en combat : relu à la sortie du combat, après l'écriture différée.
 local readBackAfterCombat = {}
+-- Intensité météo changée : l'ambiance météo apparaît ou disparaît (Ambiance.lua), filtres reposés.
+local function RefreshWeatherAmbiance(setting)
+    if setting.cvar == "WeatherDensity" and NS.db.ambiance.enabled then NS.ApplyFilters() end
+end
 local function ReadBack(setting)
     if NS.Exists(setting) then NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting)) end
 end
@@ -299,6 +310,7 @@ function NS.Change(setting)
     NS.Apply(setting)
     if InCombatLockdown() then readBackAfterCombat[setting] = true else ReadBack(setting) end
     RefreshCombatText(setting)
+    RefreshWeatherAmbiance(setting)
     if NS.RefreshOptions and not batching then NS.RefreshOptions() end
 end
 
@@ -366,6 +378,11 @@ events:RegisterEvent("PLAYER_LOGIN")
 -- (Blizzard_SettingsRegistrar.lua, source 1.60.1.70862).
 events:RegisterEvent("VARIABLES_LOADED")
 events:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- Ambiance (Ambiance.lua) : contexte relu à chaque changement de zone, d'intérieur ou de météo.
+local AMBIANCE_EVENTS = { ZONE_CHANGED = true, ZONE_CHANGED_INDOORS = true, ZONE_CHANGED_NEW_AREA = true,
+                          WEATHER_CHANGED = true, DIEL_CYCLE_CHANGED = true }
+-- pcall : DIEL_CYCLE_CHANGED (bascule jour/nuit du jeu) absent d'un build = minuteur de 60 s seul.
+for event in pairs(AMBIANCE_EVENTS) do pcall(events.RegisterEvent, events, event) end
 local firstRun = false
 local variablesLoaded, enteredWorld, loginSettled = false, false, false
 -- Délai après PLAYER_LOGIN avant la passe finale : le client peut encore changer des CVars après
@@ -438,6 +455,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
             end
         end
         if NS.LoadFilters then NS.LoadFilters(db) end
+        if NS.LoadAmbiance then NS.LoadAmbiance(db) end
         NS.db = db
         if NS.BuildOptions then NS.BuildOptions() end
         if NS.BuildMinimapButton then NS.BuildMinimapButton() end
@@ -446,12 +464,17 @@ events:SetScript("OnEvent", function(self, event, arg1)
         -- (Config.wtf, détection automatique). Premier lancement : les valeurs viennent du jeu, rien à écrire.
         -- Le plafond `hardMax` est écrit dans tous les cas.
         NS.ApplyAll(not NS.db.applyOnLogin or firstRun)
-        -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non.
-        if NS.ApplyFilters then NS.ApplyFilters() end
         C_Timer.After(LOGIN_SETTLE_SECONDS, function()
             loginSettled = true
+            -- Carte parfois inconnue au PLAYER_LOGIN : biome relu une fois le monde chargé.
+            if NS.StartAmbiance then NS.StartAmbiance(); NS.UpdateAmbiance() end
             if variablesLoaded and enteredWorld and NS.db then FinishLoading() end
         end)
+        -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non. Après le
+        -- minuteur : une erreur de détection d'ambiance ne bloque pas la passe finale.
+        if NS.ApplyFilters then NS.ApplyFilters() end
+    elseif AMBIANCE_EVENTS[event] then
+        if NS.db and NS.UpdateAmbiance then NS.UpdateAmbiance() end
     elseif event == "VARIABLES_LOADED" or event == "PLAYER_ENTERING_WORLD" then
         if event == "VARIABLES_LOADED" then variablesLoaded = true else enteredWorld = true end
         if variablesLoaded and enteredWorld and loginSettled and NS.db then FinishLoading() end
@@ -462,6 +485,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
             NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting))
             -- Au-delà du plafond `hardMax` (menu du jeu, /console) : ramenée au maximum.
             if setting.hardMax and (ReadCVar(setting) or 0) > setting.max then NS.Apply(setting) end
+            RefreshWeatherAmbiance(setting)
             if NS.RefreshOptions and not batching then NS.RefreshOptions() end
         end
     elseif event == "PLAYER_REGEN_ENABLED" then

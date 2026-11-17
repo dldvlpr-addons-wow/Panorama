@@ -4,6 +4,8 @@ How to use Panorama on WoW Forever, and how to set up HDR on Windows.
 
 Other languages: [Deutsch](GUIDE.deDE.md) · [Español](GUIDE.esES.md) · [Français](GUIDE.frFR.md) · [Italiano](GUIDE.itIT.md) · [Português](GUIDE.ptBR.md) · [Русский](GUIDE.ruRU.md) · [한국어](GUIDE.koKR.md) · [简体中文](GUIDE.zhCN.md) · [繁體中文](GUIDE.zhTW.md)
 
+**Back up your settings first.** Panorama changes game settings, and removing the addon does not change them back. Before you change anything, quit the game and copy the `WTF` folder of your game install somewhere safe. To go back, quit the game and put that copy back in place.
+
 ## 1. Open the window
 
 - Type `/pano`, or left click the Panorama button on the minimap.
@@ -21,7 +23,7 @@ The minimap button:
 | Part | What it does |
 |---|---|
 | Search box (top right) | Type a word to list the matching settings of every tab. Clear it to go back. |
-| Tabs | Quality, Filters, Interface, Advanced. The open tab is remembered. |
+| Tabs | Quality, Filters, Ambiance, Interface, Advanced. The open tab is remembered. |
 | Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
 | Guide (left of the language selector) | Opens this guide in the game. |
 | Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
@@ -63,10 +65,31 @@ The Filters tab adds effects on top of the image. They change no game setting.
 
 - **Tint**: click a thumbnail to apply it right away (sepia, warm, cold, night, emerald, dusk).
   **Tint strength** sets how strong it is.
+- **Sky**: the same colors as a gradient, full at the top of the screen and lighter at the bottom.
+  **Sky strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
 - **Film grain**: animated grain.
-- **Black bars**: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they
-  hide, so they do not raise the frame rate.
+
+### Ambiance
+
+The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit where you are.
+
+- **Automatic ambiance**: on, these filters follow the place and the time of day. Off by default.
+  The values of the Filters tab stay saved and come back when you turn it off.
+- **Place**: sets the tint, vignette and grain. Order: dungeon or raid, indoors, weather (rain, snow,
+  sandstorm), then the kind of zone: temperate, desert, snowy, jungle and marsh, corrupted, volcanic,
+  arcane forest. A zone not known yet counts as temperate. Weather counts only when Weather
+  intensity is above 0.
+- **Time of day**: sets the sky (day, dawn and dusk, night). Night follows the game's day and
+  night; dawn and dusk follow the server time. No sky indoors or in a dungeon.
+- The line on the right shows the place and the time of day detected now. When a dungeon, indoors
+  or the weather comes before a zone you set, it says so.
+- **Context to edit**: pick a context, then set its filters below. The Default button gives back the
+  value shipped for that context.
+- **This zone**: first choice of the same menu, with the name of the zone you are in. Pick it to give
+  this zone its own tint, vignette and grain, starting from its kind of zone. It then comes before
+  the kind of zone, but after dungeon, indoors and weather. Zones you set stay in the menu.
+  **Zone type** removes the values of the zone: it follows its kind of zone again.
 
 ## 5. Your values and the game
 
