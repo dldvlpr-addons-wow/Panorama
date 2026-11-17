@@ -21,14 +21,14 @@ NS.L = L
 -- Bas, Moyen, Élevé : valeurs écrites par les niveaux Bas, Moyen, Élevé du menu Graphismes
 -- (relevé en jeu 2026-11-14), pour les CVars présentes sur Forever ; celles absentes du client
 -- (horizonfarclip, detailDoodleDensity, shadowLevel, SSFX, gxMultisample) gardent des valeurs
--- estimées. Extra : Élevé, et farclip au maximum du curseur.
+-- estimées. Extra : Élevé, et farclip 7000.
 -- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `requires` : réglage grisé tant que
 -- la CVar nommée est coupée (false ou 0).
 -- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
 -- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
     { title = "SECTION_VIEW", tab = "quality" },
-    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 7000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
+    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 10000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
     { cvar = "horizonfarclip", menu = "MENU_VIEW_DISTANCE", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
     -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; plafond 3 à la demande, imposé
@@ -83,7 +83,7 @@ NS.settings = {
     { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
 
     { title = "SECTION_CAMERA", tab = "interface" },
-    -- Max du curseur : relevé joueur (/console accepte 4 et farclip 7000). Le menu Forever
+    -- Max du curseur : relevés joueurs (/console accepte 4, et farclip 10000 gardé par le jeu). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
     { cvar = "cameraDistanceMaxZoomFactor", menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },

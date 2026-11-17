@@ -60,6 +60,12 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ---
 
+## <span style="color: #3c3;">🔧 Fixed in 1.7.2</span>
+
+- <span style="color: #ffd100;"><strong>View distance goes up to 10000:</strong></span> the slider and the input box no longer stop at 7000. The Extra preset stays at 7000.
+
+---
+
 ## <span style="color: #3c3;">🔧 Fixed in 1.7.1</span>
 
 - <span style="color: #ffd100;"><strong>Settings no longer reset at login or /reload:</strong></span> Panorama waits until the game has finished loading, then applies your settings again.

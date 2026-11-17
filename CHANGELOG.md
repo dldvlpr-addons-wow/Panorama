@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.2
+
+### Fixed
+- **View distance (`farclip`) slider goes up to 10000.** A view distance set above 7000 with
+  `/console` showed in Panorama, but the slider and the input box could not go back above 7000.
+  The Extra preset stays at 7000.
+
 ## 1.7.1
 
 ### Fixed
