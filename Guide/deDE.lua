@@ -40,7 +40,6 @@ NS.guides.deDE = {
     { "li", "|cffffd100Farbton|r: Klicke auf eine Vorschau, um ihn sofort anzuwenden (Sepia, Warm, Kalt, Nacht, Smaragd, Dämmerung). |cffffd100Farbtonstärke|r legt fest, wie stark er ist.", "-" },
     { "li", "|cffffd100Vignette|r: dunkelt die Bildschirmränder ab.", "-" },
     { "li", "|cffffd100Filmkorn|r: animiertes Korn.", "-" },
-    { "li", "|cffffd100Schwarze Balken|r: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms. Das Spiel rendert weiterhin, was sie verdecken, daher steigern sie die Bildrate nicht.", "-" },
     { "h2", "5. Deine Werte und das Spiel" },
     { "li", "Bei der ersten Installation liest Panorama deine aktuellen Spieleinstellungen. Nichts ändert sich, bis du ein Steuerelement bewegst.", "-" },
     { "li", "Eine Änderung im Grafikmenü des Spiels oder mit |cffffd100/console|r wird im Fenster angezeigt.", "-" },

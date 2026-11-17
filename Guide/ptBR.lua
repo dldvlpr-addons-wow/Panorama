@@ -40,7 +40,6 @@ NS.guides.ptBR = {
     { "li", "|cffffd100Tonalidade|r: clique em uma miniatura para aplicá-la na hora (sépia, quente, fria, noite, esmeralda, crepúsculo). |cffffd100Intensidade da tonalidade|r define a força.", "-" },
     { "li", "|cffffd100Vinheta|r: escurece as bordas da tela.", "-" },
     { "li", "|cffffd100Granulação|r: granulação animada.", "-" },
-    { "li", "|cffffd100Barras pretas|r: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas escondem, então não aumentam a taxa de quadros.", "-" },
     { "h2", "5. Seus valores e o jogo" },
     { "li", "Na primeira instalação, o Panorama lê suas configurações atuais do jogo. Nada muda até você mexer em um controle.", "-" },
     { "li", "Uma mudança feita no menu Gráficos do jogo ou com |cffffd100/console|r aparece na janela.", "-" },

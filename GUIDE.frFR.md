@@ -63,8 +63,6 @@ L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun ré
   **Intensité de la teinte** règle sa force.
 - **Vignettage** : assombrit les bords de l'écran.
 - **Grain** : grain animé.
-- **Bandes noires** : bandes en haut et en bas, de 0 à 20 % de l'écran chacune. Le jeu calcule quand même ce qu'elles
-  cachent, elles n'augmentent donc pas le nombre d'images par seconde.
 
 ## 5. Vos valeurs et le jeu
 

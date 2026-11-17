@@ -65,8 +65,6 @@ La pestaña Filtros añade efectos sobre la imagen. No cambian ningún ajuste de
   Crepúsculo). **Intensidad del tono** define su fuerza.
 - **Viñeta**: oscurece los bordes de la pantalla.
 - **Grano**: grano animado.
-- **Barras negras**: barras superior e inferior, de 0 a 20 % de la pantalla cada una. El juego sigue
-  renderizando lo que ocultan, así que no aumentan la tasa de fotogramas.
 
 ## 5. Tus valores y el juego
 

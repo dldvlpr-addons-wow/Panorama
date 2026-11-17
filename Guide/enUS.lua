@@ -40,7 +40,6 @@ NS.guides.enUS = {
     { "li", "|cffffd100Tint|r: click a thumbnail to apply it right away (sepia, warm, cold, night, emerald, dusk). |cffffd100Tint strength|r sets how strong it is.", "-" },
     { "li", "|cffffd100Vignette|r: darkens the edges of the screen.", "-" },
     { "li", "|cffffd100Film grain|r: animated grain.", "-" },
-    { "li", "|cffffd100Black bars|r: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they hide, so they do not raise the frame rate.", "-" },
     { "h2", "5. Your values and the game" },
     { "li", "On first install, Panorama reads your current game settings. Nothing changes until you move a control.", "-" },
     { "li", "A change made in the game's Graphics menu or with |cffffd100/console|r shows in the window.", "-" },

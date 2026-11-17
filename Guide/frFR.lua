@@ -40,7 +40,6 @@ NS.guides.frFR = {
     { "li", "|cffffd100Teinte|r : cliquez sur une vignette pour l'appliquer tout de suite (sépia, chaude, froide, nuit, émeraude, crépuscule). |cffffd100Intensité de la teinte|r règle sa force.", "-" },
     { "li", "|cffffd100Vignettage|r : assombrit les bords de l'écran.", "-" },
     { "li", "|cffffd100Grain|r : grain animé.", "-" },
-    { "li", "|cffffd100Bandes noires|r : bandes en haut et en bas, de 0 à 20 % de l'écran chacune. Le jeu calcule quand même ce qu'elles cachent, elles n'augmentent donc pas le nombre d'images par seconde.", "-" },
     { "h2", "5. Vos valeurs et le jeu" },
     { "li", "À la première installation, Panorama lit vos réglages actuels du jeu. Rien ne change tant que vous ne touchez pas un contrôle.", "-" },
     { "li", "Une modification faite dans le menu Graphismes du jeu ou avec |cffffd100/console|r apparaît dans la fenêtre.", "-" },

@@ -40,7 +40,6 @@ NS.guides.itIT = {
     { "li", "|cffffd100Tinta|r: fai clic su un'anteprima per applicarla subito (Seppia, Calda, Fredda, Notte, Smeraldo, Crepuscolo). |cffffd100Intensità della tinta|r imposta quanto è forte.", "-" },
     { "li", "|cffffd100Vignettatura|r: scurisce i bordi dello schermo.", "-" },
     { "li", "|cffffd100Grana|r: grana animata.", "-" },
-    { "li", "|cffffd100Bande nere|r: bande in alto e in basso, da 0 a 20 % dello schermo ciascuna. Il gioco continua a elaborare ciò che nascondono, quindi non aumentano il frame rate.", "-" },
     { "h2", "5. I tuoi valori e il gioco" },
     { "li", "Alla prima installazione, Panorama legge le impostazioni attuali del gioco. Non cambia nulla finché non muovi un controllo.", "-" },
     { "li", "Una modifica fatta nel menu Grafica del gioco o con |cffffd100/console|r compare nella finestra.", "-" },

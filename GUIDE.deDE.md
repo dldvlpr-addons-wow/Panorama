@@ -65,8 +65,6 @@ Der Reiter Filter fügt Effekte über dem Bild hinzu. Sie ändern keine Spielein
   Dämmerung). **Farbtonstärke** legt fest, wie stark er ist.
 - **Vignette**: dunkelt die Bildschirmränder ab.
 - **Filmkorn**: animiertes Korn.
-- **Schwarze Balken**: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms. Das Spiel rendert
-  weiterhin, was sie verdecken, daher steigern sie die Bildrate nicht.
 
 ## 5. Deine Werte und das Spiel
 

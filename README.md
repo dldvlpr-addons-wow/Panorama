@@ -12,7 +12,7 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **58 settings and 5 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **58 settings and 4 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -32,8 +32,6 @@ Guide button in the panel opens the same guide in the game.
 - **Default button on every line**: it puts that setting back to its default. Advanced settings,
   nameplate class colors, pets and totems, zoom speed, text size and combat text use the
   game's own default.
-- **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
-  cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a
   sepia, warm, cold, night, emerald or dusk tint with its own strength. They change no CVar.
 
@@ -50,7 +48,7 @@ Guide button in the panel opens the same guide in the game.
 | Nameplates | Nameplate distance, enemy and friendly class colors, enemy pets, enemy totems |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, particle density, depth-based transparency |
 | Floating combat text | Absorb shields, combat state, dodges/parries/misses, absorbed/blocked/resisted damage, healer names, buffs and debuffs, reactive abilities, resource gains, periodic resource gains, combo points, low mana and health, honor gains, reputation changes |
-| Filters | Black bars, vignette, film grain, color tint, tint strength |
+| Filters | Vignette, film grain, color tint, tint strength |
 
 ## Commands
 
@@ -80,8 +78,6 @@ WoW Forever 1.60.1 (interface 16001).
 - The Defaults button in the game's Graphics menu resets only the settings that menu manages, and
   Panorama follows it. To reset the others, and the filters, use the Default button on each line
   in `/pano`.
-- The black bars hide part of the world. The game still renders it, so they do not raise your
-  frame rate.
 
 Website: https://muscalab.com/addons/panorama
 

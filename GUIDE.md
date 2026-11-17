@@ -65,8 +65,6 @@ The Filters tab adds effects on top of the image. They change no game setting.
   **Tint strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
 - **Film grain**: animated grain.
-- **Black bars**: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they
-  hide, so they do not raise the frame rate.
 
 ## 5. Your values and the game
 

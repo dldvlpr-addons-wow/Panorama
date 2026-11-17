@@ -63,8 +63,6 @@ A aba Filtros adiciona efeitos sobre a imagem. Eles não mudam nenhuma configura
   **Intensidade da tonalidade** define a força.
 - **Vinheta**: escurece as bordas da tela.
 - **Granulação**: granulação animada.
-- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas
-  escondem, então não aumentam a taxa de quadros.
 
 ## 5. Seus valores e o jogo
 

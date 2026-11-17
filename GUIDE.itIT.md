@@ -65,8 +65,6 @@ La scheda Filtri aggiunge effetti sopra l'immagine. Non cambiano nessuna imposta
   Crepuscolo). **Intensità della tinta** imposta quanto è forte.
 - **Vignettatura**: scurisce i bordi dello schermo.
 - **Grana**: grana animata.
-- **Bande nere**: bande in alto e in basso, da 0 a 20 % dello schermo ciascuna. Il gioco continua a
-  elaborare ciò che nascondono, quindi non aumentano il frame rate.
 
 ## 5. I tuoi valori e il gioco
 

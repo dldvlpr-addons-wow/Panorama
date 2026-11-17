@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.3
+
+### Removed
+- **Black bars filter.** The top and bottom black bars are gone from the Filters tab. A saved
+  value is cleared at login.
+
 ## 1.7.2
 
 ### Fixed

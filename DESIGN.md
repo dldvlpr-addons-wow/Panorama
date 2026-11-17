@@ -210,7 +210,7 @@ Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé
 ## 8. Composant : grille de vignettes de teinte
 
 Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, en tête de l'onglet Filtres,
-suivie de Intensité de teinte, Vignettage, Grain, Bandes noires.
+suivie de Intensité de teinte, Vignettage, Grain.
 
 - Libellé et aide comme une ligne normale, aide en largeur 500 ; bouton Défaut à x 532, y -14.
 - Grille sous l'aide (+8), à x 10 : **7 vignettes sur une rangée** (Aucune + 6 teintes, ordre de

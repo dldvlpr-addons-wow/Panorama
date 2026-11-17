@@ -40,7 +40,6 @@ NS.guides.esES = {
     { "li", "|cffffd100Tono|r: haz clic en una miniatura para aplicarlo al instante (Sepia, Cálido, Frío, Noche, Esmeralda, Crepúsculo). |cffffd100Intensidad del tono|r define su fuerza.", "-" },
     { "li", "|cffffd100Viñeta|r: oscurece los bordes de la pantalla.", "-" },
     { "li", "|cffffd100Grano|r: grano animado.", "-" },
-    { "li", "|cffffd100Barras negras|r: barras superior e inferior, de 0 a 20 % de la pantalla cada una. El juego sigue renderizando lo que ocultan, así que no aumentan la tasa de fotogramas.", "-" },
     { "h2", "5. Tus valores y el juego" },
     { "li", "En la primera instalación, Panorama lee tus ajustes actuales del juego. No cambia nada hasta que muevas un control.", "-" },
     { "li", "Un cambio hecho en el menú de Gráficos del juego o con |cffffd100/console|r se muestra en la ventana.", "-" },
