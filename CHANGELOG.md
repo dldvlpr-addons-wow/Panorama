@@ -20,14 +20,18 @@
   them.
 
 ### Fixed
-- **View distance (`farclip`) slider goes up to 10000.** A view distance set above 7000 with
-  `/console` showed in Panorama, but the slider and the input box could not go back above 7000.
-  The Extra preset stays at 7000.
 - **Physics tooltip** now says the setting needs a game restart, like the game's own menu.
 
 ### Removed
 - **Black bars filter.** The bars hid part of the screen without any frame rate gain. A saved
   black bars value is ignored.
+
+## 1.7.2
+
+### Fixed
+- **View distance (`farclip`) slider goes up to 10000.** A view distance set above 7000 with
+  `/console` showed in Panorama, but the slider and the input box could not go back above 7000.
+  The Extra preset stays at 7000.
 
 ## 1.7.1
 
