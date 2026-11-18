@@ -89,7 +89,7 @@ Aucun résultat : « Aucun réglage ne correspond » (`GameFontDisable`, clé ne
 
 ### Pied
 
-- Cases « Appliquer à chaque connexion » et « Bouton minimap » : `UICheckButtonTemplate` 26 x 26,
+- Cases « Appliquer à chaque connexion » et « Minimap » : `UICheckButtonTemplate` 26 x 26,
   première en `BOTTOMLEFT` (10, 11), seconde 16 après le texte de la première. Axe commun : y 24 depuis le bas.
 - À droite : bouton Tout réinitialiser (avec fenêtre de confirmation) à 8 à gauche du bouton
   Redémarrer, `BOTTOMRIGHT` (-14, 13), hauteur 22, largeur texte + 24 (min 100).
