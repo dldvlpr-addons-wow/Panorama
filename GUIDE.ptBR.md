@@ -23,7 +23,7 @@ O botão do minimapa:
 | Seletor de idioma (à direita das abas) | Idioma do jogo ou um de dez idiomas. Mudar o idioma recarrega a interface. |
 | Guia (à esquerda do seletor de idioma) | Abre este guia no jogo. |
 | Predefinições (aba Qualidade) | Baixa, Média, Alta, Extra. A predefinição que combina com suas configurações fica destacada. |
-| Rodapé | Aplicar a cada conexão, botão do minimapa, reinicialização do motor gráfico. |
+| Rodapé | Aplicar a cada conexão, botão do minimapa, Redefinir tudo, reinicialização do motor gráfico. |
 
 Clique no título de uma seção para recolhê-la ou expandi-la.
 
@@ -63,6 +63,8 @@ A aba Filtros adiciona efeitos sobre a imagem. Eles não mudam nenhuma configura
   **Intensidade da tonalidade** define a força.
 - **Vinheta**: escurece as bordas da tela.
 - **Granulação**: granulação animada.
+- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas
+  escondem, então não aumentam a taxa de quadros.
 
 ## 5. Seus valores e o jogo
 
@@ -143,6 +145,7 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 | `/pano` | Abre ou fecha a janela |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Aplica uma predefinição |
 | `/pano undo` | Restaura as configurações de antes da última predefinição |
+| `/pano reset` | Volta cada configuração e cada filtro ao padrão |
 | `/pano apply` | Grava de novo as configurações mudadas no Panorama |
 | `/pano restart` | Reinicia o motor gráfico |
 | `/pano minimap` | Mostra ou oculta o botão do minimapa |
@@ -152,3 +155,5 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 - O botão **Padrão** de cada linha redefine essa configuração.
 - O botão **Padrões** do menu Gráficos do jogo redefine apenas as configurações que esse menu gerencia,
   e o Panorama o acompanha. Use os botões Padrão em `/pano` para as outras e para os filtros.
+- **Redefinir tudo** (rodapé, com confirmação) ou `/pano reset`: volta cada configuração alterada no
+  Panorama e cada filtro ao padrão. Não pode ser desfeito.

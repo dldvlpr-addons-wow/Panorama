@@ -23,7 +23,7 @@ Il pulsante della minimappa:
 | Selettore della lingua (a destra delle schede) | Lingua del gioco o una di dieci lingue. Cambiarla ricarica l'interfaccia. |
 | Guida (a sinistra del selettore della lingua) | Apre questa guida nel gioco. |
 | Preset (scheda Qualità) | Bassa, Media, Alta, Extra. Il preset che corrisponde alle tue impostazioni è evidenziato. |
-| Piè di pagina | Applica a ogni accesso, pulsante della minimappa, riavvio del motore grafico. |
+| Piè di pagina | Applica a ogni accesso, pulsante minimappa, Ripristina tutto, riavvio del motore grafico. |
 
 Fai clic sul titolo di una sezione per comprimerla o espanderla.
 
@@ -65,6 +65,8 @@ La scheda Filtri aggiunge effetti sopra l'immagine. Non cambiano nessuna imposta
   Crepuscolo). **Intensità della tinta** imposta quanto è forte.
 - **Vignettatura**: scurisce i bordi dello schermo.
 - **Grana**: grana animata.
+- **Bande nere**: bande in alto e in basso, da 0 a 20 % dello schermo ciascuna. Il gioco continua a
+  elaborare ciò che nascondono, quindi non aumentano il frame rate.
 
 ## 5. I tuoi valori e il gioco
 
@@ -148,6 +150,7 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 | `/pano` | Apre o chiude la finestra |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applica un preset |
 | `/pano undo` | Ripristina le impostazioni di prima dell'ultimo preset |
+| `/pano reset` | Riporta ogni impostazione e ogni filtro al valore predefinito |
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
 | `/pano restart` | Riavvia il motore grafico |
 | `/pano minimap` | Mostra o nasconde il pulsante della minimappa |
@@ -157,3 +160,5 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 - Il pulsante **Predefinito** di ogni riga ripristina quell'impostazione.
 - Il pulsante **Predefiniti** del menu Grafica del gioco ripristina solo le impostazioni che quel menu
   gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in `/pano` per le altre e per i filtri.
+- **Ripristina tutto** (piè di pagina, con conferma) o `/pano reset`: riporta ogni impostazione modificata
+  in Panorama e ogni filtro al valore predefinito. Non si può annullare.

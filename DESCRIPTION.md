@@ -2,7 +2,7 @@
 
 <p style="text-align: center;"><strong>The graphics settings hidden behind <code>/console</code>, in one window, reapplied at every login.</strong></p>
 
-<p style="text-align: center;">View distance, shadows, water, camera, nameplates: 58 settings and 4 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
+<p style="text-align: center;">View distance, shadows, water, camera, nameplates: 58 settings and 5 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
 
 <p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
@@ -46,23 +46,17 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 - <span style="color: #ffd100;"><strong>Its own window, in four tabs:</strong></span> Quality, Filters, Interface, Advanced. A search box looks through every tab. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
 - <span style="color: #ffd100;"><strong>Type a value.</strong></span> Each slider has a box next to it for an exact value.
-- <span style="color: #ffd100;"><strong>58 settings and 4 filters in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
+- <span style="color: #ffd100;"><strong>58 settings and 5 filters in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
 - <span style="color: #ffd100;"><strong>Your values are kept.</strong></span> A value set with `/console` beyond a slider's range stays. A setting your client does not support is hidden and never written.
 - <span style="color: #ffd100;"><strong>Stays in sync.</strong></span> A change made in the game's Graphics menu or with `/console` shows in the window.
 - <span style="color: #ffd100;"><strong>Reapply on login.</strong></span> The settings you changed in Panorama are written again at login, in case the game changed them between sessions. The others follow the game's Graphics menu. You can turn it off.
 - <span style="color: #ffd100;"><strong>Combat safe.</strong></span> A change made during combat is applied when combat ends.
 - <span style="color: #ffd100;"><strong>Default button on every line,</strong></span> and an <strong>Undo</strong> button for the last preset.
-- <span style="color: #ffd100;"><strong>Filters:</strong></span> vignette, film grain and six tints (sepia, warm, cold, night, emerald, dusk), picked from thumbnails. No CVar changed.
+- <span style="color: #ffd100;"><strong>Filters:</strong></span> black bars for a cinematic look, vignette, film grain and six tints (sepia, warm, cold, night, emerald, dusk), picked from thumbnails. No CVar changed.
 - <span style="color: #ffd100;"><strong>HDR on Windows:</strong></span> HDR output, peak or reference brightness and HDR intensity, settings the game only has as console commands.
 - <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo and graphics restart.
 - <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. A selector in the window changes the language.
 - <span style="color: #ffd100;"><strong>In-game guide</strong></span> in all 10 languages, HDR setup on Windows included.
-
----
-
-## <span style="color: #3c3;">➖ Removed in 1.7.3</span>
-
-- <span style="color: #ffd100;"><strong>Black bars filter:</strong></span> removed from the Filters tab. A saved value is cleared at login.
 
 ---
 
@@ -100,6 +94,7 @@ Full list in the **Files** tab.
 | `/pano` | Open or close the window |
 | `/pano low`, `medium`, `high`, `extra` | Apply a preset |
 | `/pano undo` | Restore the settings from before the last preset |
+| `/pano reset` | Reset every setting changed in Panorama, and every filter |
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |
@@ -111,11 +106,12 @@ Full list in the **Files** tab.
 ### <span style="color: #ff9800;">⚠ Works, with limits</span>
 
 - **Advanced settings** and zoom speed have limits measured in game.
+- **Black bars** hide part of the world but the game still renders it: no frame rate gain.
 - **HDR** needs a monitor that supports HDR, with HDR on in Windows. With no brightness mode checked, the image goes dark.
 
 ### <span style="color: #f44336;">✖ Does not do</span>
 
-- It does not change the game's Graphics menu presets. The Graphics menu's **Defaults** button resets only the settings that menu manages, and Panorama follows it. To reset the others and the filters, use the Default button on each line in `/pano`. A yellow star marks a setting also set by a game menu.
+- It does not change the game's Graphics menu presets. The Graphics menu's **Defaults** button resets only the settings that menu manages, and Panorama follows it. To reset the others and the filters, use the Default button on each line in `/pano`, or Reset all for everything at once. A yellow star marks a setting also set by a game menu.
 
 ---
 

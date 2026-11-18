@@ -728,10 +728,14 @@ local function CreateFooter()
     local restart = CreateButton(panel, L.OPT_RESTART, 100, NS.RestartGraphics)
     restart:SetPoint("BOTTOMRIGHT", -14, 13)
     Tooltip(restart, L.OPT_RESTART_TIP)
-    local engine = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    engine:SetTextColor(HELP, HELP, HELP)
-    engine:SetPoint("RIGHT", restart, "LEFT", -8, 0)
-    engine:SetText(L.OPT_ENGINE)
+    -- Tout remettre par défaut, après confirmation : aucune annulation possible ensuite.
+    StaticPopupDialogs.PANORAMA_RESET_ALL = { text = L.OPT_RESET_ALL_CONFIRM, button1 = YES, button2 = NO,
+        OnAccept = function() NS.ResetAll() end, timeout = 0, whileDead = true, hideOnEscape = true }
+    local resetAll = CreateButton(panel, L.OPT_RESET_ALL, 100, function()
+        StaticPopup_Show("PANORAMA_RESET_ALL")
+    end)
+    resetAll:SetPoint("RIGHT", restart, "LEFT", -8, 0)
+    Tooltip(resetAll, L.OPT_RESET_ALL_TIP)
 end
 
 function NS.BuildOptions()

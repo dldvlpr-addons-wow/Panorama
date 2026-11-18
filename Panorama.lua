@@ -348,6 +348,30 @@ function NS.Undo()
     print(L.PREFIX .. L.MSG_UNDONE)
 end
 
+-- Remise à zéro complète : chaque CVar modifiée dans Panorama à son défaut (NS.GameDefault), puis
+-- rendue au jeu (plus réécrite à la connexion) ; les autres suivent déjà le jeu et restent telles
+-- quelles. Chaque filtre à son défaut. Efface aussi l'annulation de préréglage.
+function NS.ResetAll()
+    NS.db.undo, NS.db.undoTouched = nil, nil
+    local needsRestart = false
+    batching = true
+    for _, setting in ipairs(NS.settings) do
+        if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
+            local default = NS.GameDefault(setting)
+            if setting.restart and NS.db.values[setting.cvar] ~= default then needsRestart = true end
+            SetValue(setting, default)
+            NS.db.touched[setting.cvar] = nil
+        end
+    end
+    batching = false
+    for _, setting in ipairs(NS.filterSettings) do
+        if setting.key then NS.db.filters[setting.key] = setting.default end
+    end
+    NS.ApplyFilters()
+    if NS.RefreshOptions then NS.RefreshOptions() end
+    print(L.PREFIX .. L.MSG_RESET_ALL .. (needsRestart and " " .. L.OPT_NEEDS_RESTART or ""))
+end
+
 function NS.RestartGraphics()
     ConsoleExec("gxRestart")
 end
@@ -494,6 +518,8 @@ SlashCmdList.PANORAMA = function(message)
         NS.RestartGraphics()
     elseif command == "undo" then
         NS.Undo()
+    elseif command == "reset" then
+        NS.ResetAll()
     elseif command == "minimap" then
         NS.db.minimap.show = not NS.db.minimap.show
         if NS.UpdateMinimapButton then NS.UpdateMinimapButton() end

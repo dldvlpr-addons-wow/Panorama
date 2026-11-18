@@ -23,7 +23,7 @@ Le bouton de la minimap :
 | Sélecteur de langue (à droite des onglets) | Langue du jeu ou l'une des dix langues. Changer de langue recharge l'interface. |
 | Guide (à gauche du sélecteur de langue) | Ouvre ce guide dans le jeu. |
 | Préréglages (onglet Qualité) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
-| Pied de fenêtre | Appliquer à chaque connexion, bouton de la minimap, redémarrage du moteur graphique. |
+| Pied de fenêtre | Appliquer à chaque connexion, bouton minimap, Tout réinitialiser, redémarrage du moteur graphique. |
 
 Cliquez sur un titre de section pour la replier ou la déplier.
 
@@ -63,6 +63,8 @@ L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun ré
   **Intensité de la teinte** règle sa force.
 - **Vignettage** : assombrit les bords de l'écran.
 - **Grain** : grain animé.
+- **Bandes noires** : bandes en haut et en bas, de 0 à 20 % de l'écran chacune. Le jeu calcule quand même ce qu'elles
+  cachent, elles n'augmentent donc pas le nombre d'images par seconde.
 
 ## 5. Vos valeurs et le jeu
 
@@ -143,6 +145,7 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 | `/pano` | Ouvre ou ferme la fenêtre |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applique un préréglage |
 | `/pano undo` | Rétablit les réglages d'avant le dernier préréglage |
+| `/pano reset` | Remet chaque réglage et chaque filtre par défaut |
 | `/pano apply` | Réécrit les réglages modifiés dans Panorama |
 | `/pano restart` | Redémarre le moteur graphique |
 | `/pano minimap` | Affiche ou masque le bouton de la minimap |
@@ -152,3 +155,5 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 - Le bouton **Défaut** de chaque ligne réinitialise ce réglage.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
+- **Tout réinitialiser** (pied de fenêtre, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
+  dans Panorama et chaque filtre à sa valeur par défaut. Impossible d'annuler.

@@ -5,10 +5,11 @@ C_CVar = {
     SetCVar = function(name, value) cvars[name] = value; written[#written + 1] = name end,
 }
 InCombatLockdown = function() return combat end
+GetCVarDefault = function() return nil end
 -- Minuteries gardées sans être lancées : le test les déclenche lui-même.
 local timers = {}
 C_Timer = { After = function(delay, callback) timers[#timers + 1] = { delay = delay, callback = callback } end }
-local textures
+local bands
 frame = { events = {},
           RegisterEvent = function(self, event) self.events[event] = true end,
           UnregisterEvent = function(self, event) self.events[event] = nil end,
@@ -22,9 +23,10 @@ frame = { events = {},
               local texture = { SetPoint = noop, SetAllPoints = noop, SetTexture = noop, SetBlendMode = noop,
                                 SetTexCoord = noop,
                                 SetColorTexture = function(self, r, g, b) self.color = { r, g, b } end,
+                                SetHeight = function(self, height) self.height = height end,
                                 SetShown = function(self, shown) self.shown = shown end,
                                 SetAlpha = function(self, alpha) self.alpha = alpha end }
-              textures[#textures + 1] = texture
+              bands[#bands + 1] = texture
               return texture
           end }
 WorldFrame = {}
@@ -254,34 +256,45 @@ combat = false
 handler(frame, "PLAYER_REGEN_ENABLED")
 assert(cvars.farclip == "1000", "annulation écrite après le combat")
 
+-- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, plus d'annulation.
+local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } })
+SlashCmdList.PANORAMA("low")
+cvars.nameplateMaxDistance = "35"   -- réglé par le jeu, jamais touché dans Panorama
+SlashCmdList.PANORAMA("reset")
+assert(cvars.nameplateMaxDistance == "35", "réglage non touché laissé au jeu")
+assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and not nsReset.CanUndo(), "CVars remises au jeu")
+assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.letterbox == 0, "filtres remis au défaut")
+
 -- Recherche : casse ignorée hors ASCII (latin accentué, cyrillique).
 local options = { L = ns.L }
 assert(loadfile("Options.lua"))("Panorama", options)
 assert(options.Fold("Écran ÀÞ Дальность ЯЁ") == "écran àþ дальность яё", "recherche sans casse")
 
--- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut, ancienne clé letterbox effacée.
--- Textures créées dans l'ordre : teinte, vignette, grain.
-textures = {}
+-- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut, bandes à 10 % de l'écran.
+-- Textures créées dans l'ordre : bande haute, bande basse, teinte, vignette, grain.
+bands = {}
 Load(nil)
 handler(frame, "PLAYER_LOGIN")
-assert(PanoramaDB.filters.tintStrength == 50 and #textures == 0, "aucun calque sans filtre")
-Load({ values = {}, filters = { letterbox = 10, tint = 1.5, vignette = "oui" } })
-assert(PanoramaDB.filters.letterbox == nil and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
-    "filtres invalides remplacés, bandes noires effacées")
-local ns3 = Load({ values = {}, filters = { tint = 1, tintStrength = 0 } })
+assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tintStrength == 50 and #bands == 0,
+    "aucun calque sans filtre")
+Load({ values = {}, filters = { letterbox = 99, tint = 1.5, vignette = "oui" } })
+assert(PanoramaDB.filters.letterbox == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
+    "filtres invalides remplacés")
+local ns3 = Load({ values = {}, filters = { letterbox = 10 } })
 handler(frame, "PLAYER_LOGIN")
-assert(#textures == 0, "teinte à intensité 0 : aucun calque")
--- Sépia à 100 % : couleur sépia multipliée.
+assert(#bands == 5 and bands[1].height == 100 and bands[2].height == 100 and bands[1].shown and frame.shown,
+    "bandes posées à 10 %")
+assert(not bands[3].shown and not bands[4].shown and not bands[5].shown, "seules les bandes visibles")
+-- Teinte choisie mais intensité à 0 : rien. Sépia à 100 % : couleur sépia multipliée.
+PanoramaDB.filters.letterbox, PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 0, 1, 0
+ns3.ApplyFilters()
+assert(frame.shown == false and #bands == 5, "calque caché à 0, sans recréation")
 PanoramaDB.filters.tintStrength = 100
 ns3.ApplyFilters()
-assert(#textures == 3 and frame.shown and textures[1].shown and textures[1].color[2] == 0.82
-    and not textures[2].shown and not textures[3].shown, "teinte sépia")
-PanoramaDB.filters.tintStrength = 0
-ns3.ApplyFilters()
-assert(frame.shown == false and #textures == 3, "calque caché à 0, sans recréation")
+assert(frame.shown and bands[3].shown and bands[3].color[2] == 0.82 and not bands[1].shown, "teinte sépia")
 PanoramaDB.filters.tint, PanoramaDB.filters.vignette, PanoramaDB.filters.grain = 0, 50, 100
 ns3.ApplyFilters()
-assert(not textures[1].shown and textures[2].shown and textures[2].alpha == 0.5 and textures[3].shown,
+assert(not bands[3].shown and bands[4].shown and bands[4].alpha == 0.5 and bands[5].shown,
     "vignette et grain")
 
 -- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.

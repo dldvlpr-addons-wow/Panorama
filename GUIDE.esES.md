@@ -23,7 +23,7 @@ El botón del minimapa:
 | Selector de idioma (a la derecha de las pestañas) | Idioma del juego o uno de diez idiomas. Al cambiarlo se recarga la interfaz. |
 | Guía (a la izquierda del selector de idioma) | Abre esta guía en el juego. |
 | Preajustes (pestaña Calidad) | Bajo, Medio, Alto, Extra. Se resalta el preajuste que coincide con tus ajustes. |
-| Pie | Aplicar en cada conexión, botón del minimapa, reinicio del motor gráfico. |
+| Pie | Aplicar en cada conexión, botón del minimapa, Restablecer todo, reinicio del motor gráfico. |
 
 Haz clic en el título de una sección para plegarla o desplegarla.
 
@@ -65,6 +65,8 @@ La pestaña Filtros añade efectos sobre la imagen. No cambian ningún ajuste de
   Crepúsculo). **Intensidad del tono** define su fuerza.
 - **Viñeta**: oscurece los bordes de la pantalla.
 - **Grano**: grano animado.
+- **Barras negras**: barras superior e inferior, de 0 a 20 % de la pantalla cada una. El juego sigue
+  renderizando lo que ocultan, así que no aumentan la tasa de fotogramas.
 
 ## 5. Tus valores y el juego
 
@@ -148,6 +150,7 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 | `/pano` | Abrir o cerrar la ventana |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Aplicar un preajuste |
 | `/pano undo` | Restaurar los ajustes de antes del último preajuste |
+| `/pano reset` | Devolver cada ajuste y cada filtro a su valor por defecto |
 | `/pano apply` | Escribir de nuevo los ajustes cambiados en Panorama |
 | `/pano restart` | Reiniciar el motor gráfico |
 | `/pano minimap` | Mostrar u ocultar el botón del minimapa |
@@ -157,3 +160,5 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 - El botón **Predeterminado** de cada línea restablece ese ajuste.
 - El botón **Predeterminado** del menú de Gráficos del juego restablece solo los ajustes que gestiona
   ese menú, y Panorama lo sigue. Usa los botones Predeterminado de `/pano` para los demás y para los filtros.
+- **Restablecer todo** (pie, con confirmación) o `/pano reset`: devuelve cada ajuste cambiado en Panorama
+  y cada filtro a su valor por defecto. No se puede deshacer.

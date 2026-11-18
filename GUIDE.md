@@ -25,7 +25,7 @@ The minimap button:
 | Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
 | Guide (left of the language selector) | Opens this guide in the game. |
 | Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
-| Footer | Apply on every login, minimap button, graphics engine restart. |
+| Footer | Apply on every login, minimap button, Reset all, graphics engine restart. |
 
 Click a section title to fold or unfold it.
 
@@ -65,6 +65,8 @@ The Filters tab adds effects on top of the image. They change no game setting.
   **Tint strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
 - **Film grain**: animated grain.
+- **Black bars**: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they
+  hide, so they do not raise the frame rate.
 
 ## 5. Your values and the game
 
@@ -145,6 +147,7 @@ Each HDR line has a Default button that puts back the game's value.
 | `/pano` | Open or close the window |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
 | `/pano undo` | Restore the settings from before the last preset |
+| `/pano reset` | Put every setting and filter back to its default |
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |
@@ -154,3 +157,5 @@ Each HDR line has a Default button that puts back the game's value.
 - The **Default** button on each line resets that setting.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
+- **Reset all** (footer, with confirmation) or `/pano reset`: puts every setting changed in Panorama
+  and every filter back to its default. It cannot be undone.

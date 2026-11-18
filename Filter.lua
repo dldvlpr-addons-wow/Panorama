@@ -28,12 +28,13 @@ NS.filterSettings = {
     { key = "tintStrength", requires = "tint", min = 0, max = 100, step = 5, default = 50 },
     { key = "vignette", min = 0, max = 100, step = 5, default = 0 },
     { key = "grain", min = 0, max = 100, step = 5, default = 0 },
+    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
+    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
 }
 
 -- Valeurs lues dans PanoramaDB : nombre hors bornes, hors choix ou d'un autre type remplacé par le défaut.
 function NS.LoadFilters(db)
     if type(db.filters) ~= "table" then db.filters = {} end
-    db.filters.letterbox = nil   -- bandes noires retirées : valeur des anciennes sauvegardes effacée
     for _, setting in ipairs(NS.filterSettings) do
         if setting.key then
             local value = db.filters[setting.key]
@@ -45,8 +46,14 @@ function NS.LoadFilters(db)
     end
 end
 
-local layer, vignette, grain, tint
+local layer, topBand, bottomBand, vignette, grain, tint
 local grainElapsed = 0
+
+local function LayoutBands()
+    local height = layer:GetHeight() * NS.db.filters.letterbox / 100
+    topBand:SetHeight(height)
+    bottomBand:SetHeight(height)
+end
 
 -- Tuile de grain décalée au hasard 24 fois par seconde : le grain bouge comme sur une pellicule.
 local function AnimateGrain(_, elapsed)
@@ -58,11 +65,20 @@ local function AnimateGrain(_, elapsed)
     grain:SetTexCoord(u, u + layer:GetWidth() / GRAIN_SIZE, v, v + layer:GetHeight() / GRAIN_SIZE)
 end
 
+local function CreateBand(point)
+    local band = layer:CreateTexture(nil, "OVERLAY")
+    band:SetColorTexture(0, 0, 0, 1)
+    band:SetPoint(point .. "LEFT")
+    band:SetPoint(point .. "RIGHT")
+    return band
+end
+
 local function CreateLayer()
     layer = CreateFrame("Frame", nil, WorldFrame)
     layer:SetAllPoints()
     layer:SetFrameStrata("BACKGROUND")
-    -- Ordre des calques : teinte, vignette, puis grain par-dessus.
+    -- Ordre des calques : teinte, vignette, grain, puis bandes par-dessus.
+    topBand, bottomBand = CreateBand("TOP"), CreateBand("BOTTOM")
     tint = layer:CreateTexture(nil, "BACKGROUND")
     tint:SetAllPoints()
     tint:SetBlendMode("MOD")
@@ -72,19 +88,25 @@ local function CreateLayer()
     grain = layer:CreateTexture(nil, "ARTWORK")
     grain:SetAllPoints()
     grain:SetTexture(MEDIA .. "grain", "REPEAT", "REPEAT")
+    -- Changement de résolution, letterbox des cinématiques : les bandes gardent leur proportion.
+    layer:SetScript("OnSizeChanged", LayoutBands)
 end
 
 -- Calque créé au premier filtre actif : rien n'est posé sur le monde tant que tout est à 0.
 function NS.ApplyFilters()
     local filters = NS.db.filters
     local color = filters.tintStrength > 0 and TINTS[filters.tint]
-    local active = filters.vignette > 0 or filters.grain > 0 or color
+    local active = filters.letterbox > 0 or filters.vignette > 0 or filters.grain > 0 or color
     if not layer then
         if not active then return end
         CreateLayer()
     end
     layer:SetShown(active and true or false)
     if not active then return end
+
+    topBand:SetShown(filters.letterbox > 0)
+    bottomBand:SetShown(filters.letterbox > 0)
+    LayoutBands()
 
     vignette:SetShown(filters.vignette > 0)
     vignette:SetAlpha(filters.vignette / 100)

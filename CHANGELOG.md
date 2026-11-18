@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **Reset all** button, next to Restart at the bottom of the window, and `/pano reset`: every setting
+  changed in Panorama and every filter go back to their default, and those settings follow the
+  game's menus again. The button
+  asks for confirmation; a reset cannot be undone.
+
+### Restored
+- **Black bars filter**, removed in 1.7.3, is back in the Filters tab.
+
 ## 1.7.3
 
 ### Removed

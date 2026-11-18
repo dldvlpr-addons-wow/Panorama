@@ -25,7 +25,7 @@ Fenêtre `BasicFrameTemplate` 610 x 640, déplaçable, fermée par Échap (incha
 | Onglets | 70-102 | 4 onglets, filet sous la rangée à y 102 |
 | Bloc préréglages | 110-158 | onglet Qualité seulement |
 | Liste défilante | 166 (Qualité) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
-| Pied | 596-632 | filet à y 596, 2 cases à gauche, moteur graphique à droite |
+| Pied | 596-632 | filet à y 596, 2 cases à gauche, Tout réinitialiser et Redémarrer à droite |
 
 ### Onglets (nouveau)
 
@@ -89,9 +89,9 @@ Aucun résultat : « Aucun réglage ne correspond » (`GameFontDisable`, clé ne
 
 ### Pied
 
-- Cases « Appliquer à chaque connexion » et « Bouton de la minimap » : `UICheckButtonTemplate` 26 x 26,
+- Cases « Appliquer à chaque connexion » et « Bouton minimap » : `UICheckButtonTemplate` 26 x 26,
   première en `BOTTOMLEFT` (10, 11), seconde 16 après le texte de la première. Axe commun : y 24 depuis le bas.
-- À droite : « Moteur graphique » (`OPT_ENGINE`, `GameFontHighlightSmall` couleur aide) puis bouton
+- À droite : bouton Tout réinitialiser (avec fenêtre de confirmation) à 8 à gauche du bouton
   Redémarrer, `BOTTOMRIGHT` (-14, 13), hauteur 22, largeur texte + 24 (min 100).
 
 ## 3. Grille
@@ -210,7 +210,7 @@ Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé
 ## 8. Composant : grille de vignettes de teinte
 
 Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, en tête de l'onglet Filtres,
-suivie de Intensité de teinte, Vignettage, Grain.
+suivie de Intensité de teinte, Vignettage, Grain, Bandes noires.
 
 - Libellé et aide comme une ligne normale, aide en largeur 500 ; bouton Défaut à x 532, y -14.
 - Grille sous l'aide (+8), à x 10 : **7 vignettes sur une rangée** (Aucune + 6 teintes, ordre de
