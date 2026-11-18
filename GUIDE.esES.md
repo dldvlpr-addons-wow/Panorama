@@ -23,9 +23,9 @@ El botón del minimapa:
 | Cuadro de búsqueda (arriba a la derecha) | Escribe una palabra para listar los ajustes que coinciden de todas las pestañas. Bórrala para volver. |
 | Pestañas | Calidad, Filtros, Ambiente, Interfaz, Avanzado. Se recuerda la pestaña abierta. |
 | Selector de idioma (a la derecha de las pestañas) | Idioma del juego o uno de diez idiomas. Al cambiarlo se recarga la interfaz. |
-| Guía (a la izquierda del selector de idioma) | Abre esta guía en el juego. |
+| Guía (a la izquierda del cuadro de búsqueda) | Abre esta guía en el juego. |
 | Preajustes (pestaña Calidad) | Bajo, Medio, Alto, Extra. Se resalta el preajuste que coincide con tus ajustes. |
-| Pie | Aplicar en cada conexión, botón del minimapa, reinicio del motor gráfico. |
+| Pie | Aplicar en cada conexión, botón del minimapa, Restablecer todo, reinicio del motor gráfico. |
 
 Haz clic en el título de una sección para plegarla o desplegarla.
 
@@ -69,6 +69,8 @@ La pestaña Filtros añade efectos sobre la imagen. No cambian ningún ajuste de
   **Intensidad del cielo** define su fuerza.
 - **Viñeta**: oscurece los bordes de la pantalla.
 - **Grano**: grano animado.
+- **Barras negras**: barras superior e inferior, de 0 a 20 % de la pantalla cada una. El juego sigue
+  renderizando lo que ocultan, así que no aumentan la tasa de fotogramas.
 
 ### Ambiente
 
@@ -92,6 +94,10 @@ La pestaña Ambiente cambia sola el tinte, el cielo, la viñeta y el grano segú
   dar a esta zona su propio tinte, viñeta y grano, partiendo de su tipo de zona. Pasa entonces antes
   del tipo de zona, pero después de mazmorra, interior y clima. Las zonas que ajustas siguen en el
   menú. **Tipo de zona** elimina los valores de la zona: vuelve a seguir su tipo de zona.
+- **Día y noche** (abajo de la pestaña): **Día y noche automáticos** aplica el **Tono nocturno** de
+  noche, según el día y la noche del juego. Sustituye al tono de la pestaña Filtros. El cambio es gradual de 19:00 a 21:00 y de 5:00
+  a 7:00 (hora del servidor). **Intensidad del tono nocturno** define su fuerza.
+  No funciona a la vez que la ambientación automática: activar uno desactiva el otro.
 
 ## 5. Tus valores y el juego
 
@@ -175,6 +181,8 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 | `/pano` | Abrir o cerrar la ventana |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Aplicar un preajuste |
 | `/pano undo` | Restaurar los ajustes de antes del último preajuste |
+| `/pano reset` | Devolver cada ajuste y cada filtro a su valor por defecto |
+| `/pano status` | Muestra en el chat el lugar y el momento detectados y los filtros aplicados ahora (durante un fundido, los valores de destino) |
 | `/pano apply` | Escribir de nuevo los ajustes cambiados en Panorama |
 | `/pano restart` | Reiniciar el motor gráfico |
 | `/pano minimap` | Mostrar u ocultar el botón del minimapa |
@@ -184,3 +192,6 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 - El botón **Predeterminado** de cada línea restablece ese ajuste.
 - El botón **Predeterminado** del menú de Gráficos del juego restablece solo los ajustes que gestiona
   ese menú, y Panorama lo sigue. Usa los botones Predeterminado de `/pano` para los demás y para los filtros.
+- **Restablecer todo** (pie, con confirmación) o `/pano reset`: devuelve cada ajuste cambiado en Panorama
+  y cada filtro a su valor por defecto. No se puede deshacer.
+  La pestaña Ambiente y las zonas ajustadas también se restablecen.

@@ -23,9 +23,9 @@ Il pulsante della minimappa:
 | Casella di ricerca (in alto a destra) | Digita una parola per elencare le impostazioni corrispondenti di tutte le schede. Cancellala per tornare indietro. |
 | Schede | Qualità, Filtri, Atmosfera, Interfaccia, Avanzate. La scheda aperta viene ricordata. |
 | Selettore della lingua (a destra delle schede) | Lingua del gioco o una di dieci lingue. Cambiarla ricarica l'interfaccia. |
-| Guida (a sinistra del selettore della lingua) | Apre questa guida nel gioco. |
+| Guida (a sinistra della casella di ricerca) | Apre questa guida nel gioco. |
 | Preset (scheda Qualità) | Bassa, Media, Alta, Extra. Il preset che corrisponde alle tue impostazioni è evidenziato. |
-| Piè di pagina | Applica a ogni accesso, pulsante della minimappa, riavvio del motore grafico. |
+| Piè di pagina | Applica a ogni accesso, pulsante minimappa, Ripristina tutto, riavvio del motore grafico. |
 
 Fai clic sul titolo di una sezione per comprimerla o espanderla.
 
@@ -69,6 +69,8 @@ La scheda Filtri aggiunge effetti sopra l'immagine. Non cambiano nessuna imposta
   **Intensità del cielo** imposta quanto è forte.
 - **Vignettatura**: scurisce i bordi dello schermo.
 - **Grana**: grana animata.
+- **Bande nere**: bande in alto e in basso, da 0 a 20 % dello schermo ciascuna. Il gioco continua a
+  elaborare ciò che nascondono, quindi non aumentano il frame rate.
 
 ### Atmosfera
 
@@ -92,6 +94,10 @@ La scheda Atmosfera cambia da sola tinta, cielo, vignettatura e grana in base a 
   dare a questa zona una tinta, una vignettatura e una grana proprie, partendo dal suo tipo di zona.
   Passa allora prima del tipo di zona, ma dopo spedizione, al chiuso e meteo. Le zone che imposti
   restano nel menu. **Tipo di zona** rimuove i valori della zona: torna a seguire il suo tipo di zona.
+- **Giorno e notte** (in fondo alla scheda): **Giorno e notte automatici** applica la **Tinta notturna**
+  di notte, secondo il giorno e la notte del gioco. Sostituisce la tinta della scheda Filtri. Il passaggio è graduale dalle 19 alle 21 e
+  dalle 5 alle 7 (ora del server). **Intensità della tinta notturna** imposta quanto è forte.
+  Non funziona insieme all'atmosfera automatica: attivare l'uno disattiva l'altra.
 
 ## 5. I tuoi valori e il gioco
 
@@ -175,6 +181,8 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 | `/pano` | Apre o chiude la finestra |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applica un preset |
 | `/pano undo` | Ripristina le impostazioni di prima dell'ultimo preset |
+| `/pano reset` | Riporta ogni impostazione e ogni filtro al valore predefinito |
+| `/pano status` | Mostra nella chat il luogo e il momento rilevati e i filtri applicati ora (durante una dissolvenza, i valori di arrivo) |
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
 | `/pano restart` | Riavvia il motore grafico |
 | `/pano minimap` | Mostra o nasconde il pulsante della minimappa |
@@ -184,3 +192,6 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 - Il pulsante **Predefinito** di ogni riga ripristina quell'impostazione.
 - Il pulsante **Predefiniti** del menu Grafica del gioco ripristina solo le impostazioni che quel menu
   gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in `/pano` per le altre e per i filtri.
+- **Ripristina tutto** (piè di pagina, con conferma) o `/pano reset`: riporta ogni impostazione modificata
+  in Panorama e ogni filtro al valore predefinito. Non si può annullare.
+  Anche la scheda Atmosfera e le zone impostate vengono ripristinate.

@@ -23,7 +23,8 @@ local SKY_GROUND = 0.4   -- part de la couleur du ciel gardée en bas de l'écra
 NS.filterSettings = {
     { title = "SECTION_FILTERS", tab = "filters" },
     -- Teinte en tête : la fenêtre l'affiche en vignettes cliquables (Options.lua).
-    { key = "tint", min = 0, max = #TINTS, step = 1, default = 0,
+    -- `strength` : intensité remise à son défaut quand on clique une teinte à intensité 0.
+    { key = "tint", strength = "tintStrength", min = 0, max = #TINTS, step = 1, default = 0,
       names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
                 "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
     { key = "tintStrength", requires = "tint", min = 0, max = 100, step = 5, default = 50 },
@@ -34,10 +35,25 @@ NS.filterSettings = {
     { key = "skyStrength", requires = "sky", min = 0, max = 100, step = 5, default = 50 },
     { key = "vignette", min = 0, max = 100, step = 5, default = 0 },
     { key = "grain", min = 0, max = 100, step = 5, default = 0 },
+    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
+    -- Hors ambiance : toujours lue dans les filtres de base.
+    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
+    -- Jour/nuit automatique, dans l'onglet Ambiance avec l'autre automatisme : la nuit
+    -- (NS.NightFactor), `tintNight` remplace `tint`. Jamais avec l'ambiance auto : activer l'un
+    -- coupe l'autre. Lu dans les filtres de base seulement.
+    { title = "SECTION_DAYNIGHT", tab = "ambiance" },
+    { key = "autoDayNight", default = false },
+    { key = "tintNight", strength = "tintNightStrength", requires = "autoDayNight",
+      min = 0, max = #TINTS, step = 1, default = 4,
+      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
+                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
+    { key = "tintNightStrength", min = 0, max = 100, step = 5, default = 50,
+      requires = function(filters) return filters.autoDayNight and filters.tintNight ~= 0 end },
 }
 
 -- Faux pour un nombre hors bornes, hors choix ou une valeur d'un autre type.
 function NS.IsValidFilter(setting, value)
+    if type(setting.default) == "boolean" then return type(value) == "boolean" end
     return type(value) == "number" and value == value and value >= setting.min and value <= setting.max
         and (not setting.names or setting.names[value] ~= nil)
 end
@@ -52,13 +68,16 @@ function NS.LoadFilters(db)
     end
 end
 
-local layer, vignette, grain, tint, sky
+local layer, vignette, grain, tint, sky, topBand, bottomBand
 local grainElapsed = 0
 -- Ce qui est à l'écran, en valeurs de rendu : couleurs multipliées (blanc = rien), opacités.
 -- Ambiance qui change de contexte : fondu de `fade.from` vers `fade.to` en FADE_SECONDS.
-local NEUTRAL = { tintR = 1, tintG = 1, tintB = 1, vignette = 0, grain = 0,
+local NEUTRAL = { tintR = 1, tintG = 1, tintB = 1, vignette = 0, grain = 0, letterbox = 0,
                   skyR = 1, skyG = 1, skyB = 1, skyTopR = 1, skyTopG = 1, skyTopB = 1 }
 local FADE_SECONDS = 1.5
+-- Changement de moment de la journée (jour, aube et crépuscule, nuit) : fondu lent.
+local MOMENT_FADE_SECONDS = 60
+local shownMoment   -- moment de la dernière application des filtres
 local shown = {}
 for key, value in pairs(NEUTRAL) do shown[key] = value end
 local fade
@@ -84,6 +103,19 @@ local function RenderValues(filters)
     for key, value in pairs(NEUTRAL) do values[key] = value end
     local color = filters.tintStrength > 0 and TINTS[filters.tint]
     if color then values.tintR, values.tintG, values.tintB = Blend(color, filters.tintStrength / 100) end
+    -- Nuit (0 le jour, 1 la nuit, entre les deux à l'aube et au crépuscule) : la teinte de nuit
+    -- remplace celle de jour. Jamais avec l'ambiance auto : l'une coupe l'autre.
+    local base = NS.db.filters
+    local night = base.autoDayNight and NS.NightFactor() or 0
+    if night > 0 then
+        local nightColor = TINTS[base.tintNight]
+        local r, g, b = 1, 1, 1
+        if nightColor then r, g, b = Blend(nightColor, base.tintNightStrength / 100) end
+        values.tintR = values.tintR + (r - values.tintR) * night
+        values.tintG = values.tintG + (g - values.tintG) * night
+        values.tintB = values.tintB + (b - values.tintB) * night
+    end
+    values.letterbox = base.letterbox / 100
     values.vignette = filters.vignette / 100
     values.grain = filters.grain / 100 * 0.35
     local skyColor = filters.skyStrength > 0 and TINTS[filters.sky]
@@ -102,6 +134,13 @@ local function Same(values, other)
     return true
 end
 
+-- Bandes noires en haut et en bas : part de la hauteur du calque.
+local function LayoutBands()
+    local height = layer:GetHeight() * shown.letterbox
+    topBand:SetHeight(height)
+    bottomBand:SetHeight(height)
+end
+
 local function Render()
     local hasTint = shown.tintR < 1 or shown.tintG < 1 or shown.tintB < 1
     tint:SetShown(hasTint)
@@ -110,6 +149,9 @@ local function Render()
     vignette:SetAlpha(shown.vignette)
     grain:SetShown(shown.grain > 0)
     grain:SetAlpha(shown.grain)
+    topBand:SetShown(shown.letterbox > 0)
+    bottomBand:SetShown(shown.letterbox > 0)
+    LayoutBands()
     local hasSky = shown.skyTopR < 1 or shown.skyTopG < 1 or shown.skyTopB < 1
     sky:SetShown(hasSky)
     if hasSky then
@@ -125,7 +167,7 @@ end
 local function OnUpdate(_, elapsed)
     if fade then
         fade.elapsed = fade.elapsed + elapsed
-        local progress = fade.elapsed / FADE_SECONDS
+        local progress = fade.elapsed / fade.seconds
         if progress >= 1 then
             for key, value in pairs(fade.to) do shown[key] = value end
             fade = nil
@@ -138,11 +180,19 @@ local function OnUpdate(_, elapsed)
     if shown.grain > 0 then AnimateGrain(elapsed) end
 end
 
+local function CreateBand(point)
+    local band = layer:CreateTexture(nil, "OVERLAY")
+    band:SetColorTexture(0, 0, 0, 1)
+    band:SetPoint(point .. "LEFT")
+    band:SetPoint(point .. "RIGHT")
+    return band
+end
+
 local function CreateLayer()
     layer = CreateFrame("Frame", nil, WorldFrame)
     layer:SetAllPoints()
     layer:SetFrameStrata("BACKGROUND")
-    -- Ordre des calques : teinte et ciel (MOD, ordre indifférent), vignette, puis grain.
+    -- Ordre des calques : teinte et ciel (MOD, ordre indifférent), vignette, grain, puis bandes par-dessus.
     tint = layer:CreateTexture(nil, "BACKGROUND")
     tint:SetAllPoints()
     tint:SetBlendMode("MOD")
@@ -156,15 +206,25 @@ local function CreateLayer()
     sky:SetAllPoints()
     sky:SetBlendMode("MOD")
     sky:SetColorTexture(1, 1, 1, 1)
+    topBand, bottomBand = CreateBand("TOP"), CreateBand("BOTTOM")
+    -- Changement de résolution, letterbox des cinématiques : les bandes gardent leur proportion.
+    layer:SetScript("OnSizeChanged", LayoutBands)
 end
 
 -- Calque créé au premier filtre actif : rien n'est posé sur le monde tant que tout est à 0.
 -- Valeurs : filtres de base, ou ambiance du contexte (Ambiance.lua).
--- `smooth` : changement de contexte de l'ambiance, fondu depuis ce qui est à l'écran ; sinon (réglage
--- du joueur) valeurs posées tout de suite.
+-- `smooth` : changement de contexte de l'ambiance ou d'heure, fondu depuis ce qui est à l'écran (lent si
+-- le moment de la journée a changé) ; sinon (réglage du joueur) valeurs posées tout de suite.
 function NS.ApplyFilters(smooth)
     local filters = NS.AppliedFilters()
     local target = RenderValues(filters)
+    local moment = NS.CurrentMoment()
+    -- Fondu lent en cours (moment) : son temps restant gardé, un changement de lieu ne l'abrège pas.
+    local remaining = fade and fade.seconds - fade.elapsed or 0
+    -- Premier passage (shownMoment nil) : pas de fondu lent, rien n'a encore été montré.
+    local fadeSeconds = (shownMoment and moment ~= shownMoment) and MOMENT_FADE_SECONDS
+        or math.max(FADE_SECONDS, remaining)
+    shownMoment = moment
     smooth = smooth and not Same(shown, target)
     local active = not Same(target, NEUTRAL) or smooth
     if not layer then
@@ -182,7 +242,7 @@ function NS.ApplyFilters(smooth)
     if smooth then
         local from = {}
         for key, value in pairs(shown) do from[key] = value end
-        fade = { from = from, to = target, elapsed = 0 }
+        fade = { from = from, to = target, elapsed = 0, seconds = fadeSeconds }
         Render()   -- calque montré à l'instant : textures au point de départ, pas à leur dernier état
     else
         for key, value in pairs(target) do shown[key] = value end

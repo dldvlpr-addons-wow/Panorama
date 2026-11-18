@@ -23,9 +23,9 @@ Der Minimap-Button:
 | Suchfeld (oben rechts) | Gib ein Wort ein, um die passenden Einstellungen aller Reiter aufzulisten. Leere es, um zurückzukehren. |
 | Reiter | Qualität, Filter, Stimmung, Oberfläche, Erweitert. Der geöffnete Reiter wird gespeichert. |
 | Sprachauswahl (rechts neben den Reitern) | Spielsprache oder eine von zehn Sprachen. Eine Änderung lädt die Oberfläche neu. |
-| Anleitung (links neben der Sprachauswahl) | Öffnet diese Anleitung im Spiel. |
+| Anleitung (links neben dem Suchfeld) | Öffnet diese Anleitung im Spiel. |
 | Voreinstellungen (Reiter Qualität) | Niedrig, Mittel, Hoch, Extra. Die Voreinstellung, die zu deinen Einstellungen passt, ist hervorgehoben. |
-| Fußzeile | Bei jedem Einloggen anwenden, Minimap-Button, Neustart der Grafik-Engine. |
+| Fußzeile | Bei jedem Einloggen anwenden, Minimap-Button, Alles zurücksetzen, Neustart der Grafik-Engine. |
 
 Klicke auf einen Abschnittstitel, um ihn ein- oder auszuklappen.
 
@@ -69,6 +69,8 @@ Der Reiter Filter fügt Effekte über dem Bild hinzu. Sie ändern keine Spielein
   **Himmelsstärke** legt fest, wie stark er ist.
 - **Vignette**: dunkelt die Bildschirmränder ab.
 - **Filmkorn**: animiertes Korn.
+- **Schwarze Balken**: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms. Das Spiel rendert
+  weiterhin, was sie verdecken, daher steigern sie die Bildrate nicht.
 
 ### Stimmung
 
@@ -91,6 +93,10 @@ Der Reiter Stimmung ändert Tönung, Himmel, Vignette und Körnung von selbst, p
   Zone. Sie hat dann Vorrang vor der Art der Zone, aber nach Dungeon, Innenraum und Wetter. Die
   Zonen, die du eingestellt hast, bleiben im Menü. **Zonentyp** entfernt die Werte der Zone: sie folgt
   wieder ihrer Art der Zone.
+- **Tag und Nacht** (unten im Reiter): **Automatisch Tag und Nacht** legt nachts den **Nachtfarbton**
+  auf, nach Tag und Nacht des Spiels. Er ersetzt den Farbton des Reiters Filter. Der Wechsel erfolgt allmählich von 19 bis
+  21 Uhr und von 5 bis 7 Uhr (Serverzeit). **Nachtfarbtonstärke** legt fest, wie stark er ist.
+  Es funktioniert nicht zusammen mit der automatischen Stimmung: Das eine einzuschalten schaltet das andere aus.
 
 ## 5. Deine Werte und das Spiel
 
@@ -175,6 +181,8 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 | `/pano` | Das Fenster öffnen oder schließen |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Eine Voreinstellung anwenden |
 | `/pano undo` | Die Einstellungen von vor der letzten Voreinstellung wiederherstellen |
+| `/pano reset` | Jede Einstellung und jeden Filter auf Standard zurücksetzen |
+| `/pano status` | Zeigt im Chat den erkannten Ort, die Tageszeit und die gerade angewendeten Filter (während einer Überblendung die Zielwerte) |
 | `/pano apply` | In Panorama geänderte Einstellungen erneut schreiben |
 | `/pano restart` | Die Grafik-Engine neu starten |
 | `/pano minimap` | Den Minimap-Button zeigen oder verstecken |
@@ -184,3 +192,6 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 - Der **Standard**-Button in jeder Zeile setzt diese Einstellung zurück.
 - Der Button **Standard** des Grafikmenüs des Spiels setzt nur die Einstellungen zurück, die dieses Menü
   verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in `/pano`.
+- **Alles zurücksetzen** (Fußzeile, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
+  Einstellung und jeden Filter auf den Standard zurück. Lässt sich nicht rückgängig machen.
+  Der Tab Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt.

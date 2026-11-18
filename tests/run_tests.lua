@@ -8,6 +8,9 @@ InCombatLockdown = function() return combat end
 -- Minuteries gardées sans être lancées : le test les déclenche lui-même.
 local timers = {}
 C_Timer = { After = function(delay, callback) timers[#timers + 1] = { delay = delay, callback = callback } end }
+-- Midi, jour : remplacés plus bas par les tests de l'ambiance.
+GetGameTime = function() return 12, 0 end
+C_DateAndTime = { IsDayTime = function() return true end }
 local bands
 frame = { events = {},
           RegisterEvent = function(self, event) self.events[event] = true end,
@@ -23,6 +26,7 @@ frame = { events = {},
               local noop = function() end
               local texture = { SetPoint = noop, SetAllPoints = noop, SetTexture = noop, SetBlendMode = noop,
                                 SetTexCoord = noop,
+                                SetHeight = function(self, height) self.height = height end,
                                 SetGradient = function(self, _, bottom, top) self.gradient = { bottom, top } end,
                                 SetColorTexture = function(self, r, g, b) self.color = { r, g, b } end,
                                 SetShown = function(self, shown) self.shown = shown end,
@@ -265,7 +269,7 @@ assert(loadfile("Options.lua"))("Panorama", options)
 assert(options.Fold("Écran ÀÞ Дальность ЯЁ") == "écran àþ дальность яё", "recherche sans casse")
 
 -- Filtres : rien n'est créé à 0, valeur invalide remplacée par le défaut.
--- Textures créées dans l'ordre : teinte, vignette, grain, ciel.
+-- Textures créées dans l'ordre : teinte, vignette, grain, ciel, bande du haut, bande du bas.
 bands = {}
 Load(nil)
 handler(frame, "PLAYER_LOGIN")
@@ -274,15 +278,18 @@ assert(PanoramaDB.filters.tint == 0 and PanoramaDB.filters.tintStrength == 50 an
 Load({ values = {}, filters = { grain = 101, tint = 1.5, vignette = "oui" } })
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
     "filtres invalides remplacés")
--- Un réglage bandes noires d'une ancienne version est ignoré.
+-- Bandes noires à 10 % d'un écran de 1000 de haut : 100 chacune.
 local ns3 = Load({ values = {}, filters = { letterbox = 10, vignette = 50 } })
 handler(frame, "PLAYER_LOGIN")
-assert(#bands == 4 and frame.shown and bands[2].shown and not bands[1].shown and not bands[3].shown
-    and not bands[4].shown, "seule la vignette visible")
+assert(#bands == 6 and frame.shown and bands[2].shown and not bands[1].shown and not bands[3].shown
+    and not bands[4].shown, "vignette visible, ni teinte, ni grain, ni ciel")
+assert(bands[5].shown and bands[6].shown and bands[5].height == 100 and bands[6].height == 100,
+    "bandes noires à 10 %")
+PanoramaDB.filters.letterbox = 0
 -- Teinte choisie mais intensité à 0 : rien. Sépia à 100 % : couleur sépia multipliée.
 PanoramaDB.filters.vignette, PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 0, 1, 0
 ns3.ApplyFilters()
-assert(frame.shown == false and #bands == 4, "calque caché à 0, sans recréation")
+assert(frame.shown == false and #bands == 6, "calque caché à 0, sans recréation")
 PanoramaDB.filters.tintStrength = 100
 ns3.ApplyFilters()
 assert(frame.shown and bands[1].shown and bands[1].color[2] == 0.82, "teinte sépia")
@@ -307,7 +314,8 @@ local parents = { [1426] = 1415, [1415] = 947, [947] = 0, [9999] = 1414, [1414] 
 IsInInstance = function() return instance[1], instance[2] end
 IsIndoors = function() return indoors end
 C_Weather = { GetCurrentWeather = function() return weather end }
-GetGameTime = function() return hour, 0 end
+local minute = 0
+GetGameTime = function() return hour, minute end
 local isDayTime   -- nil : signal du jeu absent, heure seule
 C_DateAndTime = { IsDayTime = function() return isDayTime end }
 C_Map = { GetBestMapForUnit = function() return mapID end,
@@ -395,7 +403,7 @@ assert(bands[2].alpha == 0.15 and frame.onUpdate, "fondu lancé vers le volcan")
 frame.onUpdate(frame, 0.75)
 assert(math.abs(bands[2].alpha - 0.225) < 1e-9 and bands[1].shown, "mi-fondu")
 frame.onUpdate(frame, 1)
-assert(bands[2].alpha == 0.3 and not bands[1].shown and frame.onUpdate, "fondu fini, grain animé")
+assert(bands[2].alpha == 0.3 and not bands[1].shown and not frame.onUpdate, "fondu fini, sans grain livré")
 PanoramaDB.ambiance.enabled = false
 ns6.UpdateAmbiance()
 ns6.ApplyFilters()
@@ -406,6 +414,54 @@ Load({ ambiance = { contexts = { frozen = { vignette = 55 } },
 local zones = PanoramaDB.ambiance.zones
 assert(zones[1426].tintStrength == 40 and zones[1426].vignette == 55 and zones[1426].grain == 0
     and zones.abc == nil and zones[1429] == nil, "zones relues")
+
+-- Jour/nuit automatique : teinte de jour Aucune le jour, fondu de 60 s vers la teinte de nuit au
+-- changement de moment. bands[1] = teinte.
+Load({ values = {}, filters = { autoDayNight = "oui" } })
+assert(PanoramaDB.filters.autoDayNight == false, "booléen de filtre invalide remplacé")
+-- Ambiance auto et jour/nuit automatiques enregistrés ensemble : l'ambiance garde la main.
+Load({ values = {}, filters = { autoDayNight = true }, ambiance = { enabled = true } })
+assert(PanoramaDB.ambiance.enabled and PanoramaDB.filters.autoDayNight == false, "ambiance et jour/nuit exclusifs")
+bands, hour, isDayTime, mapID = {}, 12, true, 1429
+local nsDay = Load({ values = {}, filters = { tint = 0, tintNight = 4, tintNightStrength = 100, autoDayNight = true } })
+nsDay.ApplyFilters()
+assert(frame.shown == false, "jour sans teinte de jour : calque caché")
+isDayTime = false
+nsDay.UpdateAmbiance()
+assert(frame.shown and not bands[1].shown and frame.onUpdate, "fondu lancé depuis l'écran sans teinte")
+frame.onUpdate(frame, 30)
+assert(math.abs(bands[1].color[1] - 0.775) < 1e-9, "fondu lent à mi-chemin")
+frame.onUpdate(frame, 30)
+assert(math.abs(bands[1].color[1] - 0.55) < 1e-9 and not frame.onUpdate, "nuit atteinte, plus d'OnUpdate")
+nsDay.UpdateAmbiance()
+assert(not frame.onUpdate, "même moment : aucun fondu")
+-- Changement de lieu pendant le fondu lent : temps restant gardé.
+isDayTime = true
+nsDay.UpdateAmbiance()
+frame.onUpdate(frame, 10)
+nsDay.UpdateAmbiance()
+frame.onUpdate(frame, 1.5)
+assert(frame.onUpdate and bands[1].shown, "fondu lent non abrégé")
+frame.onUpdate(frame, 50)
+assert(not frame.onUpdate, "jour atteint")
+-- Crépuscule (jeu dit jour, 20 h) : teinte de nuit à moitié ; 22 h : pleine.
+hour = 20
+nsDay.ApplyFilters()
+assert(math.abs(bands[1].color[1] - 0.775) < 1e-9, "crépuscule : mi-nuit")
+hour = 6
+nsDay.ApplyFilters()
+assert(math.abs(bands[1].color[1] - 0.775) < 1e-9, "aube : mi-nuit")
+hour = 22
+nsDay.ApplyFilters()
+assert(math.abs(bands[1].color[1] - 0.55) < 1e-9, "jeu dit jour à 22 h : pleine nuit")
+hour, minute = 19, 30
+nsDay.ApplyFilters()
+assert(math.abs(bands[1].color[1] - 0.8875) < 1e-9, "19 h 30 : quart de nuit")
+hour, minute = 12, 0
+PanoramaDB.filters.autoDayNight = false
+nsDay.ApplyFilters()
+assert(frame.shown == false, "auto coupé : teinte de jour Aucune, calque caché")
+isDayTime = nil
 
 -- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.
 local ns4 = Load({ tab = "inconnu" })
@@ -436,9 +492,22 @@ assert(ns4.IsAvailable({ cvar = "volumeFogLevel", requires = "volumeFog" }), "br
 PanoramaDB.filters.tint = 0
 assert(not ns4.IsAvailable({ key = "tintStrength", requires = "tint" }), "teinte aucune")
 assert(ns4.IsAvailable({ cvar = "farclip" }), "sans dépendance")
+local strengthSetting
+for _, setting in ipairs(ns4.filterSettings) do
+    if setting.key == "tintStrength" then strengthSetting = setting end
+end
+assert(not ns4.IsAvailable(strengthSetting), "intensité grisée sans teinte")
+for _, setting in ipairs(ns4.filterSettings) do
+    if setting.key == "tintNightStrength" then strengthSetting = setting end
+end
+PanoramaDB.filters.autoDayNight, PanoramaDB.filters.tintNight = true, 4
+assert(ns4.IsAvailable(strengthSetting), "intensité de nuit active")
+PanoramaDB.filters.autoDayNight = false
+assert(not ns4.IsAvailable(strengthSetting), "intensité de nuit grisée sans jour/nuit")
 -- Ambiance auto : ses filtres de base grisés dans l'onglet Filtres, pas dans l'éditeur.
 ns4.db.ambiance.enabled = true
 assert(not ns4.IsAvailable({ key = "vignette" }), "vignette suit l'ambiance")
+assert(ns4.IsAvailable({ key = "autoDayNight", default = false }), "jour/nuit actif sous l'ambiance")
 assert(ns4.IsAvailable({ key = "vignette", ambiance = true }), "éditeur actif")
 ns4.db.ambiance.enabled = false
 -- Chaque `requires` nomme un réglage de la même liste : une faute de frappe ne grise jamais rien.
@@ -448,7 +517,8 @@ for _, list in ipairs({ ns4.settings, ns4.filterSettings }) do
         if setting.cvar or setting.key then names[setting.cvar or setting.key] = true end
     end
     for _, setting in ipairs(list) do
-        assert(not setting.requires or names[setting.requires], "requires inconnu " .. tostring(setting.requires))
+        assert(not setting.requires or type(setting.requires) == "function" or names[setting.requires],
+            "requires inconnu " .. tostring(setting.requires))
     end
 end
 for _, id in ipairs(ns4.tabs) do
@@ -494,4 +564,38 @@ for _, code in ipairs(build.codes) do
     end
 end
 assert(guides.guides.esMX == guides.guides.esES, "esMX lit le guide espagnol")
+-- Tout réinitialiser : réglages rendus au jeu, filtres et ambiance par défaut, plus rien à annuler.
+local nsReset = Load(nil)
+SlashCmdList.PANORAMA("low")
+PanoramaDB.filters.vignette, PanoramaDB.ambiance.enabled, PanoramaDB.ambiance.zones[1] = 50, true, {}
+SlashCmdList.PANORAMA("reset")
+assert(next(PanoramaDB.touched) == nil and not nsReset.CanUndo(), "reset : réglages rendus au jeu")
+assert(PanoramaDB.filters.vignette == 0, "reset : filtres par défaut")
+assert(not PanoramaDB.ambiance.enabled and next(PanoramaDB.ambiance.zones) == nil, "reset : ambiance par défaut")
+-- /pano status : contexte détecté et valeurs posées, ambiance active.
+YES, NO = "Yes", "No"   -- chaînes globales du jeu
+local nsStatus, printed = Load(nil), {}
+handler(frame, "PLAYER_LOGIN")
+PanoramaDB.ambiance.enabled, PanoramaDB.filters.letterbox = true, 10
+local realPrint = print
+print = function(text) printed[#printed + 1] = text end
+SlashCmdList.PANORAMA("status")
+print = realPrint
+local place = nsStatus.DetectAmbiance()
+assert(#printed == 3 and printed[1]:find(nsStatus.DetectedText(), 1, true), "status : contexte détecté")
+assert(printed[2]:find(": " .. PanoramaDB.ambiance.contexts[place].vignette .. ",", 1, true)
+    and printed[2]:find(": 10", 1, true), "status : valeurs du contexte et bandes de base")
+
+-- Ambiance coupée, pleine nuit : la teinte de nuit remplace la teinte, dont l'intensité tombe à 0.
+PanoramaDB.ambiance.enabled, PanoramaDB.filters.autoDayNight = false, true
+PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength, PanoramaDB.filters.tintNightStrength = 1, 50, 40
+PanoramaDB.filters.skyStrength = 30   -- seule la teinte vaut 50
+isDayTime, printed = false, {}
+print = function(text) printed[#printed + 1] = text end
+SlashCmdList.PANORAMA("status")
+print = realPrint
+isDayTime = true
+assert(printed[2]:find(": 0,", 1, true) and not printed[2]:find(": 50", 1, true), "status : teinte effacée la nuit")
+assert(printed[3]:find(": 40,", 1, true) and printed[3]:find(": 100 %", 1, true), "status : teinte de nuit pleine")
+
 io.write("ok\n")

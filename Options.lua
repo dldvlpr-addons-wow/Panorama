@@ -96,10 +96,11 @@ local function FollowsAmbiance(setting)
 end
 
 -- Faux tant que le réglage nommé par `requires` est coupé (false ou 0). Réglage requis absent
--- du client (nil) : rien à griser.
+-- du client (nil) : rien à griser. `requires` peut aussi être une fonction des filtres.
 function NS.IsAvailable(setting)
     if FollowsAmbiance(setting) then return false end
     if not setting.requires then return true end
+    if type(setting.requires) == "function" then return setting.requires(Store(setting)) end
     local value = Store(setting)[setting.requires]
     return value ~= false and value ~= 0
 end
@@ -191,17 +192,7 @@ function NS.RefreshOptions()
         if value ~= nil or not setting.ambiance then control.refresh(value) end
     end
     panel.ambianceEnabled:SetChecked(NS.db.ambiance.enabled)
-    local place, moment, zone = NS.DetectAmbiance()
-    local detected = zone and NS.db.ambiance.zones[zone] and NS.ZoneName(zone) or L[Context(place).label]
-    if not zone then
-        -- Donjon, intérieur ou météo : le réglage propre de la zone attend, le dire.
-        local current = NS.CurrentZone()
-        if current and NS.db.ambiance.zones[current] then
-            detected = L.AMBIANCE_OVER_ZONE:format(detected, NS.ZoneName(current))
-        end
-    end
-    if moment then detected = detected .. " · " .. L[Context(moment).label] end
-    panel.ambianceStatus:SetText(L.AMBIANCE_DETECTED:format(detected))
+    panel.ambianceStatus:SetText(L.AMBIANCE_DETECTED:format(NS.DetectedText()))
     panel.ambianceMenu:GenerateMenu()   -- libellé « Cette zone » relu au changement de zone
     panel.applyOnLogin:SetChecked(NS.db.applyOnLogin)
     panel.showMinimap:SetChecked(NS.db.minimap.show)
@@ -291,6 +282,8 @@ local function CreateSlider(parent, setting, width, onChange, onPreview)
         mark:SetPoint("CENTER", slider, "LEFT", 16 + (width - 32) * (default - setting.min) / (setting.max - setting.min), 0)
     end
     local held, moved = false, false
+    -- Curseur tenu : un rafraîchissement (zone, minute, /console) ne le ramène pas en arrière.
+    slider.IsHeld = function() return held end
     slider:SetScript("OnValueChanged", function(_, value)
         if refreshing then return end
         if held then
@@ -302,10 +295,13 @@ local function CreateSlider(parent, setting, width, onChange, onPreview)
     end)
     slider:SetScript("OnMouseDown", function(_, button) held = button == "LeftButton" end)
     -- Clic sans mouvement : rien d'écrit, le réglage n'est pas marqué touché.
+    -- Relâché avant d'écrire : le rafraîchissement qui suit montre la valeur relue dans le jeu.
     slider:SetScript("OnMouseUp", function(self)
-        if held and moved then onChange(Round(self:GetValue(), setting.step)) end
+        local commit = held and moved
         held, moved = false, false
+        if commit then onChange(Round(self:GetValue(), setting.step)) end
     end)
+    slider:SetScript("OnHide", function() held, moved = false, false end)
     return slider
 end
 
@@ -459,6 +455,8 @@ local function CreateRowBase(setting, tipWidth)
             NS.Change(setting)
         else
             Store(setting, true)[setting.key] = value
+            -- Jour/nuit automatiques et ambiance auto : l'un coupe l'autre.
+            if setting.key == "autoDayNight" and value then NS.db.ambiance.enabled = false end
             NS.ApplyFilters()
             NS.RefreshOptions()
         end
@@ -564,6 +562,7 @@ local function CreateRow(setting, section, tab)
         slider:SetPoint("LEFT", row, "TOPLEFT", CONTROL_X, -14)
         row.HoverWith(slider)
         refreshControl = function(value)
+            if slider.IsHeld() then return end
             slider:SetValue(value)
             name:SetText(FormatValue(setting, value))
         end
@@ -584,6 +583,7 @@ local function CreateRow(setting, section, tab)
         slider:SetPoint("LEFT", row, "TOPLEFT", CONTROL_X, -14)
         row.HoverWith(slider)
         refreshControl = function(value)
+            if slider.IsHeld() then return end
             slider:SetValue(value)
             if not box.typed then box.Reset() end
         end
@@ -600,7 +600,7 @@ local function CreateRow(setting, section, tab)
     Register(row, setting, section, tab, RowHeight(row, 0, 44, 68), refreshControl, setEnabled)
 end
 
--- Teinte : 7 vignettes (Aucune + NS.tints), capture du jeu multipliée par la couleur du filtre à 100 %.
+-- Teinte (de jour ou de nuit) : 7 vignettes (Aucune + NS.tints), capture du jeu multipliée par la couleur du filtre à 100 %.
 -- Un clic applique le filtre ; intensité à 0 : remise à son défaut, pour que la teinte se voie.
 local function CreateTintRow(setting, section, tab)
     local row = CreateRowBase(setting, 500)
@@ -638,13 +638,14 @@ local function CreateTintRow(setting, section, tab)
         thumbnail:SetScript("OnClick", function()
             local current = Store(setting)
             -- Vignette déjà choisie, intensité déjà là : rien à écrire (pas de zone réglée pour rien).
-            if current.tint == value and (value == 0 or current.tintStrength ~= 0) then return end
+            local strengthKey = setting.strength
+            if current[setting.key] == value and (value == 0 or current[strengthKey] ~= 0) then return end
             local values = Store(setting, true)
-            if value ~= 0 and values.tintStrength == 0 then
+            if value ~= 0 and values[strengthKey] == 0 then
                 for _, other in ipairs(NS.filterSettings) do
-                    if other.key == "tintStrength" then
-                        local strength = setting.ambiance and AmbianceDefault("tintStrength") or 0
-                        values.tintStrength = strength > 0 and strength or other.default
+                    if other.key == strengthKey then
+                        local strength = setting.ambiance and AmbianceDefault(strengthKey) or 0
+                        values[strengthKey] = strength > 0 and strength or other.default
                     end
                 end
             end
@@ -658,7 +659,12 @@ local function CreateTintRow(setting, section, tab)
             thumbnail.ShowSelected(value == current)
             thumbnail.caption:SetFontObject(value == current and GameFontNormalSmall or GameFontHighlightSmall)
         end
-    end, function() end)
+    end, function(enabled)
+        for _, thumbnail in pairs(thumbnails) do
+            thumbnail:SetEnabled(enabled)
+            thumbnail:SetAlpha(enabled and 1 or DISABLED)
+        end
+    end)
 end
 
 -- `section` : clé de locale du titre, identité stable quelle que soit la langue.
@@ -732,8 +738,11 @@ end
 -- propre, copié de son biome ; « Type de zone » le supprime.
 -- Saisie en cours validée dans le contexte qu'elle vise, avant de changer ou de vider ce contexte.
 local function CommitTyping()
+    -- Seulement une saisie de Panorama : le chat en cours de frappe reste ouvert.
     local focus = GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
-    if focus then focus:ClearFocus() end
+    for _, box in ipairs(inputs) do
+        if box == focus then return focus:ClearFocus() end
+    end
 end
 
 local function CreateAmbiance()
@@ -744,6 +753,7 @@ local function CreateAmbiance()
     panel.ambiance = block
     panel.ambianceEnabled = CreateCheckbox(block, L.AMBIANCE_AUTO, L.AMBIANCE_AUTO_TIP, function(value)
         NS.db.ambiance.enabled = value
+        if value then NS.db.filters.autoDayNight = false end
         NS.ApplyFilters()
         NS.RefreshOptions()
     end)
@@ -837,7 +847,7 @@ local LANGUAGES = {
 
 -- Sélecteur de langue, à droite de la rangée d'onglets. Un choix enregistre PanoramaDB.locale puis
 -- recharge l'interface : les libellés des réglages sont traduits une seule fois, à ADDON_LOADED.
-local function CreateLanguage()
+local function CreateLanguage(search)
     local dropdown = CreateFrame("DropdownButton", nil, panel, "WowStyle1DropdownTemplate")
     dropdown:SetWidth(130)
     dropdown:SetPoint("TOPRIGHT", -14, -73)
@@ -860,9 +870,10 @@ local function CreateLanguage()
     end)
     dropdown:HookScript("OnLeave", function() GameTooltip:Hide() end)
 
-    -- Bouton Guide à gauche du sélecteur : ouvre le guide en jeu (Guide.lua).
+    -- Bouton Guide à gauche de la recherche : ouvre le guide en jeu (Guide.lua). Hors de la rangée des
+    -- onglets, que les onglets longs (Дополнительно) remplissent.
     local guide = CreateButton(panel, L.OPT_GUIDE, 70, NS.ToggleGuide)
-    guide:SetPoint("RIGHT", dropdown, "LEFT", -8, 0)
+    guide:SetPoint("RIGHT", search, "LEFT", -10, 0)
     Tooltip(guide, L.OPT_GUIDE_TIP)
 end
 
@@ -884,10 +895,14 @@ local function CreateFooter()
     local restart = CreateButton(panel, L.OPT_RESTART, 100, NS.RestartGraphics)
     restart:SetPoint("BOTTOMRIGHT", -14, 13)
     Tooltip(restart, L.OPT_RESTART_TIP)
-    local engine = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    engine:SetTextColor(HELP, HELP, HELP)
-    engine:SetPoint("RIGHT", restart, "LEFT", -8, 0)
-    engine:SetText(L.OPT_ENGINE)
+    -- Tout remettre par défaut, après confirmation : aucune annulation possible ensuite.
+    StaticPopupDialogs.PANORAMA_RESET_ALL = { text = L.OPT_RESET_ALL_CONFIRM, button1 = YES, button2 = NO,
+        OnAccept = function() CommitTyping() NS.ResetAll() end, timeout = 0, whileDead = true, hideOnEscape = true }
+    local resetAll = CreateButton(panel, L.OPT_RESET_ALL, 100, function()
+        StaticPopup_Show("PANORAMA_RESET_ALL")
+    end)
+    resetAll:SetPoint("RIGHT", restart, "LEFT", -8, 0)
+    Tooltip(resetAll, L.OPT_RESET_ALL_TIP)
 end
 
 function NS.BuildOptions()
@@ -915,7 +930,7 @@ function NS.BuildOptions()
     local subtitle = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     subtitle:SetTextColor(HELP, HELP, HELP)
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -3)
-    subtitle:SetWidth(340)
+    subtitle:SetWidth(250)   -- s'arrête avant le bouton Guide
     subtitle:SetJustifyH("LEFT")
     subtitle:SetMaxLines(2)
     subtitle:SetText(L.OPT_SUBTITLE)
@@ -934,7 +949,7 @@ function NS.BuildOptions()
     -- Lu par PanelTabButtonMixin:OnShow, qui redimensionne les onglets à chaque affichage.
     panel.tabPadding = 12
     CreateTabs(search)
-    CreateLanguage()
+    CreateLanguage(search)
     CreatePresets()
     CreateAmbiance()
     CreateFooter()
@@ -951,6 +966,20 @@ function NS.BuildOptions()
     panel.noResult:SetText(L.OPT_NO_RESULT)
 
     collapsed = NS.db.collapsed
+    -- Éditeur d'ambiance : les lignes de filtres reprises, liées au contexte édité.
+    -- Créé avant les sections : la section Jour et nuit de l'onglet Ambiance vient en dessous.
+    local ambianceKeys = {}
+    for _, key in ipairs(NS.ambianceKeys) do ambianceKeys[key] = true end
+    for _, setting in ipairs(NS.filterSettings) do
+        if ambianceKeys[setting.key] then
+            local copy = setmetatable({ ambiance = true }, { __index = setting })
+            if setting.key == "tint" then
+                CreateTintRow(copy, nil, "ambiance")
+            else
+                CreateRow(copy, nil, "ambiance")
+            end
+        end
+    end
     -- Titre créé à la première ligne visible : pas de section vide sur un client sans ces CVars.
     local section, title, tab, headerPending
     for _, list in ipairs({ NS.settings, NS.filterSettings }) do
@@ -962,24 +991,11 @@ function NS.BuildOptions()
                     CreateHeader(section, title, tab)
                     headerPending = false
                 end
-                if setting.key == "tint" then
+                if setting.key == "tint" or setting.key == "tintNight" then
                     CreateTintRow(setting, section, tab)
                 else
                     CreateRow(setting, section, tab)
                 end
-            end
-        end
-    end
-    -- Éditeur d'ambiance : les lignes de filtres reprises, liées au contexte édité.
-    local ambianceKeys = {}
-    for _, key in ipairs(NS.ambianceKeys) do ambianceKeys[key] = true end
-    for _, setting in ipairs(NS.filterSettings) do
-        if ambianceKeys[setting.key] then
-            local copy = setmetatable({ ambiance = true }, { __index = setting })
-            if setting.key == "tint" then
-                CreateTintRow(copy, nil, "ambiance")
-            else
-                CreateRow(copy, nil, "ambiance")
             end
         end
     end

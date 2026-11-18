@@ -26,7 +26,7 @@ Fenêtre `BasicFrameTemplate` 610 x 640, déplaçable, fermée par Échap (incha
 | Bloc préréglages | 110-158 | onglet Qualité seulement |
 | Bloc ambiance | 110-158 | onglet Ambiance seulement : case « Ambiance auto » et lieu · moment détectés (ligne 1), menu du contexte à modifier, largeur 200, puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
 | Liste défilante | 166 (Qualité, Ambiance) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
-| Pied | 596-632 | filet à y 596, 2 cases à gauche, moteur graphique à droite |
+| Pied | 596-632 | filet à y 596, 2 cases à gauche, Tout réinitialiser et Redémarrer à droite |
 
 ### Onglets (nouveau)
 
@@ -38,7 +38,7 @@ Sélecteur de langue à droite de la rangée : `WowStyle1DropdownTemplate` 130 d
 Choix : « Langue du jeu » (`OPT_LANGUAGE_AUTO`) puis les 10 langues, chacune écrite dans sa langue.
 Un choix enregistre `NS.db.locale` et recharge l'interface ; infobulle `OPT_LANGUAGE_TIP`.
 
-Bouton « Guide » (`OPT_GUIDE`, `UIPanelButtonTemplate`, 70 de large au moins, texte + 24) à gauche du sélecteur, 8 d'écart ;
+Bouton « Guide » (`OPT_GUIDE`, `UIPanelButtonTemplate`, 70 de large au moins, texte + 24) à gauche du champ de recherche, 10 d'écart (hors rangée des onglets, que les onglets longs remplissent) ;
 infobulle `OPT_GUIDE_TIP`. Il ouvre ou ferme la fenêtre du guide (`Guide.lua`) :
 `BasicFrameTemplate` 590 x 640, ancrée à droite de la fenêtre Panorama (4, 0), strate DIALOG,
 déplaçable, fermée par Échap. Titre = h1 du guide. Zone défilante `UIPanelScrollFrameTemplate`,
@@ -52,7 +52,7 @@ par `tests/build_guide.lua`.
 |---|---|---|
 | Qualité | Vue, Végétation, Ombres, Environnement, Image | ~22 |
 | Filtres | Filtres | 6 |
-| Ambiance | — | 4 pour un lieu, 2 pour un moment (clés du contexte choisi seulement, hors recherche) |
+| Ambiance | — puis Jour et nuit | 4 pour un lieu, 2 pour un moment (clés du contexte choisi seulement, hors recherche) ; puis 3 (jour et nuit auto, teinte de nuit, intensité) |
 | Caméra et interface | Caméra, Barres de noms, Texte de combat | ~22 |
 | Avancé | HDR, Avancé (console seulement) | ~14 |
 
@@ -68,7 +68,7 @@ Toutes les sections sont ouvertes par défaut ; le repli reste (`NS.db.collapsed
 
 - Logo 32 x 32, `TOPLEFT` (14, -30).
 - Titre « Panorama » : `GameFontNormalLarge`, `TOPLEFT` du logo + (8, -1).
-- Sous-titre : `GameFontHighlightSmall` couleur aide, sous le titre (0, -3), largeur 340, 2 lignes max.
+- Sous-titre : `GameFontHighlightSmall` couleur aide, sous le titre (0, -3), largeur 250 (s'arrête avant le bouton Guide), 2 lignes max.
 - Recherche : `SearchBoxTemplate` 180 x 20, `TOPRIGHT` (-14, -36).
 
 ### Recherche
@@ -91,9 +91,9 @@ Aucun résultat : « Aucun réglage ne correspond » (`GameFontDisable`, clé ne
 
 ### Pied
 
-- Cases « Appliquer à chaque connexion » et « Bouton de la minimap » : `UICheckButtonTemplate` 26 x 26,
+- Cases « Appliquer à chaque connexion » et « Minimap » : `UICheckButtonTemplate` 26 x 26,
   première en `BOTTOMLEFT` (10, 11), seconde 16 après le texte de la première. Axe commun : y 24 depuis le bas.
-- À droite : « Moteur graphique » (`OPT_ENGINE`, `GameFontHighlightSmall` couleur aide) puis bouton
+- À droite : bouton Tout réinitialiser (avec fenêtre de confirmation) à 8 à gauche du bouton
   Redémarrer, `BOTTOMRIGHT` (-14, 13), hauteur 22, largeur texte + 24 (min 100).
 
 ## 3. Grille
@@ -174,7 +174,9 @@ Contrastes vérifiés (fond de fenêtre estimé `#1c1c1c`, survol `#2a2a2a`, fon
 
 Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé,
 `HDRPeakBrightness` si `useHDRPeakBrightness` coupé, `HDRBrightness` si `useHDRBrightness` coupé,
-`tintStrength` si `tint` = 0. Champ `requires` dans la définition du réglage.
+`tintStrength` si `tint` = 0, `skyStrength` si `sky` = 0, `tintNight` si `autoDayNight` coupé,
+`tintNightStrength` si `autoDayNight` coupé ou `tintNight` = 0. Champ `requires` dans la définition du
+réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées quand l'ambiance auto est active.
 
 ## 7. Composant : ligne de réglage
 
@@ -212,7 +214,9 @@ Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé
 ## 8. Composant : grille de vignettes de teinte
 
 Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, en tête de l'onglet Filtres,
-suivie de Intensité de teinte, Ciel, Intensité du ciel, Vignettage, Grain.
+suivie de Intensité de teinte, Ciel, Intensité du ciel, Vignettage, Grain, Bandes noires. La même grille sert à la
+teinte de nuit (`tintNight`, onglet Ambiance, section Jour et nuit) et à la teinte de l'éditeur
+d'ambiance ; l'intensité remise à son défaut est celle nommée par `strength`.
 
 - Libellé et aide comme une ligne normale, aide en largeur 500 ; bouton Défaut à x 532, y -14.
 - Grille sous l'aide (+8), à x 10 : **7 vignettes sur une rangée** (Aucune + 6 teintes, ordre de

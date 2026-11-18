@@ -213,6 +213,8 @@ function NS.Sanitize(setting, value)
         for _, choice in ipairs(setting.choices) do
             if choice == value then return value end
         end
+        -- Valeur du jeu hors liste (/console, Config.wtf) : gardée telle quelle, aucun choix coché.
+        if value == ReadCVar(setting) then return value end
         return setting.default
     end
     -- Pas de borne min/max : une valeur posée par /console au-delà du curseur est gardée.
@@ -360,6 +362,39 @@ function NS.Undo()
     print(L.PREFIX .. L.MSG_UNDONE)
 end
 
+-- Remise à zéro complète : chaque CVar modifiée dans Panorama à son défaut (NS.GameDefault), puis
+-- rendue au jeu (plus réécrite à la connexion) ; les autres suivent déjà le jeu et restent telles
+-- quelles. Chaque filtre à son défaut, ambiance coupée et remise aux valeurs livrées, zones
+-- oubliées. Efface aussi l'annulation de préréglage.
+function NS.ResetAll()
+    NS.db.undo, NS.db.undoTouched = nil, nil
+    local restartNote = ""
+    batching = true
+    for _, setting in ipairs(NS.settings) do
+        if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
+            local default = NS.GameDefault(setting)
+            if setting.restart and NS.db.values[setting.cvar] ~= default then
+                if setting.restart == "client" then
+                    restartNote = " " .. L.OPT_NEEDS_CLIENT_RESTART
+                elseif restartNote == "" then
+                    restartNote = " " .. L.OPT_NEEDS_RESTART
+                end
+            end
+            SetValue(setting, default)
+            NS.db.touched[setting.cvar] = nil
+        end
+    end
+    batching = false
+    for _, setting in ipairs(NS.filterSettings) do
+        if setting.key then NS.db.filters[setting.key] = setting.default end
+    end
+    NS.db.ambiance = nil
+    NS.LoadAmbiance(NS.db)
+    NS.ApplyFilters()
+    if NS.RefreshOptions then NS.RefreshOptions() end
+    print(L.PREFIX .. L.MSG_RESET_ALL .. restartNote)
+end
+
 function NS.RestartGraphics()
     ConsoleExec("gxRestart")
 end
@@ -454,9 +489,10 @@ events:SetScript("OnEvent", function(self, event, arg1)
                 db.values[setting.cvar] = NS.Sanitize(setting, value)
             end
         end
+        -- Posé avant les modules : une erreur de chargement des filtres ne laisse pas NS.db vide.
+        NS.db = db
         if NS.LoadFilters then NS.LoadFilters(db) end
         if NS.LoadAmbiance then NS.LoadAmbiance(db) end
-        NS.db = db
         if NS.BuildOptions then NS.BuildOptions() end
         if NS.BuildMinimapButton then NS.BuildMinimapButton() end
     elseif event == "PLAYER_LOGIN" then
@@ -466,12 +502,12 @@ events:SetScript("OnEvent", function(self, event, arg1)
         NS.ApplyAll(not NS.db.applyOnLogin or firstRun)
         C_Timer.After(LOGIN_SETTLE_SECONDS, function()
             loginSettled = true
+            -- Passe finale d'abord : une erreur de détection d'ambiance ne la bloque pas.
+            if variablesLoaded and enteredWorld and NS.db then FinishLoading() end
             -- Carte parfois inconnue au PLAYER_LOGIN : biome relu une fois le monde chargé.
             if NS.StartAmbiance then NS.StartAmbiance(); NS.UpdateAmbiance() end
-            if variablesLoaded and enteredWorld and NS.db then FinishLoading() end
         end)
-        -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non. Après le
-        -- minuteur : une erreur de détection d'ambiance ne bloque pas la passe finale.
+        -- Les filtres ne sont pas des CVars : toujours reposés, réapplication coupée ou non.
         if NS.ApplyFilters then NS.ApplyFilters() end
     elseif AMBIANCE_EVENTS[event] then
         if NS.db and NS.UpdateAmbiance then NS.UpdateAmbiance() end
@@ -512,12 +548,21 @@ SlashCmdList.PANORAMA = function(message)
         if InCombatLockdown() then
             print(L.PREFIX .. L.MSG_APPLIED_AFTER_COMBAT)
         else
+            -- Valeur refusée ou arrondie par le jeu : le panneau montre ce qui est appliqué.
+            for _, setting in ipairs(NS.settings) do
+                if setting.cvar and NS.db.touched[setting.cvar] then ReadBack(setting) end
+            end
+            if NS.RefreshOptions then NS.RefreshOptions() end
             print(L.PREFIX .. L.MSG_APPLIED)
         end
     elseif command == "restart" then
         NS.RestartGraphics()
     elseif command == "undo" then
         NS.Undo()
+    elseif command == "reset" then
+        NS.ResetAll()
+    elseif command == "status" then
+        NS.PrintStatus()
     elseif command == "minimap" then
         NS.db.minimap.show = not NS.db.minimap.show
         if NS.UpdateMinimapButton then NS.UpdateMinimapButton() end

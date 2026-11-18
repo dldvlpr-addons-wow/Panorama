@@ -6,6 +6,7 @@
 -- l'ambiance vit dans PanoramaDB.ambiance (contexts : par contexte ; zones : uiMapID -> valeurs
 -- propres à une zone, mêmes clés que son biome).
 local _, NS = ...
+local L = NS.L
 
 -- Clés de NS.filterSettings que l'ambiance remplace.
 NS.ambianceKeys = { "tint", "tintStrength", "vignette", "grain", "sky", "skyStrength" }
@@ -22,14 +23,14 @@ NS.ambianceContexts = {
     { id = "desert", label = "AMBIANCE_DESERT", values = { tint = 2, tintStrength = 10, vignette = 20, grain = 0 } },
     { id = "frozen", label = "AMBIANCE_FROZEN", values = { tint = 3, tintStrength = 15, vignette = 20, grain = 0 } },
     { id = "jungle", label = "AMBIANCE_JUNGLE", values = { tint = 5, tintStrength = 15, vignette = 25, grain = 0 } },
-    { id = "corrupted", label = "AMBIANCE_CORRUPTED", values = { tint = 4, tintStrength = 15, vignette = 30, grain = 10 } },
-    { id = "volcanic", label = "AMBIANCE_VOLCANIC", values = { tint = 0, tintStrength = 30, vignette = 30, grain = 10 } },
+    { id = "corrupted", label = "AMBIANCE_CORRUPTED", values = { tint = 4, tintStrength = 15, vignette = 30, grain = 0 } },
+    { id = "volcanic", label = "AMBIANCE_VOLCANIC", values = { tint = 0, tintStrength = 30, vignette = 30, grain = 0 } },
     { id = "arcane", label = "AMBIANCE_ARCANE", values = { tint = 6, tintStrength = 15, vignette = 20, grain = 0 } },
-    { id = "rain", label = "AMBIANCE_RAIN", values = { tint = 3, tintStrength = 30, vignette = 25, grain = 10 } },
+    { id = "rain", label = "AMBIANCE_RAIN", values = { tint = 3, tintStrength = 30, vignette = 25, grain = 0 } },
     { id = "snow", label = "AMBIANCE_SNOW", values = { tint = 3, tintStrength = 20, vignette = 15, grain = 0 } },
-    { id = "sandstorm", label = "AMBIANCE_SANDSTORM", values = { tint = 1, tintStrength = 35, vignette = 25, grain = 20 } },
+    { id = "sandstorm", label = "AMBIANCE_SANDSTORM", values = { tint = 1, tintStrength = 35, vignette = 25, grain = 0 } },
     { id = "indoor", label = "AMBIANCE_INDOOR", values = { tint = 2, tintStrength = 20, vignette = 30, grain = 0 } },
-    { id = "dungeon", label = "AMBIANCE_DUNGEON", values = { tint = 4, tintStrength = 25, vignette = 40, grain = 10 } },
+    { id = "dungeon", label = "AMBIANCE_DUNGEON", values = { tint = 4, tintStrength = 25, vignette = 40, grain = 0 } },
 }
 
 -- uiMapID des zones de Forever 1.60.1 (table UiMap du build 70938) -> biome. Zone absente :
@@ -114,6 +115,8 @@ function NS.LoadAmbiance(db)
     if type(db.ambiance) ~= "table" then db.ambiance = {} end
     local ambiance = db.ambiance
     if type(ambiance.enabled) ~= "boolean" then ambiance.enabled = false end
+    -- Ambiance auto et jour/nuit automatiques ne marchent pas ensemble : l'ambiance garde la main.
+    if ambiance.enabled and type(db.filters) == "table" then db.filters.autoDayNight = false end
     if type(ambiance.contexts) ~= "table" then ambiance.contexts = {} end
     for _, context in ipairs(NS.ambianceContexts) do
         local values = ambiance.contexts[context.id]
@@ -140,6 +143,27 @@ function NS.LoadAmbiance(db)
     end
 end
 
+-- Moment de la journée : signal jour/nuit du jeu (celui de l'indicateur de la minicarte), heure en
+-- repli. Aube et crépuscule n'ont pas de signal : heure du serveur, dans la part « jour » du jeu.
+function NS.CurrentMoment()
+    local hour = GetGameTime()
+    local isDay = C_DateAndTime and C_DateAndTime.IsDayTime and C_DateAndTime.IsDayTime()
+    if isDay == nil then isDay = hour >= 5 and hour < 21 end
+    if not isDay then return "night" end
+    return (hour < 7 or hour >= 19) and "dusk" or "day"
+end
+
+-- Part de nuit, de 0 (jour) à 1 (nuit) : 1 quand le jeu dit nuit ; le jour, montée de 19 h à 21 h
+-- et descente de 5 h à 7 h (heure du serveur), relue à chaque minute par le minuteur de l'ambiance.
+function NS.NightFactor()
+    if NS.CurrentMoment() == "night" then return 1 end
+    local hour, minute = GetGameTime()
+    local time = hour + minute / 60
+    if time >= 19 then return math.min(1, (time - 19) / 2) end
+    if time < 7 then return math.min(1, (7 - time) / 2) end
+    return 0
+end
+
 -- Lieu, du plus précis au plus général : donjon ou raid, intérieur, météo, biome. Puis moment de la
 -- journée (signal jour/nuit du jeu, heure du serveur pour l'aube et le crépuscule) ;
 -- nil sous un toit (donjon, intérieur) : pas de ciel. Avec le biome,
@@ -148,15 +172,10 @@ function NS.DetectAmbiance()
     local inInstance, instanceType = IsInInstance()
     if inInstance and (instanceType == "party" or instanceType == "raid") then return "dungeon" end
     if IsIndoors() then return "indoor" end
-    -- Nuit : signal jour/nuit du jeu (celui de l'indicateur de la minicarte), heure en repli.
-    -- Aube et crépuscule n'ont pas de signal : heure du serveur, dans la part « jour » du jeu.
-    local hour = GetGameTime()
-    local isDay = C_DateAndTime and C_DateAndTime.IsDayTime and C_DateAndTime.IsDayTime()
-    if isDay == nil then isDay = hour >= 5 and hour < 21 end
-    local moment = "night"
-    if isDay then moment = (hour < 7 or hour >= 19) and "dusk" or "day" end
+    local moment = NS.CurrentMoment()
     -- Effets météo coupés dans le jeu (WeatherDensity 0) : rien à l'écran, pas d'ambiance météo.
-    local weather = C_CVar.GetCVar("WeatherDensity") ~= "0" and C_Weather.GetCurrentWeather()
+    local weather = C_CVar.GetCVar("WeatherDensity") ~= "0" and C_Weather and C_Weather.GetCurrentWeather
+        and C_Weather.GetCurrentWeather()
     if weather and WEATHER_CONTEXTS[weather.type] then return WEATHER_CONTEXTS[weather.type], moment end
     local zone, biome = NS.CurrentZone()
     return biome, moment, zone
@@ -178,10 +197,66 @@ function NS.AppliedFilters()
     return applied
 end
 
--- Zone, intérieur, météo ou heure changés : filtres reposés en fondu si l'ambiance est active,
--- ligne d'état relue.
+local function ContextLabel(id)
+    for _, context in ipairs(NS.ambianceContexts) do
+        if context.id == id then return L[context.label] end
+    end
+end
+
+-- Contexte détecté, en clair : lieu (ou zone réglée), puis moment de la journée dehors.
+function NS.DetectedText()
+    local place, moment, zone = NS.DetectAmbiance()
+    local detected = zone and NS.db.ambiance.zones[zone] and NS.ZoneName(zone) or ContextLabel(place)
+    if not zone then
+        -- Donjon, intérieur ou météo : le réglage propre de la zone attend, le dire.
+        local current = NS.CurrentZone()
+        if current and NS.db.ambiance.zones[current] then
+            detected = L.AMBIANCE_OVER_ZONE:format(detected, NS.ZoneName(current))
+        end
+    end
+    if moment then detected = detected .. " · " .. ContextLabel(moment) end
+    return detected
+end
+
+-- Diagnostic (/pano status) : contexte détecté et valeurs posées sur le monde, dans le chat.
+-- Intensités des teintes : celles du rendu (voir RenderValues), part de nuit comprise ; pendant un
+-- fondu, valeurs visées.
+function NS.PrintStatus()
+    local function Values(filters, keys)
+        local parts = {}
+        for _, key in ipairs(keys) do
+            local setting, value = FilterSetting(key), filters[key]
+            if setting.names then
+                value = setting.names[value]
+            elseif type(value) == "boolean" then
+                value = value and YES or NO
+            end
+            parts[#parts + 1] = setting.label .. ": " .. tostring(value)
+        end
+        return table.concat(parts, ", ")
+    end
+    local base, shown = NS.db.filters, {}
+    local night = base.autoDayNight and NS.NightFactor() or 0
+    for _, key in ipairs(NS.ambianceKeys) do shown[key] = NS.AppliedFilters()[key] end
+    -- La teinte de nuit remplace la teinte, qui s'efface d'autant.
+    shown.tintStrength = math.floor(shown.tintStrength * (1 - night) + 0.5)
+    print(L.PREFIX .. L.AMBIANCE_AUTO .. ": " .. (NS.db.ambiance.enabled and YES or NO) .. ". "
+        .. L.AMBIANCE_DETECTED:format(NS.DetectedText()))
+    print(L.PREFIX .. Values(shown, NS.ambianceKeys) .. ", " .. Values(base, { "letterbox" }))
+    local line = Values(base, { "autoDayNight" })
+    if base.autoDayNight then
+        shown.tintNight = base.tintNight
+        shown.tintNightStrength = math.floor(base.tintNightStrength * night + 0.5)
+        line = line .. ", " .. Values(shown, { "tintNight", "tintNightStrength" }) .. ", "
+            .. L.AMBIANCE_NIGHT .. ": " .. math.floor(night * 100 + 0.5) .. " %"
+    end
+    print(L.PREFIX .. line)
+end
+
+-- Zone, intérieur, météo ou heure changés : filtres reposés en fondu si l'ambiance ou le jour/nuit
+-- automatique est actif, ligne d'état relue.
 function NS.UpdateAmbiance()
-    if NS.db.ambiance.enabled then NS.ApplyFilters(true) end
+    if NS.db.ambiance.enabled or NS.db.filters.autoDayNight then NS.ApplyFilters(true) end
     if NS.RefreshOptions then NS.RefreshOptions() end
 end
 

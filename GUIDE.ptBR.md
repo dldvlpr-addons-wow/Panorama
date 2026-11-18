@@ -23,9 +23,9 @@ O botão do minimapa:
 | Caixa de busca (canto superior direito) | Digite uma palavra para listar as configurações correspondentes de todas as abas. Limpe-a para voltar. |
 | Abas | Qualidade, Filtros, Ambiente, Interface, Avançado. A aba aberta é lembrada. |
 | Seletor de idioma (à direita das abas) | Idioma do jogo ou um de dez idiomas. Mudar o idioma recarrega a interface. |
-| Guia (à esquerda do seletor de idioma) | Abre este guia no jogo. |
+| Guia (à esquerda da caixa de busca) | Abre este guia no jogo. |
 | Predefinições (aba Qualidade) | Baixa, Média, Alta, Extra. A predefinição que combina com suas configurações fica destacada. |
-| Rodapé | Aplicar a cada conexão, botão do minimapa, reinicialização do motor gráfico. |
+| Rodapé | Aplicar a cada conexão, botão do minimapa, Redefinir tudo, reinicialização do motor gráfico. |
 
 Clique no título de uma seção para recolhê-la ou expandi-la.
 
@@ -67,6 +67,8 @@ A aba Filtros adiciona efeitos sobre a imagem. Eles não mudam nenhuma configura
   **Intensidade do céu** define a força.
 - **Vinheta**: escurece as bordas da tela.
 - **Granulação**: granulação animada.
+- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas
+  escondem, então não aumentam a taxa de quadros.
 
 ### Ambiente
 
@@ -90,6 +92,10 @@ A aba Ambiente muda sozinha o tom, o céu, a vinheta e a granulação conforme o
   a esta zona seu próprio tom, vinheta e granulação, partindo do seu tipo de zona. Ela passa então
   antes do tipo de zona, mas depois de masmorra, interior e clima. As zonas que você ajusta
   continuam no menu. **Tipo de zona** remove os valores da zona: ela volta a seguir seu tipo de zona.
+- **Dia e noite** (no fim da aba): **Dia e noite automáticos** aplica a **Tonalidade noturna** à noite,
+  segundo o dia e a noite do jogo. Ela substitui a tonalidade da aba Filtros. A mudança é gradual das 19h às 21h e das 5h
+  às 7h (horário do servidor). **Intensidade da tonalidade noturna** define a força.
+  Não funciona junto com a ambientação automática: ligar um desliga o outro.
 
 ## 5. Seus valores e o jogo
 
@@ -170,6 +176,8 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 | `/pano` | Abre ou fecha a janela |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Aplica uma predefinição |
 | `/pano undo` | Restaura as configurações de antes da última predefinição |
+| `/pano reset` | Volta cada configuração e cada filtro ao padrão |
+| `/pano status` | Mostra no chat o lugar e o momento detectados e os filtros aplicados agora (durante uma transição, os valores de destino) |
 | `/pano apply` | Grava de novo as configurações mudadas no Panorama |
 | `/pano restart` | Reinicia o motor gráfico |
 | `/pano minimap` | Mostra ou oculta o botão do minimapa |
@@ -179,3 +187,6 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 - O botão **Padrão** de cada linha redefine essa configuração.
 - O botão **Padrões** do menu Gráficos do jogo redefine apenas as configurações que esse menu gerencia,
   e o Panorama o acompanha. Use os botões Padrão em `/pano` para as outras e para os filtros.
+- **Redefinir tudo** (rodapé, com confirmação) ou `/pano reset`: volta cada configuração alterada no
+  Panorama e cada filtro ao padrão. Não pode ser desfeito.
+  A aba Ambiente e as zonas ajustadas também são redefinidas.

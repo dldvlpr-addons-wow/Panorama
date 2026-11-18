@@ -23,9 +23,9 @@ Le bouton de la minimap :
 | Champ de recherche (en haut à droite) | Tapez un mot pour lister les réglages correspondants de tous les onglets. Videz-le pour revenir. |
 | Onglets | Qualité, Filtres, Ambiance, Interface, Avancé. L'onglet ouvert est mémorisé. |
 | Sélecteur de langue (à droite des onglets) | Langue du jeu ou l'une des dix langues. Changer de langue recharge l'interface. |
-| Guide (à gauche du sélecteur de langue) | Ouvre ce guide dans le jeu. |
+| Guide (à gauche du champ de recherche) | Ouvre ce guide dans le jeu. |
 | Préréglages (onglet Qualité) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
-| Pied de fenêtre | Appliquer à chaque connexion, bouton de la minimap, redémarrage du moteur graphique. |
+| Pied de fenêtre | Appliquer à chaque connexion, bouton minimap, Tout réinitialiser, redémarrage du moteur graphique. |
 
 Cliquez sur un titre de section pour la replier ou la déplier.
 
@@ -67,6 +67,8 @@ L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun ré
   **Intensité du ciel** règle sa force.
 - **Vignettage** : assombrit les bords de l'écran.
 - **Grain** : grain animé.
+- **Bandes noires** : bandes en haut et en bas, de 0 à 20 % de l'écran chacune. Le jeu calcule quand même ce qu'elles
+  cachent, elles n'augmentent donc pas le nombre d'images par seconde.
 
 ### Ambiance
 
@@ -89,6 +91,10 @@ L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain s
   de zone. Elle passe alors avant le type de zone, mais après donjon, intérieur et météo. Les zones
   que vous réglez restent dans le menu. **Type de zone** retire les valeurs de la zone : elle suit de
   nouveau son type de zone.
+- **Jour et nuit** (bas de l'onglet) : **Jour et nuit automatiques** pose la **Teinte de nuit** la nuit,
+  selon le jour et la nuit du jeu. Elle remplace la teinte de l'onglet Filtres. Le passage est progressif de 19 h à 21 h et de 5 h à
+  7 h (heure du serveur). **Intensité de la teinte de nuit** règle sa force.
+  Il ne marche pas en même temps que l'ambiance automatique : activer l'un coupe l'autre.
 
 ## 5. Vos valeurs et le jeu
 
@@ -169,6 +175,8 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 | `/pano` | Ouvre ou ferme la fenêtre |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applique un préréglage |
 | `/pano undo` | Rétablit les réglages d'avant le dernier préréglage |
+| `/pano reset` | Remet chaque réglage et chaque filtre par défaut |
+| `/pano status` | Affiche dans le chat le lieu et le moment détectés et les filtres appliqués à l'instant (pendant un fondu, les valeurs visées) |
 | `/pano apply` | Réécrit les réglages modifiés dans Panorama |
 | `/pano restart` | Redémarre le moteur graphique |
 | `/pano minimap` | Affiche ou masque le bouton de la minimap |
@@ -178,3 +186,6 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 - Le bouton **Défaut** de chaque ligne réinitialise ce réglage.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
+- **Tout réinitialiser** (pied de fenêtre, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
+  dans Panorama et chaque filtre à sa valeur par défaut. Impossible d'annuler.
+  L'onglet Ambiance et les zones réglées sont remis à zéro aussi.

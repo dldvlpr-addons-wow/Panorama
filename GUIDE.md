@@ -25,9 +25,9 @@ The minimap button:
 | Search box (top right) | Type a word to list the matching settings of every tab. Clear it to go back. |
 | Tabs | Quality, Filters, Ambiance, Interface, Advanced. The open tab is remembered. |
 | Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
-| Guide (left of the language selector) | Opens this guide in the game. |
+| Guide (left of the search box) | Opens this guide in the game. |
 | Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
-| Footer | Apply on every login, minimap button, graphics engine restart. |
+| Footer | Apply on every login, minimap button, Reset all, graphics engine restart. |
 
 Click a section title to fold or unfold it.
 
@@ -69,6 +69,8 @@ The Filters tab adds effects on top of the image. They change no game setting.
   **Sky strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
 - **Film grain**: animated grain.
+- **Black bars**: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they
+  hide, so they do not raise the frame rate.
 
 ### Ambiance
 
@@ -90,6 +92,10 @@ The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit wh
   this zone its own tint, vignette and grain, starting from its kind of zone. It then comes before
   the kind of zone, but after dungeon, indoors and weather. Zones you set stay in the menu.
   **Zone type** removes the values of the zone: it follows its kind of zone again.
+- **Day and night** (bottom of the tab): **Automatic day and night** lays the **Night tint** at night,
+  following the game's day and night. It replaces the Filters tab tint. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00
+  (server time). **Night tint strength** sets how strong it is.
+  It does not work together with the automatic ambiance: turning one on turns the other off.
 
 ## 5. Your values and the game
 
@@ -170,6 +176,8 @@ Each HDR line has a Default button that puts back the game's value.
 | `/pano` | Open or close the window |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
 | `/pano undo` | Restore the settings from before the last preset |
+| `/pano reset` | Put every setting and filter back to its default |
+| `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |
@@ -179,3 +187,6 @@ Each HDR line has a Default button that puts back the game's value.
 - The **Default** button on each line resets that setting.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
+- **Reset all** (footer, with confirmation) or `/pano reset`: puts every setting changed in Panorama
+  and every filter back to its default. It cannot be undone.
+  The Ambiance tab and the zones you set are reset too.

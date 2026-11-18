@@ -16,7 +16,7 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **58 settings and 6 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **62 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -36,8 +36,13 @@ Guide button in the panel opens the same guide in the game.
 - **Default button on every line**: it puts that setting back to its default. Advanced settings,
   nameplate class colors, pets and totems, zoom speed, text size and combat text use the
   game's own default.
+- **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
+  cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a
   sepia, warm, cold, night, emerald or dusk tint with its own strength. They change no CVar.
+- **Automatic day and night** (Ambiance tab, off by default): at night (game's day and night), a night
+  tint with its own strength replaces the tint. It does not work together with the automatic ambiance: turning one on turns the
+  other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00 (server time).
 - **Sky filter**: a color gradient from the top of the screen, with the tint colors.
 - **Automatic ambiance** (off by default): tint, vignette and grain follow the place (dungeon,
   indoors, rain, snow, sandstorm, then the kind of zone: temperate, desert, snowy, jungle, corrupted,
@@ -56,10 +61,10 @@ Guide button in the panel opens the same guide in the game.
 | Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, grey screen on death, violence level, projected textures, reduce spell effects |
 | Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed, text size |
 | Nameplates | Nameplate distance, enemy and friendly class colors, enemy pets, enemy totems |
-| Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, particle density, depth-based transparency |
+| Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
 | Floating combat text | Absorb shields, combat state, dodges/parries/misses, absorbed/blocked/resisted damage, healer names, buffs and debuffs, reactive abilities, resource gains, periodic resource gains, combo points, low mana and health, honor gains, reputation changes |
-| Filters | Vignette, film grain, color tint, tint strength, sky, sky strength |
-| Ambiance | Automatic ambiance; tint, tint strength, vignette and film grain for each place; sky and sky strength for each time of day |
+| Filters | Black bars, vignette, film grain, color tint, tint strength, sky, sky strength |
+| Ambiance | Automatic ambiance; tint, tint strength, vignette and film grain for each place; sky and sky strength for each time of day; automatic day and night, night tint, night tint strength |
 
 ## Commands
 
@@ -70,6 +75,8 @@ Guide button in the panel opens the same guide in the game.
 | `/pano restart` | Restart the graphics engine |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
 | `/pano undo` | Restore the settings from before the last preset |
+| `/pano reset` | Put every setting and filter back to its default |
+| `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano minimap` | Show or hide the minimap button |
 
 The panel opens in its own window, which you can move and close with Escape. Options > AddOns >
@@ -88,7 +95,9 @@ WoW Forever 1.60.1 (interface 16001).
   That menu does not read the value back, so it may show a level that no longer matches.
 - The Defaults button in the game's Graphics menu resets only the settings that menu manages, and
   Panorama follows it. To reset the others, and the filters, use the Default button on each line
-  in `/pano`.
+  in `/pano`, or Reset all for everything at once, the Ambiance tab and the zones you set included.
+- The black bars hide part of the world. The game still renders it, so they do not raise your
+  frame rate.
 
 Website: https://muscalab.com/addons/panorama
 
