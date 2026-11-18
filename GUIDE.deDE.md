@@ -2,6 +2,8 @@
 
 So benutzt du Panorama auf WoW Forever und richtest HDR unter Windows ein.
 
+**Sichere zuerst deine Einstellungen.** Panorama ändert Spieleinstellungen, und das Entfernen des Addons setzt sie nicht zurück. Bevor du etwas änderst, beende das Spiel und kopiere den Ordner `WTF` deiner Spielinstallation an einen sicheren Ort. Um zurückzukehren, beende das Spiel und lege diese Kopie wieder an ihren Platz.
+
 ## 1. Das Fenster öffnen
 
 - Gib `/pano` ein oder klicke mit der linken Maustaste auf den Panorama-Button an der Minimap.
@@ -19,9 +21,9 @@ Der Minimap-Button:
 | Bereich | Funktion |
 |---|---|
 | Suchfeld (oben rechts) | Gib ein Wort ein, um die passenden Einstellungen aller Reiter aufzulisten. Leere es, um zurückzukehren. |
-| Reiter | Qualität, Filter, Oberfläche, Erweitert. Der geöffnete Reiter wird gespeichert. |
+| Reiter | Qualität, Filter, Stimmung, Oberfläche, Erweitert. Der geöffnete Reiter wird gespeichert. |
 | Sprachauswahl (rechts neben den Reitern) | Spielsprache oder eine von zehn Sprachen. Eine Änderung lädt die Oberfläche neu. |
-| Anleitung (links neben der Sprachauswahl) | Öffnet diese Anleitung im Spiel. |
+| Anleitung (links neben dem Suchfeld) | Öffnet diese Anleitung im Spiel. |
 | Voreinstellungen (Reiter Qualität) | Niedrig, Mittel, Hoch, Extra. Die Voreinstellung, die zu deinen Einstellungen passt, ist hervorgehoben. |
 | Fußzeile | Bei jedem Einloggen anwenden, Minimap-Button, Alles zurücksetzen, Neustart der Grafik-Engine. |
 
@@ -63,10 +65,41 @@ Der Reiter Filter fügt Effekte über dem Bild hinzu. Sie ändern keine Spielein
 
 - **Farbton**: Klicke auf eine Vorschau, um ihn sofort anzuwenden (Sepia, Warm, Kalt, Nacht, Smaragd,
   Dämmerung). **Farbtonstärke** legt fest, wie stark er ist.
+- **Himmel**: dieselben Farben als Verlauf, oben am Bildschirm voll und unten heller.
+  **Himmelsstärke** legt fest, wie stark er ist.
 - **Vignette**: dunkelt die Bildschirmränder ab.
 - **Filmkorn**: animiertes Korn.
 - **Schwarze Balken**: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms. Das Spiel rendert
   weiterhin, was sie verdecken, daher steigern sie die Bildrate nicht.
+
+### Stimmung
+
+Der Reiter Stimmung ändert Tönung, Himmel, Vignette und Körnung von selbst, passend zu deinem Ort.
+
+- **Automatische Stimmung**: aktiviert folgen diese Filter Ort und Tageszeit. Standardmäßig aus. Die
+  Werte des Reiters Filter bleiben gespeichert und kehren zurück, wenn du sie ausschaltest.
+- **Ort**: legt Tönung, Vignette und Körnung fest. Reihenfolge: Dungeon oder Schlachtzug, Innenraum,
+  Wetter (Regen, Schnee, Sandsturm), dann die Art der Zone: gemäßigte Lande, Wüsten und Ödland,
+  Schneelande, Dschungel und Sumpf, verderbte Lande, Vulkanlande, Arkane Wälder. Eine noch unbekannte
+  Zone zählt als gemäßigt. Wetter zählt nur, wenn die Wetterintensität über 0 liegt.
+- **Tageszeit**: legt den Himmel fest (Tag, Morgen- und Abenddämmerung, Nacht). Die Nacht folgt
+  Tag und Nacht des Spiels, die Dämmerung der Serverzeit. Kein Himmel in Innenräumen oder im Dungeon.
+- Die Zeile rechts zeigt den Ort und die Tageszeit, die gerade erkannt werden. Hat ein Dungeon, ein
+  Innenraum oder das Wetter Vorrang vor einer von dir eingestellten Zone, wird das angezeigt.
+- **Zu bearbeitender Kontext**: wähle einen Kontext und stelle darunter seine Filter ein. Der Knopf
+  Standard gibt den mitgelieferten Wert dieses Kontexts zurück.
+  Das Menü hat fünf Gruppen: **Zonen** (die Zone, in der du bist, und die von dir eingestellten Zonen), **Dungeon und Innenraum**, **Wetter**, **Zonentyp** und **Himmel (Tageszeit)**.
+  Die ersten vier stellen Tönung, Vignette und Körnung ein: Es gilt immer nur ein Ort, in der oben genannten Reihenfolge.
+  Die letzte stellt den Himmel ein. Für den Anfang musst du nichts einstellen: Jeder Kontext hat bereits seine Werte.
+- **Diese Zone**: erste Wahl desselben Menüs, mit dem Namen der Zone, in der du dich befindest. Wähle
+  sie, um dieser Zone eine eigene Tönung, Vignette und Körnung zu geben, ausgehend von ihrer Art der
+  Zone. Sie hat dann Vorrang vor der Art der Zone, aber nach Dungeon, Innenraum und Wetter. Die
+  Zonen, die du eingestellt hast, bleiben im Menü. **Zonentyp** entfernt die Werte der Zone: sie folgt
+  wieder ihrer Art der Zone.
+- **Tag und Nacht** (unten im Reiter): **Automatisch Tag und Nacht** legt nachts den **Nachtfarbton**
+  auf, nach Tag und Nacht des Spiels. Er ersetzt den Farbton des Reiters Filter. Der Wechsel erfolgt allmählich von 19 bis
+  21 Uhr und von 5 bis 7 Uhr (Serverzeit). **Nachtfarbtonstärke** legt fest, wie stark er ist.
+  Es funktioniert nicht zusammen mit der automatischen Stimmung: Das eine einzuschalten schaltet das andere aus.
 
 ## 5. Deine Werte und das Spiel
 
@@ -152,6 +185,7 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Eine Voreinstellung anwenden |
 | `/pano undo` | Die Einstellungen von vor der letzten Voreinstellung wiederherstellen |
 | `/pano reset` | Jede Einstellung und jeden Filter auf Standard zurücksetzen |
+| `/pano status` | Zeigt im Chat den erkannten Ort, die Tageszeit und die gerade angewendeten Filter (während einer Überblendung die Zielwerte) |
 | `/pano apply` | In Panorama geänderte Einstellungen erneut schreiben |
 | `/pano restart` | Die Grafik-Engine neu starten |
 | `/pano minimap` | Den Minimap-Button zeigen oder verstecken |
@@ -163,3 +197,4 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
   verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in `/pano`.
 - **Alles zurücksetzen** (Fußzeile, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
   Einstellung und jeden Filter auf den Standard zurück. Lässt sich nicht rückgängig machen.
+  Der Tab Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt.

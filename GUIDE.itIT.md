@@ -2,6 +2,8 @@
 
 Come usare Panorama su WoW Forever e come configurare l'HDR su Windows.
 
+**Prima fai una copia delle tue impostazioni.** Panorama modifica impostazioni del gioco, e rimuovere l'addon non le ripristina. Prima di cambiare qualsiasi cosa, chiudi il gioco e copia la cartella `WTF` della tua installazione del gioco in un posto sicuro. Per tornare indietro, chiudi il gioco e rimetti quella copia al suo posto.
+
 ## 1. Aprire la finestra
 
 - Digita `/pano` oppure fai clic sinistro sul pulsante di Panorama sulla minimappa.
@@ -19,9 +21,9 @@ Il pulsante della minimappa:
 | Parte | Cosa fa |
 |---|---|
 | Casella di ricerca (in alto a destra) | Digita una parola per elencare le impostazioni corrispondenti di tutte le schede. Cancellala per tornare indietro. |
-| Schede | Qualità, Filtri, Interfaccia, Avanzate. La scheda aperta viene ricordata. |
+| Schede | Qualità, Filtri, Atmosfera, Interfaccia, Avanzate. La scheda aperta viene ricordata. |
 | Selettore della lingua (a destra delle schede) | Lingua del gioco o una di dieci lingue. Cambiarla ricarica l'interfaccia. |
-| Guida (a sinistra del selettore della lingua) | Apre questa guida nel gioco. |
+| Guida (a sinistra della casella di ricerca) | Apre questa guida nel gioco. |
 | Preset (scheda Qualità) | Bassa, Media, Alta, Extra. Il preset che corrisponde alle tue impostazioni è evidenziato. |
 | Piè di pagina | Applica a ogni accesso, pulsante minimappa, Ripristina tutto, riavvio del motore grafico. |
 
@@ -63,10 +65,42 @@ La scheda Filtri aggiunge effetti sopra l'immagine. Non cambiano nessuna imposta
 
 - **Tinta**: fai clic su un'anteprima per applicarla subito (Seppia, Calda, Fredda, Notte, Smeraldo,
   Crepuscolo). **Intensità della tinta** imposta quanto è forte.
+- **Cielo**: gli stessi colori come sfumatura, pieni in alto sullo schermo e più chiari in basso.
+  **Intensità del cielo** imposta quanto è forte.
 - **Vignettatura**: scurisce i bordi dello schermo.
 - **Grana**: grana animata.
 - **Bande nere**: bande in alto e in basso, da 0 a 20 % dello schermo ciascuna. Il gioco continua a
   elaborare ciò che nascondono, quindi non aumentano il frame rate.
+
+### Atmosfera
+
+La scheda Atmosfera cambia da sola tinta, cielo, vignettatura e grana in base a dove ti trovi.
+
+- **Atmosfera automatica**: attiva, questi filtri seguono il luogo e l'ora del giorno. Disattiva per
+  impostazione predefinita. I valori della scheda Filtri restano salvati e tornano quando la
+  disattivi.
+- **Luogo**: imposta tinta, vignettatura e grana. Ordine: spedizione o incursione, al chiuso, meteo
+  (pioggia, neve, tempesta di sabbia), poi il tipo di zona: terre temperate, deserti e terre aride,
+  terre innevate, giungla e palude, terre corrotte, terre vulcaniche, foreste arcane. Una zona non
+  ancora nota conta come temperata. Il meteo conta solo se Intensità del meteo è maggiore di 0.
+- **Ora del giorno**: imposta il cielo (giorno, alba e tramonto, notte). La notte segue il giorno e
+  la notte del gioco; alba e tramonto seguono l'ora del server. Nessun cielo al chiuso o in una
+  spedizione.
+- La riga a destra mostra il luogo e l'ora del giorno rilevati adesso. Quando una spedizione, il
+  chiuso o il meteo vengono prima di una zona che hai impostato, lo indica.
+- **Contesto da modificare**: scegli un contesto, poi regola i suoi filtri sotto. Il pulsante
+  Predefinito rende il valore fornito per quel contesto.
+  Il menu ha cinque gruppi: **Zone** (la zona in cui ti trovi e quelle che hai impostato), **Spedizione e interni**, **Meteo**, **Tipo di zona** e **Cielo (ora)**.
+  I primi quattro regolano tinta, vignettatura e grana: si applica un solo luogo alla volta, nell'ordine indicato sopra.
+  L'ultimo regola il cielo. Non serve regolare nulla per iniziare: ogni contesto ha già i suoi valori.
+- **Questa zona**: prima voce dello stesso menu, con il nome della zona in cui ti trovi. Sceglila per
+  dare a questa zona una tinta, una vignettatura e una grana proprie, partendo dal suo tipo di zona.
+  Passa allora prima del tipo di zona, ma dopo spedizione, al chiuso e meteo. Le zone che imposti
+  restano nel menu. **Tipo di zona** rimuove i valori della zona: torna a seguire il suo tipo di zona.
+- **Giorno e notte** (in fondo alla scheda): **Giorno e notte automatici** applica la **Tinta notturna**
+  di notte, secondo il giorno e la notte del gioco. Sostituisce la tinta della scheda Filtri. Il passaggio è graduale dalle 19 alle 21 e
+  dalle 5 alle 7 (ora del server). **Intensità della tinta notturna** imposta quanto è forte.
+  Non funziona insieme all'atmosfera automatica: attivare l'uno disattiva l'altra.
 
 ## 5. I tuoi valori e il gioco
 
@@ -151,6 +185,7 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applica un preset |
 | `/pano undo` | Ripristina le impostazioni di prima dell'ultimo preset |
 | `/pano reset` | Riporta ogni impostazione e ogni filtro al valore predefinito |
+| `/pano status` | Mostra nella chat il luogo e il momento rilevati e i filtri applicati ora (durante una dissolvenza, i valori di arrivo) |
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
 | `/pano restart` | Riavvia il motore grafico |
 | `/pano minimap` | Mostra o nasconde il pulsante della minimappa |
@@ -162,3 +197,4 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
   gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in `/pano` per le altre e per i filtri.
 - **Ripristina tutto** (piè di pagina, con conferma) o `/pano reset`: riporta ogni impostazione modificata
   in Panorama e ogni filtro al valore predefinito. Non si può annullare.
+  Anche la scheda Atmosfera e le zone impostate vengono ripristinate.

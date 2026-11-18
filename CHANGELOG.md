@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.8.0
+
+### New
+- **Sky filter (Filters tab)**: a color gradient from the top of the screen, with the tint colors
+  and its own strength.
+- **Automatic ambiance (Ambiance tab)**: off by default. When on, tint, vignette and film grain
+  follow the place: dungeon or raid, indoors, rain, snow, sandstorm, then the kind of zone
+  (temperate, desert, snowy, jungle and marsh, corrupted, volcanic, arcane forest). The sky follows
+  the time of day: day, dawn and dusk, night, outdoors only. The tab shows the place and time
+  detected now and lets you edit the values of each context. When the place changes, the filters
+  fade to the new values over 1.5 seconds; when the time of day changes, over 60 seconds. Your
+  Filters tab values stay saved, and their lines are greyed out while the automatic ambiance is on.
+  The black bars are not part of it: they stay as set in the Filters tab.
+- **Automatic day and night (Ambiance tab)**: off by default. At night (game's day and night), the night tint
+  replaces the tint, with its own strength. It does not work together with the automatic ambiance: turning one
+  on turns the other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00.
+- **Per-zone ambiance**: "This zone" in the Ambiance tab menu gives the zone you are in its own tint,
+  vignette and grain. "Zone type" removes them.
+- **Four distance settings (Advanced tab)**: small object culling (`lodObjectCullSize`), object
+  fade distance (`lodObjectFadeScale`), horizon start (`horizonStart`) and grass fade distance
+  (`groundEffectFade`). Like the other advanced settings, they are written only after you change
+  them.
+- **`/pano status`** prints in the chat the place and time of day detected and the filter values
+  applied right now, to check that the automatic ambiance and the automatic day and night work.
+- **Reset all** also turns the automatic ambiance off, puts each context back to its shipped
+  values and removes the values of the zones you set.
+
+### Fixed
+- **Guide button** moved left of the search box: the Advanced tab no longer covers it.
+- **Physics tooltip** now says the setting needs a game restart, like the game's own menu.
+- **`/pano apply`** now shows in the window the value the game really applies, when it refuses or
+  rounds one.
+- **A game value outside the listed choices** (for example a shadow texture size set with
+  `/console`) is kept, with no choice checked, instead of being shown as the default.
+
 ## 1.7.4
 
 ### New
