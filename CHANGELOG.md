@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.7.4
 
 ### New
 - **Reset all** button, next to Restart at the bottom of the window, and `/pano reset`: every setting
