@@ -180,6 +180,7 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 | `/pano undo` | Rétablit les réglages d'avant le dernier préréglage |
 | `/pano reset` | Remet chaque réglage et chaque filtre par défaut |
 | `/pano status` | Affiche dans le chat le lieu et le moment détectés et les filtres appliqués à l'instant (pendant un fondu, les valeurs visées) |
+| `/pano bench` | Mesure les FPS pendant 20 secondes (moyenne et 1 % low) et compare avec la mesure précédente |
 | `/pano apply` | Réécrit les réglages modifiés dans Panorama |
 | `/pano restart` | Redémarre le moteur graphique |
 | `/pano minimap` | Affiche ou masque le bouton de la minimap |

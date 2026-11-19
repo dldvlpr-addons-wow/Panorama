@@ -612,4 +612,130 @@ isDayTime = true
 assert(printed[2]:find(": 0,", 1, true) and not printed[2]:find(": 50", 1, true), "status : teinte effacée la nuit")
 assert(printed[3]:find(": 40,", 1, true) and printed[3]:find(": 100 %", 1, true), "status : teinte de nuit pleine")
 
+-- Relevé : liste absente du client, /pano diff sans instantané, puis CVar changée, ajoutée, disparue ;
+-- commandes non CVar ignorées.
+local function Run(command)
+    printed = {}
+    print = function(text) printed[#printed + 1] = text end
+    SlashCmdList.PANORAMA(command)
+    print = realPrint
+end
+Run("snap")
+assert(#printed == 1 and printed[1]:find(ns.L.MSG_NO_CVAR_LIST, 1, true), "relevé : liste absente du client")
+local console = { farclip = "1000", SSAO = "3", gone = "1" }
+ConsoleGetAllCommands = function()
+    local list = { { command = "reloadui", commandType = 1 } }
+    for name in pairs(console) do list[#list + 1] = { command = name, commandType = 0 } end
+    return list
+end
+C_CVar.GetCVarInfo = function(name) return console[name], "0", false, false, false, false, false end
+PanoramaDB.snapshot = nil
+Run("diff")
+assert(printed[1]:find(ns.L.MSG_NO_SNAPSHOT, 1, true), "relevé : diff sans instantané")
+Run("snap")
+assert(printed[1]:find(ns.L.MSG_SNAPSHOT:format(3), 1, true) and PanoramaDB.snapshot.reloadui == nil, "relevé : instantané")
+console.farclip, console.gone, console.Zadded = "2600", nil, "a|b"
+Run("diff")
+assert(printed[1]:find(ns.L.MSG_DIFF:format(3), 1, true), "relevé : nombre d'écarts")
+local diff = table.concat(PanoramaDB.lastDiff, "\n")
+assert(diff == "farclip: 1000 -> 2600\ngone: 1 -> -\nZadded: - -> a|b", "relevé : écarts triés sans casse " .. diff)
+assert(printed[4] == "  Zadded: - -> a||b", "relevé : barre verticale échappée dans le chat")
+ConsoleGetAllCommands, C_CVar.GetCVarInfo = nil, nil
+
+-- Banc de mesure : 3 s de chauffe ignorées, puis 20 s d'images. Le cadre de test est partagé :
+-- son OnUpdate (fondus des filtres) est remis à la fin.
+local savedOnUpdate = frame.onUpdate
+local function Bench(elapsedOf)
+    Run("bench")
+    printed = {}
+    print = function(text) printed[#printed + 1] = text end
+    local index = 0
+    while frame.onUpdate do
+        index = index + 1
+        frame.onUpdate(frame, index <= 3 and 1 or elapsedOf(index - 3))
+    end
+    print = realPrint
+end
+-- Conditions de la mesure : carte basse consommation écartée, sous-zone jointe à la zone.
+local benchZone = "Elwynn Forest"
+GetPhysicalScreenSize = function() return 2560, 1440 end
+C_VideoOptions = { GetGxAdapterInfo = function()
+    return { { name = "Intel UHD", isLowPower = true }, { name = "RTX 3070", isLowPower = false } }
+end }
+GetRealZoneText = function() return benchZone end
+GetSubZoneText = function() return "Goldshire" end
+GetBuildInfo = function() return "1.60.1", "70862" end
+local benchInstance = "none"
+IsInInstance = function() return benchInstance ~= "none", benchInstance end
+cvars.graphicsQuality, cvars.RenderScale = "6", "1"
+combat = true
+Run("bench")
+assert(printed[1]:find(ns.L.MSG_BENCH_COMBAT, 1, true) and not frame.onUpdate, "banc : refusé en combat")
+combat = false
+cvars.vsync, cvars.useMaxFPS, cvars.maxFPS = "1", "1", "45"
+PanoramaDB.lastBench = nil
+Run("bench")
+assert(printed[1]:find(ns.L.MSG_BENCH_START:format(23), 1, true), "banc : départ")
+Run("bench")
+assert(printed[1]:find(ns.L.MSG_BENCH_RUNNING, 1, true), "banc : une mesure à la fois")
+combat = true; print = function() end; frame.onUpdate(frame, 0.01); print = realPrint; combat = false
+-- Une image lente sur 50 : 1 % low = 10 FPS. Chauffe exclue de la moyenne.
+local slowEvery50 = function(index) return index % 50 == 0 and 0.1 or 0.02 end
+local count, total = 0, 0
+while total < 20 do count = count + 1; total = total + slowEvery50(count) end
+Bench(slowEvery50)
+assert(printed[1] == ns.L.PREFIX .. ns.L.MSG_BENCH_RESULT:format(count / total, 10), "banc : moyenne et 1 % low " .. printed[1])
+assert(printed[2] == ns.L.PREFIX .. ns.L.MSG_BENCH_CONTEXT:format("RTX 3070, 2560x1440, RenderScale 1, "
+    .. "graphicsQuality 7/10, vsync 1, maxFPS 45, Elwynn Forest - Goldshire, 1.60.1.70862"), "banc : conditions " .. printed[2])
+assert(printed[3]:find(ns.L.MSG_BENCH_CAPPED:format(45), 1, true), "banc : plafond de FPS atteint")
+assert(printed[4]:find(ns.L.MSG_BENCH_VSYNC, 1, true) and #printed == 4, "banc : synchro verticale signalée")
+assert(math.abs(PanoramaDB.lastBench.average - count / total) < 1e-9 and PanoramaDB.lastBench.low == 10, "banc : mesure gardée")
+cvars.vsync, cvars.useMaxFPS = "0", "0"
+local previous = PanoramaDB.lastBench
+Bench(function() return 0.01 end)
+assert(printed[3] == ns.L.PREFIX .. ns.L.MSG_BENCH_COMPARE:format(100 - previous.average, 100 - previous.low)
+    and #printed == 3, "banc : écart avec la mesure précédente, ni plafond ni synchro")
+-- Scène qui change à mi-mesure : 100 FPS puis 50 FPS. Mesure pas gardée comme référence.
+previous = PanoramaDB.lastBench
+Bench(function(index) return index <= 1000 and 0.01 or 0.02 end)
+assert(printed[#printed]:find(ns.L.MSG_BENCH_UNSTABLE, 1, true) and PanoramaDB.lastBench == previous,
+    "banc : moitiés qui divergent")
+-- Limite de FPS active mais pas atteinte : pas d'alerte.
+cvars.useMaxFPS, cvars.maxFPS = "1", "200"
+Bench(function() return 0.01 end)
+assert(#printed == 3, "banc : limite de FPS loin de la moyenne")
+cvars.useMaxFPS = "0"
+-- Autre lieu que la mesure précédente : pas de comparaison, la nouvelle mesure devient la référence.
+benchZone = "Duskwood"
+Bench(function() return 0.01 end)
+assert(printed[3]:find(ns.L.MSG_BENCH_OTHER_PLACE, 1, true) and #printed == 3
+    and PanoramaDB.lastBench.place == "RTX 3070|2560x1440|Duskwood - Goldshire", "banc : autre lieu")
+-- Carte choisie dans le menu, réglages de raid en raid ; puis une seule carte basse consommation, et
+-- aucune liste de cartes.
+cvars.gxAdapter, cvars.RAIDsettingsEnabled, cvars.raidGraphicsQuality, benchInstance = "RX 6600", "1", "2", "raid"
+Bench(function() return 0.01 end)
+assert(printed[2]:find(": RX 6600, 2560x1440, RenderScale 1, raidGraphicsQuality 3/10,", 1, true), "banc : carte du menu, raid " .. printed[2])
+cvars.gxAdapter, benchInstance = "", "none"
+C_VideoOptions.GetGxAdapterInfo = function() return { { name = "Intel UHD", isLowPower = true } } end
+Bench(function() return 0.01 end)
+assert(printed[2]:find(": Intel UHD, 2560x1440, RenderScale 1, graphicsQuality 7/10,", 1, true), "banc : seule carte " .. printed[2])
+C_VideoOptions = nil
+Bench(function() return 0.01 end)
+assert(printed[2]:find(": ?, 2560x1440,", 1, true), "banc : liste de cartes absente " .. printed[2])
+-- Écran de chargement : une image de 30 s, pas de mesure gardée.
+previous = PanoramaDB.lastBench
+Bench(function() return 30 end)
+assert(#printed == 1 and printed[1]:find(ns.L.MSG_BENCH_UNSTABLE, 1, true) and PanoramaDB.lastBench == previous,
+    "banc : trop peu d'images")
+-- Combat pendant la mesure : arrêt.
+Run("bench")
+combat = true
+printed = {}
+print = function(text) printed[#printed + 1] = text end
+frame.onUpdate(frame, 0.01)
+print = realPrint
+combat = false
+assert(printed[1]:find(ns.L.MSG_BENCH_COMBAT, 1, true) and not frame.onUpdate, "banc : arrêt en combat")
+frame.onUpdate = savedOnUpdate
+
 io.write("ok\n")

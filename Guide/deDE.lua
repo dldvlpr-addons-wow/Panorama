@@ -96,6 +96,7 @@ NS.guides.deDE = {
     { "row", "|cffffd100/pano undo|r", "Die Einstellungen von vor der letzten Voreinstellung wiederherstellen" },
     { "row", "|cffffd100/pano reset|r", "Jede Einstellung und jeden Filter auf Standard zurücksetzen" },
     { "row", "|cffffd100/pano status|r", "Zeigt im Chat den erkannten Ort, die Tageszeit und die gerade angewendeten Filter (während einer Überblendung die Zielwerte)" },
+    { "row", "|cffffd100/pano bench|r", "Misst die Bildrate 20 Sekunden lang (Durchschnitt und 1 % Low) und vergleicht mit der letzten Messung" },
     { "row", "|cffffd100/pano apply|r", "In Panorama geänderte Einstellungen erneut schreiben" },
     { "row", "|cffffd100/pano restart|r", "Die Grafik-Engine neu starten" },
     { "row", "|cffffd100/pano minimap|r", "Den Minimap-Button zeigen oder verstecken" },

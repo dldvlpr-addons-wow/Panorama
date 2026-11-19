@@ -96,6 +96,7 @@ NS.guides.enUS = {
     { "row", "|cffffd100/pano undo|r", "Restore the settings from before the last preset" },
     { "row", "|cffffd100/pano reset|r", "Put every setting and filter back to its default" },
     { "row", "|cffffd100/pano status|r", "Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to)" },
+    { "row", "|cffffd100/pano bench|r", "Measure the frame rate for 20 seconds (average and 1 % low), and compare with the last measure" },
     { "row", "|cffffd100/pano apply|r", "Write again the settings changed in Panorama" },
     { "row", "|cffffd100/pano restart|r", "Restart the graphics engine" },
     { "row", "|cffffd100/pano minimap|r", "Show or hide the minimap button" },

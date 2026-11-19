@@ -96,6 +96,7 @@ NS.guides.koKR = {
     { "row", "|cffffd100/pano undo|r", "마지막 프리셋 이전의 설정 복원" },
     { "row", "|cffffd100/pano reset|r", "모든 설정과 필터를 기본값으로 되돌리기" },
     { "row", "|cffffd100/pano status|r", "감지된 장소와 시간대, 지금 적용된 필터를 채팅창에 표시 (전환 중에는 목표 값)" },
+    { "row", "|cffffd100/pano bench|r", "20초 동안 프레임을 측정 (평균과 1 % low)하고 지난 측정과 비교" },
     { "row", "|cffffd100/pano apply|r", "Panorama에서 바꾼 설정을 다시 적용" },
     { "row", "|cffffd100/pano restart|r", "그래픽 엔진 재시작" },
     { "row", "|cffffd100/pano minimap|r", "미니맵 버튼 표시 또는 숨기기" },

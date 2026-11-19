@@ -96,6 +96,7 @@ NS.guides.zhCN = {
     { "row", "|cffffd100/pano undo|r", "恢复上一次预设之前的设置" },
     { "row", "|cffffd100/pano reset|r", "将所有设置和滤镜恢复为默认值" },
     { "row", "|cffffd100/pano status|r", "在聊天窗口显示检测到的地点和时段，以及当前应用的滤镜（渐变期间显示目标值）" },
+    { "row", "|cffffd100/pano bench|r", "测量 20 秒帧率（平均值和 1 % low），并与上次测量比较" },
     { "row", "|cffffd100/pano apply|r", "重新写入在 Panorama 中更改的设置" },
     { "row", "|cffffd100/pano restart|r", "重启图形引擎" },
     { "row", "|cffffd100/pano minimap|r", "显示或隐藏小地图按钮" },

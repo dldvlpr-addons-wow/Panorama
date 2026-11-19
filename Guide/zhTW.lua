@@ -96,6 +96,7 @@ NS.guides.zhTW = {
     { "row", "|cffffd100/pano undo|r", "還原上一次預設之前的設定" },
     { "row", "|cffffd100/pano reset|r", "將所有設定和濾鏡還原為預設值" },
     { "row", "|cffffd100/pano status|r", "在聊天視窗顯示偵測到的地點和時段，以及目前套用的濾鏡（漸變期間顯示目標值）" },
+    { "row", "|cffffd100/pano bench|r", "測量 20 秒幀率（平均值和 1 % low），並與上次測量比較" },
     { "row", "|cffffd100/pano apply|r", "重新寫入在 Panorama 中變更的設定" },
     { "row", "|cffffd100/pano restart|r", "重新啟動圖形引擎" },
     { "row", "|cffffd100/pano minimap|r", "顯示或隱藏小地圖按鈕" },

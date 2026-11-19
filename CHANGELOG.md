@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### New
+- **`/pano snap` and `/pano diff`**: `/pano snap` saves the value of every CVar of the game.
+  `/pano diff` then lists in the chat the CVars changed, added or removed since. The last list is
+  also kept in the SavedVariables file. Use it to see which CVars a game menu or setting really
+  writes.
+- **`/pano bench`**: measures the frame rate for 20 seconds, after 3 seconds of warm-up, and prints
+  the average FPS and the 1 % low. The next `/pano bench` also shows the change since the last
+  one: change one setting between two measures, at the same place, camera still, to see what it
+  costs. It warns when the scene changed during the measure, when the FPS limit or vertical sync
+  caps the result, and stops in combat. Each result comes with the conditions of the measure
+  (graphics card, resolution, render scale, Graphics level, vertical sync, FPS limit, zone, game
+  version), in one line to paste with the numbers. Two measures taken with another graphics card,
+  resolution or place are not compared.
+
 ## 1.8.0
 
 ### New

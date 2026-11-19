@@ -181,6 +181,7 @@ Each HDR line has a Default button that puts back the game's value.
 | `/pano undo` | Restore the settings from before the last preset |
 | `/pano reset` | Put every setting and filter back to its default |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
+| `/pano bench` | Measure the frame rate for 20 seconds (average and 1 % low), and compare with the last measure |
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |

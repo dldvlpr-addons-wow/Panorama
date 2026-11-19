@@ -539,6 +539,168 @@ events:SetScript("OnEvent", function(self, event, arg1)
     end
 end)
 
+-- Relevé (/pano snap, puis /pano diff) : instantané de toutes les CVars du client, puis liste de
+-- celles qui ont changé. Sert à mesurer en jeu ce que posent le menu Graphismes ou le profil raid
+-- (tickets #10, #39, #3). Le dernier écart reste dans PanoramaDB.lastDiff, lisible dans le fichier
+-- SavedVariables après /reload. Valeurs lues par C_CVar.GetCVarInfo : pas de Requires*, une CVar
+-- secure ne lève pas (CVarDocumentation.lua:81-100).
+local CVAR_COMMAND_TYPE = Enum and Enum.ConsoleCommandType and Enum.ConsoleCommandType.Cvar or 0
+
+local function ReadAllCVars()
+    if not ConsoleGetAllCommands then return nil end
+    local values = {}
+    for _, command in ipairs(ConsoleGetAllCommands()) do
+        if command.commandType == CVAR_COMMAND_TYPE then
+            values[command.command] = (C_CVar.GetCVarInfo(command.command))
+        end
+    end
+    return values
+end
+
+function NS.SnapshotCVars()
+    local values = ReadAllCVars()
+    if not values then return print(L.PREFIX .. L.MSG_NO_CVAR_LIST) end
+    local count = 0
+    for _ in pairs(values) do count = count + 1 end
+    NS.db.snapshot = values
+    print(L.PREFIX .. L.MSG_SNAPSHOT:format(count))
+end
+
+-- Ligne « nom: avant -> après », « - » pour une CVar absente d'un des deux relevés.
+function NS.DiffCVars()
+    local before = NS.db.snapshot
+    if type(before) ~= "table" then return print(L.PREFIX .. L.MSG_NO_SNAPSHOT) end
+    local values = ReadAllCVars()
+    if not values then return print(L.PREFIX .. L.MSG_NO_CVAR_LIST) end
+    local lines = {}
+    for name, value in pairs(values) do
+        if before[name] ~= value then
+            lines[#lines + 1] = name .. ": " .. tostring(before[name] or "-") .. " -> " .. value
+        end
+    end
+    for name, value in pairs(before) do
+        if values[name] == nil then lines[#lines + 1] = name .. ": " .. tostring(value) .. " -> -" end
+    end
+    table.sort(lines, function(a, b) return a:lower() < b:lower() end)
+    NS.db.lastDiff = lines
+    print(L.PREFIX .. L.MSG_DIFF:format(#lines))
+    -- « | » ouvre un code d'échappement dans le chat.
+    for _, line in ipairs(lines) do print("  " .. (line:gsub("|", "||"))) end
+end
+
+-- Banc de mesure (/pano bench) : temps de chaque image pendant BENCH_SECONDS, après BENCH_WARMUP
+-- secondes ignorées (décor et textures qui se rechargent après un changement). Donne les FPS moyens
+-- et le 1 % low (FPS de l'image au 99e centile du temps d'image), comparés à la mesure précédente.
+-- Le joueur change un seul réglage entre deux mesures, au même endroit, caméra immobile.
+local BENCH_WARMUP, BENCH_SECONDS = 3, 20
+local benchFrame, benchRunning
+
+-- Copie et boucle plutôt qu'unpack : à 300 FPS, 6000 images dépassent la pile de Lua 5.1.
+local function SummarizeFrameTimes(times, from, to)
+    local total, sorted = 0, {}
+    for index = from, to do
+        total = total + times[index]
+        sorted[#sorted + 1] = times[index]
+    end
+    table.sort(sorted, function(a, b) return a > b end)
+    return #sorted / total, 1 / sorted[math.ceil(#sorted * 0.01)]
+end
+
+-- Carte graphique : GxAdapter choisie dans le menu, sinon la première carte non basse consommation
+-- de la liste (C_VideoOptions.GetGxAdapterInfo liste toutes les cartes, pas celle en service).
+local function GraphicsCardName()
+    local chosen = GetCVarValue("gxAdapter")
+    if chosen and chosen ~= "" then return chosen end
+    local adapters = C_VideoOptions and C_VideoOptions.GetGxAdapterInfo and C_VideoOptions.GetGxAdapterInfo() or {}
+    for _, adapter in ipairs(adapters) do
+        if not adapter.isLowPower then return adapter.name end
+    end
+    return adapters[1] and adapters[1].name or "?"
+end
+
+-- Conditions de la mesure, jointes au résultat pour qu'un chiffre partagé reste lisible. Texte sans
+-- traduction (noms de CVars) : il se colle tel quel dans un ticket ou sur Discord. place = ce qui
+-- doit rester identique entre deux mesures comparées (carte, résolution, lieu) ; les réglages, eux,
+-- changent exprès.
+local function BenchContext()
+    local width, height = GetPhysicalScreenSize()
+    local zone, subZone = GetRealZoneText() or "?", GetSubZoneText() or ""
+    if subZone ~= "" and subZone ~= zone then zone = zone .. " - " .. subZone end
+    local resolution = ("%dx%d"):format(width, height)
+    local limit = GetCVarValue("useMaxFPS") == "1" and GetCVarValue("maxFPS") or "off"
+    -- Le menu affiche graphicsQuality + 1 (curseur de 1 à 10, Graphics.lua:441). Réglages de raid
+    -- activés (RAIDsettingsEnabled) : raidGraphicsQuality en raid et en champ de bataille.
+    local _, instanceType = IsInInstance()
+    local qualityCVar = "graphicsQuality"
+    if GetCVarValue("RAIDsettingsEnabled") == "1" and (instanceType == "raid" or instanceType == "pvp") then
+        qualityCVar = "raidGraphicsQuality"
+    end
+    local quality = (tonumber(GetCVarValue(qualityCVar)) or -1) + 1
+    local version, build = GetBuildInfo()
+    local card = GraphicsCardName()
+    local text = ("%s, %s, RenderScale %s, %s %d/10, vsync %s, maxFPS %s, %s, %s.%s"):format(
+        card, resolution, GetCVarValue("RenderScale") or "?", qualityCVar, quality, GetCVarValue("vsync") or "?", limit, zone,
+        version, build)
+    return text, card .. "|" .. resolution .. "|" .. zone
+end
+
+local function StopBench()
+    benchRunning = false
+    benchFrame:SetScript("OnUpdate", nil)
+end
+
+local function FinishBench(times)
+    StopBench()
+    -- Écran de chargement ou gel de plusieurs secondes : trop peu d'images pour une mesure.
+    if #times < 20 then return print(L.PREFIX .. L.MSG_BENCH_UNSTABLE) end
+    local average, low = SummarizeFrameTimes(times, 1, #times)
+    -- Moitiés qui divergent : la scène a changé pendant la mesure (caméra, joueurs, météo).
+    local half = math.floor(#times / 2)
+    local first = SummarizeFrameTimes(times, 1, half)
+    local second = SummarizeFrameTimes(times, half + 1, #times)
+    print(L.PREFIX .. L.MSG_BENCH_RESULT:format(average, low))
+    local context, place = BenchContext()
+    print(L.PREFIX .. L.MSG_BENCH_CONTEXT:format(context))
+    local previous = NS.db.lastBench
+    if type(previous) == "table" and previous.place ~= place then
+        print(L.PREFIX .. L.MSG_BENCH_OTHER_PLACE)
+    elseif type(previous) == "table" then
+        print(L.PREFIX .. L.MSG_BENCH_COMPARE:format(average - previous.average, low - previous.low))
+    end
+    -- Mesure instable : pas gardée comme référence, la suivante se compare encore à la dernière bonne.
+    local unstable = math.abs(first - second) > 0.05 * average
+    if unstable then print(L.PREFIX .. L.MSG_BENCH_UNSTABLE) end
+    -- Moyenne collée au plafond d'images : le réglage testé ne peut pas montrer de gain. Noms et
+    -- défauts du menu natif (Graphics.lua:950, :1466-1471) : vsync 1, useMaxFPS 0, maxFPS 120.
+    local cap = tonumber(GetCVarValue("maxFPS"))
+    if GetCVarValue("useMaxFPS") == "1" and cap and average > 0.95 * cap then
+        print(L.PREFIX .. L.MSG_BENCH_CAPPED:format(cap))
+    end
+    if GetCVarValue("vsync") == "1" then print(L.PREFIX .. L.MSG_BENCH_VSYNC) end
+    if not unstable then
+        NS.db.lastBench = { average = average, low = low, context = context, place = place }
+    end
+end
+
+function NS.StartBench()
+    if benchRunning then return print(L.PREFIX .. L.MSG_BENCH_RUNNING) end
+    if InCombatLockdown() then return print(L.PREFIX .. L.MSG_BENCH_COMBAT) end
+    benchFrame = benchFrame or CreateFrame("Frame")
+    benchRunning = true
+    local clock, times = 0, {}
+    benchFrame:SetScript("OnUpdate", function(_, elapsed)
+        if InCombatLockdown() then
+            StopBench()
+            return print(L.PREFIX .. L.MSG_BENCH_COMBAT)
+        end
+        clock = clock + elapsed
+        if clock <= BENCH_WARMUP then return end
+        times[#times + 1] = elapsed
+        if clock >= BENCH_WARMUP + BENCH_SECONDS then FinishBench(times) end
+    end)
+    print(L.PREFIX .. L.MSG_BENCH_START:format(BENCH_WARMUP + BENCH_SECONDS))
+end
+
 SLASH_PANORAMA1 = "/pano"
 SLASH_PANORAMA2 = "/panorama"
 SlashCmdList.PANORAMA = function(message)
@@ -563,6 +725,12 @@ SlashCmdList.PANORAMA = function(message)
         NS.ResetAll()
     elseif command == "status" then
         NS.PrintStatus()
+    elseif command == "snap" then
+        NS.SnapshotCVars()
+    elseif command == "diff" then
+        NS.DiffCVars()
+    elseif command == "bench" then
+        NS.StartBench()
     elseif command == "minimap" then
         NS.db.minimap.show = not NS.db.minimap.show
         if NS.UpdateMinimapButton then NS.UpdateMinimapButton() end

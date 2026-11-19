@@ -186,6 +186,7 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 | `/pano undo` | Die Einstellungen von vor der letzten Voreinstellung wiederherstellen |
 | `/pano reset` | Jede Einstellung und jeden Filter auf Standard zurücksetzen |
 | `/pano status` | Zeigt im Chat den erkannten Ort, die Tageszeit und die gerade angewendeten Filter (während einer Überblendung die Zielwerte) |
+| `/pano bench` | Misst die Bildrate 20 Sekunden lang (Durchschnitt und 1 % Low) und vergleicht mit der letzten Messung |
 | `/pano apply` | In Panorama geänderte Einstellungen erneut schreiben |
 | `/pano restart` | Die Grafik-Engine neu starten |
 | `/pano minimap` | Den Minimap-Button zeigen oder verstecken |

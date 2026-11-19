@@ -168,6 +168,7 @@ Windows 10：**设置 > 系统 > 显示 > Windows 高清晰度颜色设置（Win
 | `/pano undo` | 恢复上一次预设之前的设置 |
 | `/pano reset` | 将所有设置和滤镜恢复为默认值 |
 | `/pano status` | 在聊天窗口显示检测到的地点和时段，以及当前应用的滤镜（渐变期间显示目标值） |
+| `/pano bench` | 测量 20 秒帧率（平均值和 1 % low），并与上次测量比较 |
 | `/pano apply` | 重新写入在 Panorama 中更改的设置 |
 | `/pano restart` | 重启图形引擎 |
 | `/pano minimap` | 显示或隐藏小地图按钮 |

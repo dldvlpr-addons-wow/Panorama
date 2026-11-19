@@ -96,6 +96,7 @@ NS.guides.frFR = {
     { "row", "|cffffd100/pano undo|r", "Rétablit les réglages d'avant le dernier préréglage" },
     { "row", "|cffffd100/pano reset|r", "Remet chaque réglage et chaque filtre par défaut" },
     { "row", "|cffffd100/pano status|r", "Affiche dans le chat le lieu et le moment détectés et les filtres appliqués à l'instant (pendant un fondu, les valeurs visées)" },
+    { "row", "|cffffd100/pano bench|r", "Mesure les FPS pendant 20 secondes (moyenne et 1 % low) et compare avec la mesure précédente" },
     { "row", "|cffffd100/pano apply|r", "Réécrit les réglages modifiés dans Panorama" },
     { "row", "|cffffd100/pano restart|r", "Redémarre le moteur graphique" },
     { "row", "|cffffd100/pano minimap|r", "Affiche ou masque le bouton de la minimap" },

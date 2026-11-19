@@ -96,6 +96,7 @@ NS.guides.ptBR = {
     { "row", "|cffffd100/pano undo|r", "Restaura as configurações de antes da última predefinição" },
     { "row", "|cffffd100/pano reset|r", "Volta cada configuração e cada filtro ao padrão" },
     { "row", "|cffffd100/pano status|r", "Mostra no chat o lugar e o momento detectados e os filtros aplicados agora (durante uma transição, os valores de destino)" },
+    { "row", "|cffffd100/pano bench|r", "Mede os FPS por 20 segundos (média e 1 % low) e compara com a medição anterior" },
     { "row", "|cffffd100/pano apply|r", "Grava de novo as configurações mudadas no Panorama" },
     { "row", "|cffffd100/pano restart|r", "Reinicia o motor gráfico" },
     { "row", "|cffffd100/pano minimap|r", "Mostra ou oculta o botão do minimapa" },

@@ -77,6 +77,8 @@ Guide button in the panel opens the same guide in the game.
 | `/pano undo` | Restore the settings from before the last preset |
 | `/pano reset` | Put every setting and filter back to its default |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
+| `/pano snap`, `/pano diff` | Save the value of every CVar, then list in the chat the CVars changed since |
+| `/pano bench` | Measure the frame rate for 20 seconds (average and 1 % low), and compare with the last measure |
 | `/pano minimap` | Show or hide the minimap button |
 
 The panel opens in its own window, which you can move and close with Escape. Options > AddOns >

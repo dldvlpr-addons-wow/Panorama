@@ -186,6 +186,7 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 | `/pano undo` | Ripristina le impostazioni di prima dell'ultimo preset |
 | `/pano reset` | Riporta ogni impostazione e ogni filtro al valore predefinito |
 | `/pano status` | Mostra nella chat il luogo e il momento rilevati e i filtri applicati ora (durante una dissolvenza, i valori di arrivo) |
+| `/pano bench` | Misura gli FPS per 20 secondi (media e 1 % low) e confronta con la misurazione precedente |
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
 | `/pano restart` | Riavvia il motore grafico |
 | `/pano minimap` | Mostra o nasconde il pulsante della minimappa |
