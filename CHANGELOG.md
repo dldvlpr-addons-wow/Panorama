@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.2
+
+### New
+- **Bloom intensity (Image section)**: the strength of the glow around lights and bright areas
+  (`bloomUserMult`), from 0 to 1. It is the setting behind the game's own bloom slider. The
+  "Full-screen glow" checkbox does not change this bloom.
+
+### Changed
+- **Night tint strength (automatic day and night)**: the default goes from 50 to 90, for a new
+  install, the Default button of the line and Reset all. If Panorama is already installed, your
+  current value is kept.
+
 ## 1.8.1
 
 ### Removed

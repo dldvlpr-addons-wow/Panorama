@@ -47,7 +47,7 @@ NS.filterSettings = {
       min = 0, max = #TINTS, step = 1, default = 4,
       names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
                 "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
-    { key = "tintNightStrength", min = 0, max = 100, step = 5, default = 50,
+    { key = "tintNightStrength", min = 0, max = 100, step = 5, default = 90,
       requires = function(filters) return filters.autoDayNight and filters.tintNight ~= 0 end },
 }
 
