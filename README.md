@@ -16,8 +16,8 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **62 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
-  environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
+- **43 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+  environment, image, HDR, camera and interface, advanced, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
 - **Safe on your client**: a setting that your client does not support is hidden and never
@@ -33,8 +33,8 @@ Guide button in the panel opens the same guide in the game.
 - **Graphics restart button**: it restarts the graphics engine without leaving the game.
 - **Presets**: Low, Medium, High and Extra set the main graphics settings at once. They do not change
   camera, mouse, comfort, sharpening or low latency settings.
-- **Default button on every line**: it puts that setting back to its default. Advanced settings,
-  nameplate class colors, pets and totems, zoom speed, text size and combat text use the
+- **Default button on every line**: it puts that setting back to its default. Advanced settings
+  and zoom speed use the
   game's own default.
 - **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
   cinematic look. They change no CVar.
@@ -59,10 +59,8 @@ Guide button in the panel opens the same guide in the game.
 | Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
 | Environment | Water detail, sky detail, weather intensity, physics |
 | Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, grey screen on death, violence level, projected textures, reduce spell effects |
-| Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed, text size |
-| Nameplates | Nameplate distance, enemy and friendly class colors, enemy pets, enemy totems |
+| Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
-| Floating combat text | Absorb shields, combat state, dodges/parries/misses, absorbed/blocked/resisted damage, healer names, buffs and debuffs, reactive abilities, resource gains, periodic resource gains, combo points, low mana and health, honor gains, reputation changes |
 | Filters | Black bars, vignette, film grain, color tint, tint strength, sky, sky strength |
 | Ambiance | Automatic ambiance; tint, tint strength, vignette and film grain for each place; sky and sky strength for each time of day; automatic day and night, night tint, night tint strength |
 
