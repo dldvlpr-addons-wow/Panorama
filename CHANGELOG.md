@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.1
+
+### Removed
+- **Nameplates section**: class colors (enemy and friendly), nameplate distance, enemy pets and
+  enemy totems.
+- **Text size** (Interface tab).
+- **Floating combat text section**: its 13 options.
+
+Panorama rewrote these settings at every login once changed, over the addons that manage nameplates,
+text or combat text. The value you had stays in the game; Panorama no longer writes it. Class colors
+are in the game's Options > Nameplates > Class Colors.
+
 ## 1.8.0
 
 ### New
@@ -122,7 +134,6 @@
 - **Water detail cap at 2 always applies**: on first install, with reapply on login turned off,
   and when the game's menu or `/console` sets 3.
 - **Undo during combat** is now written when combat ends.
-- **Floating combat text changed during combat** now shows when combat ends, without a `/reload`.
 - **Anti-aliasing mentions removed** from the preset message and the restart tooltip: the setting
   does not exist on WoW Forever.
 - **Tint tooltip** lists all six tints.
@@ -130,8 +141,6 @@
 - **Unknown `/pano` command** message now lists `apply` and `restart`.
 - **Sharpening reduction**: the ResampleSharpness label said the opposite of what it does.
   0 gives the strongest sharpening, 2 the weakest.
-- **Nameplate scale sliders removed**: far, near and target nameplate size are fixed at 1 on
-  WoW Forever and ignored any value.
 
 ## 1.5.0
 
@@ -148,11 +157,7 @@
 ## 1.4.0
 
 ### New
-- **Nameplates section**: enemy and friendly class colors, far, near and target nameplate size,
-  enemy pets and enemy totems. Nameplate distance moves here.
-- **Camera**: mouse wheel zoom speed and interface text size.
-- **Floating combat text**: absorb shields placed on you.
-- The new nameplate and camera settings are written only after you change them, like the advanced
+- **Camera**: mouse wheel zoom speed. It is written only after you change it, like the advanced
   settings.
 
 ### Fixed
@@ -177,7 +182,6 @@
   (`reflectionMode`, `rippleDetail`, `terrainLodDist`, `wmoLodDist`, `entityLodDist`,
   `doodadLodScale`, `particleMTDensity`, `DepthBasedOpacity`). They are written only after you
   change them.
-- **Floating combat text**: 12 options for what the combat text shows.
 - **Undo**: `/pano undo` or the panel button restores the settings from before the last preset.
 - **Redesigned panel**: preset cards, collapsible sections, default button per setting.
 

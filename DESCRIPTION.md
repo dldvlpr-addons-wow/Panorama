@@ -2,7 +2,7 @@
 
 <p style="text-align: center;"><strong>The graphics settings hidden behind <code>/console</code>, in one window, reapplied at every login.</strong></p>
 
-<p style="text-align: center;">View distance, shadows, water, camera, nameplates: 62 settings and 10 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
+<p style="text-align: center;">View distance, shadows, water, camera: 43 settings and 10 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
 
 <p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
@@ -36,8 +36,6 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 | | Game Graphics menu | Panorama |
 |---|:---:|:---:|
 | Water reflections and ripples, terrain and building detail distance, one by one | ✖ | ✔ |
-| Floating combat text options | Only with modern combat text | ✔ |
-| Nameplate enemy pets and totems | ✖ | ✔ |
 | Settings written again at every login | ✖ | ✔ |
 | Undo the last preset | ✖ | ✔ |
 | Every setting in one window, with a Default button per line | ✖ | ✔ |
@@ -48,7 +46,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 - <span style="color: #ffd100;"><strong>Its own window, in five tabs:</strong></span> Quality, Filters, Ambiance, Interface, Advanced. A search box looks through every tab. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
 - <span style="color: #ffd100;"><strong>Type a value.</strong></span> Each slider has a box next to it for an exact value.
-- <span style="color: #ffd100;"><strong>62 settings and 10 filters in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and interface, nameplates, advanced, floating combat text, filters.
+- <span style="color: #ffd100;"><strong>43 settings and 10 filters in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and interface, advanced, filters.
 - <span style="color: #ffd100;"><strong>Your values are kept.</strong></span> A value set with `/console` beyond a slider's range stays. A setting your client does not support is hidden and never written.
 - <span style="color: #ffd100;"><strong>Stays in sync.</strong></span> A change made in the game's Graphics menu or with `/console` shows in the window.
 - <span style="color: #ffd100;"><strong>Reapply on login.</strong></span> The settings you changed in Panorama are written again at login, in case the game changed them between sessions. The others follow the game's Graphics menu. You can turn it off.
@@ -60,6 +58,12 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 - <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo and graphics restart.
 - <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. A selector in the window changes the language.
 - <span style="color: #ffd100;"><strong>In-game guide</strong></span> in all 10 languages, HDR setup on Windows included.
+
+---
+
+## <span style="color: #ff6b35;">✂ Removed in 1.8.1</span>
+
+- <span style="color: #ffd100;"><strong>Nameplates section, text size and floating combat text section.</strong></span> Panorama rewrote these settings at every login once changed, over the addons that manage them. The values you had stay in the game; Panorama no longer writes them.
 
 ---
 
@@ -128,10 +132,10 @@ Full list in the **Files** tab.
 
 ---
 
-## <span style="color: #ff6b35;">🔄 Updating to 1.8.0</span>
+## <span style="color: #ff6b35;">🔄 Updating to 1.8.1</span>
 
 - <span style="color: #3c3;"><strong>Your settings and filters are kept.</strong></span>
-- <span style="color: #ffd100;"><strong>Restart the game once after updating.</strong></span> A /reload does not load the new Ambiance.lua file.
+- <span style="color: #ffd100;"><strong>Restart the game once after updating from 1.7.4 or older.</strong></span> A /reload does not load the new Ambiance.lua file.
 
 ---
 

@@ -96,7 +96,7 @@ local doubled = 0
 for _, setting in ipairs(ns.settings) do
     if setting.menu then doubled = doubled + 1 end
 end
-assert(doubled == 39 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
+assert(doubled == 24 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
 assert(ns.presets[3].label == "Élevé" and ns.L.PREFIX == ns.locales.frFR.PREFIX, "langue du client")
 assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
     and PanoramaDB.values.gxMultisample == 1, "valeurs du jeu reprises")
@@ -214,15 +214,6 @@ for _, setting in ipairs(ns2.settings) do
     end
 end
 assert(PanoramaDB.touched.rippleDetail and cvars.rippleDetail == "1", "NS.Change écrit et marque touché")
--- `also` : userFontScaleGlue suit userFontScale.
-cvars.userFontScale, cvars.userFontScaleGlue = "1", "1"
-for _, setting in ipairs(ns2.settings) do
-    if setting.cvar == "userFontScale" then
-        PanoramaDB.values.userFontScale = 1.5
-        ns2.Change(setting)
-    end
-end
-assert(cvars.userFontScale == "1.5" and cvars.userFontScaleGlue == "1.5", "userFontScaleGlue écrite aussi")
 -- Écriture refusée sans erreur par le client : le panneau reprend la valeur du jeu.
 local setCVar = C_CVar.SetCVar
 C_CVar.SetCVar = function() return false end
@@ -267,9 +258,9 @@ assert(cvars.farclip == "1000", "annulation écrite après le combat")
 -- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, plus d'annulation.
 local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } })
 SlashCmdList.PANORAMA("low")
-cvars.nameplateMaxDistance = "35"   -- réglé par le jeu, jamais touché dans Panorama
+cvars.cameraZoomSpeed = "35"   -- réglé par le jeu, jamais touché dans Panorama
 SlashCmdList.PANORAMA("reset")
-assert(cvars.nameplateMaxDistance == "35", "réglage non touché laissé au jeu")
+assert(cvars.cameraZoomSpeed == "35", "réglage non touché laissé au jeu")
 assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and not nsReset.CanUndo(), "CVars remises au jeu")
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.letterbox == 0, "filtres remis au défaut")
 

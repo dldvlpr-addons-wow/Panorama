@@ -53,7 +53,7 @@ par `tests/build_guide.lua`.
 | Qualité | Vue, Végétation, Ombres, Environnement, Image | ~22 |
 | Filtres | Filtres | 6 |
 | Ambiance | — puis Jour et nuit | 4 pour un lieu, 2 pour un moment (clés du contexte choisi seulement, hors recherche) ; puis 3 (jour et nuit auto, teinte de nuit, intensité) |
-| Caméra et interface | Caméra, Barres de noms, Texte de combat | ~22 |
+| Interface | Caméra | 4 |
 | Avancé | HDR, Avancé (console seulement) | ~14 |
 
 Raison : les préréglages ne touchent que l'onglet Qualité (réglages à `levels`), ils y vivent seuls.

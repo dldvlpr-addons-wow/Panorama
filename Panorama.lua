@@ -89,27 +89,12 @@ NS.settings = {
     { cvar = "cameraDistanceMaxZoomFactor", menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
-    -- Absentes du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
+    -- Absente du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
     -- cameraZoomSpeed : lue par Blizzard_GamepadTargeting/TargetLogic.lua.
-    -- userFontScale : bornes 0.8 (TextSizeManager.lua) et 2 (menu retail, Mainline/Text.lua).
-    -- `also` : écrite en même temps, comme TextSizeManager:SetSettingValue (écran de connexion).
     -- cameraZoomSpeed : le moteur accepte 1 à 50 (relevé 1.60.1.70938).
     { cvar = "cameraZoomSpeed", advanced = true, min = 1, max = 50, step = 1, default = 20 },
-    { cvar = "userFontScale", also = "userFontScaleGlue", advanced = true, min = 0.8, max = 2, step = 0.1, default = 1 },
-
-    { title = "SECTION_NAMEPLATES", tab = "interface" },
-    -- Maximum imposé par le client : 60 sur retail, 41 sur les clients Classic (41 relevé sur Forever).
-    { cvar = "nameplateMaxDistance", min = 20,
-      max = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) and 60 or 41, step = 1, default = 41 },
-    -- Couleurs de classe : aussi dans le menu Nameplates de Forever (Camelot/NameplatesOverrides.lua).
-    -- Familiers, totems : écrits seulement par Blizzard_Commentator, absents du menu.
-    -- Non vérifiées en jeu : même traitement `advanced`.
-    -- nameplateMinScale, nameplateMaxScale, nameplateSelectedScale absentes : figées à 1 sur Forever,
-    -- toute écriture ignorée, /console compris (1.60.1.70938).
-    { cvar = "nameplateShowClassColor", menu = "MENU_CLASS_COLORS", advanced = true, default = true },
-    { cvar = "nameplateShowFriendlyClassColor", menu = "MENU_CLASS_COLORS", advanced = true, default = false },
-    { cvar = "nameplateShowEnemyPets", advanced = true, default = false },
-    { cvar = "nameplateShowEnemyTotems", advanced = true, default = false },
+    -- Barres de vie, taille du texte, texte de combat flottant : retirés. Une CVar touchée est
+    -- réécrite à chaque connexion, par-dessus les addons d'interface qui gèrent ces réglages.
 
     -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
     -- BlizzardInterfaceCode). `advanced` : défaut lu dans le jeu, comme plus haut.
@@ -132,24 +117,6 @@ NS.settings = {
     { cvar = "groundEffectFade", advanced = true, min = 0, max = 310, step = 5, default = 70 },
     { cvar = "particleMTDensity", menu = "MENU_PARTICLES", advanced = true, min = 10, max = 100, step = 5, default = 20 },
     { cvar = "DepthBasedOpacity", advanced = true, default = false },
-
-    -- Texte de combat flottant : lu par Blizzard_CombatText. Le menu Combat de Forever n'affiche ces
-    -- cases que si classicStyleWorldText vaut "0" (Mainline/CombatOverrides.lua) ; sinon seul
-    -- Panorama les règle.
-    { title = "SECTION_COMBAT_TEXT", tab = "interface" },
-    { cvar = "floatingCombatTextCombatHealingAbsorbSelf_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextCombatState_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextDodgeParryMiss_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextDamageReduction_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextFriendlyHealers_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextAuras_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextReactives_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextEnergyGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextPeriodicEnergyGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextComboPoints_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextLowManaHealth_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextHonorGains_v2", menu = "MENU_COMBAT_TEXT", default = false },
-    { cvar = "floatingCombatTextRepChanges_v2", menu = "MENU_COMBAT_TEXT", default = false },
 }
 
 -- Onglets de la fenêtre, dans l'ordre. Le premier est ouvert au premier lancement.
@@ -246,20 +213,6 @@ function NS.Apply(setting)
     local value = NS.db.values[setting.cvar]
     if type(value) == "boolean" then value = value and 1 or 0 end
     WriteIfChanged(setting.cvar, tostring(value))
-    if setting.also and GetCVarValue(setting.also) ~= nil then WriteIfChanged(setting.also, tostring(value)) end
-end
-
--- Blizzard_CombatText ne relit ses CVars qu'à UpdateDisplayedMessages. Appelé seulement sur un
--- changement du joueur, jamais à la connexion : l'appel depuis l'addon peut teinter CombatText.
--- Changé en combat : rafraîchi à la sortie du combat, avec l'écriture différée.
-local combatTextAfterCombat = {}
-local function RefreshCombatText(setting)
-    if not setting.cvar:find("^floatingCombatText") then return end
-    if InCombatLockdown() then
-        combatTextAfterCombat[setting] = true
-    elseif CombatText and CombatText.UpdateDisplayedMessages then
-        CombatText:UpdateDisplayedMessages()
-    end
 end
 
 -- Seuls les réglages modifiés dans Panorama sont réécrits : les autres suivent le jeu et son menu
@@ -274,10 +227,10 @@ function NS.ApplyAll(capOnly)
     end
 end
 
--- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées, texte de
--- combat) ; repli sur setting.default si le client ne la donne pas.
+-- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées) ; repli sur
+-- setting.default si le client ne la donne pas.
 function NS.GameDefault(setting)
-    if (setting.advanced or setting.cvar:find("^floatingCombatText")) then
+    if setting.advanced then
         local raw = GetCVarDefault(setting.cvar)
         if type(setting.default) == "boolean" then
             if raw ~= nil then return raw == "1" or raw == "true" end
@@ -311,7 +264,6 @@ function NS.Change(setting)
     NS.db.touched[setting.cvar] = true
     NS.Apply(setting)
     if InCombatLockdown() then readBackAfterCombat[setting] = true else ReadBack(setting) end
-    RefreshCombatText(setting)
     RefreshWeatherAmbiance(setting)
     if NS.RefreshOptions and not batching then NS.RefreshOptions() end
 end
@@ -533,9 +485,6 @@ events:SetScript("OnEvent", function(self, event, arg1)
         readBackAfterCombat = {}
         for setting in pairs(readBack) do ReadBack(setting) end
         if next(readBack) and NS.RefreshOptions then NS.RefreshOptions() end
-        local combatText = combatTextAfterCombat
-        combatTextAfterCombat = {}
-        for setting in pairs(combatText) do RefreshCombatText(setting) end
     end
 end)
 
