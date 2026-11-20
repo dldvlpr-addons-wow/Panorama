@@ -16,7 +16,7 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **43 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **44 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, advanced, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -58,7 +58,7 @@ Guide button in the panel opens the same guide in the game.
 | Vegetation and details | Grass density, grass distance |
 | Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
 | Environment | Water detail, sky detail, weather intensity, physics |
-| Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, grey screen on death, violence level, projected textures, reduce spell effects |
+| Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects |
 | Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
 | Filters | Black bars, vignette, film grain, color tint, tint strength, sky, sky strength |

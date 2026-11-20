@@ -96,7 +96,7 @@ local doubled = 0
 for _, setting in ipairs(ns.settings) do
     if setting.menu then doubled = doubled + 1 end
 end
-assert(doubled == 24 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
+assert(doubled == 25 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
 assert(ns.presets[3].label == "Élevé" and ns.L.PREFIX == ns.locales.frFR.PREFIX, "langue du client")
 assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
     and PanoramaDB.values.gxMultisample == 1, "valeurs du jeu reprises")

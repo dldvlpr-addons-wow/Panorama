@@ -66,6 +66,10 @@ NS.settings = {
     { cvar = "LowLatencyMode", menu = "MENU_LOW_LATENCY", min = 0, max = 5, step = 1, default = 0,
       names = { [0] = "LATENCY_AUTO", "OPT_OFF", "LATENCY_BUILTIN", "Reflex", "Reflex + Boost", "XeLL" } },
     { cvar = "ffxGlow", default = true, levels = { false, true, true, true } },
+    -- Bloom du rendu linéaire : seul réglage à effet visible (relevé en jeu 2026-11-21), ffxGlow n'en a pas.
+    -- Curseur natif 0 à 1 par pas de 0.2 (Blizzard_SettingsDefinitions_Shared/Graphics.lua:1588).
+    -- `advanced` : écrit seulement après modification, défaut lu dans le jeu.
+    { cvar = "bloomUserMult", menu = "MENU_BLOOM", advanced = true, min = 0, max = 1, step = 0.2, default = 1 },
     { cvar = "ffxDeath", default = false },
     { cvar = "violenceLevel", min = 0, max = 5, step = 1, default = 5 },
     { cvar = "ProjectedTextures", menu = "MENU_PROJECTED", default = true, levels = { false, true, true, true } },
