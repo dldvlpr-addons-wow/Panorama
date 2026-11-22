@@ -21,7 +21,7 @@ El botón del minimapa:
 | Parte | Qué hace |
 |---|---|
 | Cuadro de búsqueda (arriba a la derecha) | Escribe una palabra para listar los ajustes que coinciden de todas las pestañas. Bórrala para volver. |
-| Pestañas | Calidad, Filtros, Ambiente, Interfaz, Avanzado. Se recuerda la pestaña abierta. |
+| Pestañas | Calidad, Interfaz, Avanzado (ajustes del juego), luego Filtros, Mis filtros, Ambiente (efectos de Panorama). Se recuerda la pestaña abierta. |
 | Selector de idioma (a la derecha de las pestañas) | Idioma del juego o uno de diez idiomas. Al cambiarlo se recarga la interfaz. |
 | Guía (a la izquierda del cuadro de búsqueda) | Abre esta guía en el juego. |
 | Preajustes (pestaña Calidad) | Bajo, Medio, Alto, Extra. Se resalta el preajuste que coincide con tus ajustes. |
@@ -41,7 +41,7 @@ Haz clic en el título de una sección para plegarla o desplegarla.
 - **Estrella amarilla**: un menú del juego también establece este valor. Pasa el ratón por encima para
   ver cuál. Ese menú no vuelve a leer el valor, así que puede mostrar otro nivel.
 - **Línea en gris**: depende de otro ajuste que está desactivado (por ejemplo, la densidad de la niebla
-  sin niebla volumétrica, la intensidad del tono sin un tono).
+  sin niebla volumétrica, la intensidad del tono sin un tono). La línea indica qué ajuste cambiar.
 - Pasa el ratón por una etiqueta para leer su ayuda completa.
 
 ## 3. Preajustes
@@ -65,6 +65,7 @@ La pestaña Filtros añade efectos sobre la imagen. No cambian ningún ajuste de
 
 - **Tono**: haz clic en una miniatura para aplicarlo al instante (Sepia, Cálido, Frío, Noche, Esmeralda,
   Crepúsculo). **Intensidad del tono** define su fuerza.
+- **Mi filtro**: usa uno de tus filtros de la pestaña Mis filtros. Sustituye el tono, la viñeta y el grano.
 - **Cielo**: los mismos colores en degradado, completos arriba de la pantalla y más claros abajo.
   **Intensidad del cielo** define su fuerza.
 - **Viñeta**: oscurece los bordes de la pantalla.
@@ -91,18 +92,32 @@ La pestaña Ambiente cambia sola el tinte, el cielo, la viñeta y el grano segú
 - **Contexto a editar**: elige un contexto y ajusta sus filtros debajo. El botón Predeterminado
   devuelve el valor incluido para ese contexto.
   El menú tiene cinco grupos: **Zonas** (la zona en la que estás y las que has ajustado), **Mazmorra e interior**, **Clima**, **Tipo de zona** y **Cielo (hora)**.
-  Los cuatro primeros ajustan el tinte, la viñeta y el grano: solo se aplica un lugar a la vez, en el orden indicado arriba.
+  Los cuatro primeros ajustan el tinte, la viñeta, el grano y un preajuste gráfico: solo se aplica un lugar a la vez, en el orden indicado arriba.
   El último ajusta el cielo. No hace falta ajustar nada para empezar: cada contexto ya tiene sus valores.
 - **Esta zona**: primera opción del mismo menú, con el nombre de la zona en la que estás. Elígela para
   dar a esta zona su propio tinte, viñeta y grano, partiendo de su tipo de zona. Pasa entonces antes
   del tipo de zona, pero después de mazmorra, interior y clima. Las zonas que ajustas siguen en el
   menú. **Tipo de zona** elimina los valores de la zona: vuelve a seguir su tipo de zona.
-- **Día y noche** (abajo de la pestaña): **Día y noche automáticos** aplica el **Tono nocturno** de
-  noche, según el día y la noche del juego. Sustituye al tono de la pestaña Filtros. El cambio es gradual de 19:00 a 21:00 y de 5:00
-  a 7:00 (hora del servidor). **Intensidad del tono nocturno** define su fuerza.
+- **Todas las zonas**: submenú del mismo menú, con todas las zonas conocidas. Elige una para ajustarla sin estar allí. Las zonas están ordenadas por continente.
+- **Preajuste** y **Distancia del escenario** (primeras líneas de un lugar o de una zona): se aplican mientras estás en ese lugar, por encima de tus propios ajustes, con el ambiente automático activado o no. La distancia del escenario del lugar va antes que la del preajuste. Tus propios ajustes se conservan y vuelven cuando te vas. **Mis ajustes** no cambia nada. Ejemplo: Bajo en mazmorras, Extra en una zona que te gusta. En una mazmorra o banda, la primera opción del menú ajusta solo esa mazmorra. En la pestaña Calidad, el botón **Por lugar** abre estas líneas para el lugar donde estás; muestra **Aquí: …** mientras un lugar aplica los suyos. En combate, el cambio espera al final del combate.
+- **Mi filtro** (primera línea de los filtros de un lugar o de una zona): ese lugar usa uno de tus filtros de la pestaña Mis filtros, con su contraste, su brillo y su gamma, mientras el ambiente automático está activado.
+- **Día y noche** (abajo de la pestaña): **Día y noche automáticos** aplica el **Tono diurno** de día y el **Tono nocturno** de
+  noche, según el día y la noche del juego. Sustituyen al tono de la pestaña Filtros. El cambio es gradual de 19:00 a 21:00 y de 5:00
+  a 7:00 (hora del servidor). **Intensidad del tono diurno** e **Intensidad del tono nocturno** definen su fuerza.
   No funciona a la vez que la ambientación automática: activar uno desactiva el otro.
 
-## 5. Tus valores y el juego
+## 5. Mis filtros
+
+La pestaña Mis filtros sirve para crear tantos filtros propios como quieras. **Nuevo** añade uno, **Eliminar** quita el filtro abierto: la pestaña Filtros, los lugares y las zonas que lo usaban vuelven a Ninguno.
+
+- **Filtro a editar**: elige el filtro que ajustan las líneas de abajo. **Nombre**: ponle un nombre (Intro para confirmar).
+- **Rojo**, **Verde**, **Azul** (en %): color del tono del filtro. **Intensidad del tono**: su fuerza.
+- **Viñeta** y **Grano**: los del filtro.
+- **Contraste**, **Brillo**, **Gamma**: ajustes de imagen que el filtro da al juego mientras está aplicado; después vuelven tus propios valores. Mis ajustes: no cambia nada. Según el modo de pantalla, pueden no tener efecto.
+- Mientras la pestaña está abierta, el filtro mostrado se ve en directo en el juego.
+- Para usar un filtro: elígelo en la línea **Mi filtro** de la pestaña Filtros (en todas partes), o de un lugar o una zona en la pestaña Ambiente (ambiente automático activado). Entonces sustituye el tono, la viñeta y el grano, cuyas líneas quedan en gris. Ninguno: no cambia nada.
+
+## 6. Tus valores y el juego
 
 - En la primera instalación, Panorama lee tus ajustes actuales del juego. No cambia nada hasta que
   muevas un control.
@@ -113,7 +128,7 @@ La pestaña Ambiente cambia sola el tinte, el cielo, la viñeta y el grano segú
 - Algunos ajustes, como MSAA, necesitan reiniciar los gráficos. Haz clic en **Reiniciar** en el pie o
   escribe `/pano restart`. La pantalla parpadea un segundo.
 
-## 6. HDR en Windows
+## 7. HDR en Windows
 
 Los ajustes de HDR existen en el juego solo como comandos de consola. Panorama los muestra en la pestaña
 **Avanzado**, sección **HDR (solo consola)**. Necesitas un monitor compatible con HDR.
@@ -177,7 +192,7 @@ Si la imagen no cambia, haz clic en **Reiniciar** en el pie.
 
 Cada línea de HDR tiene un botón Predeterminado que restaura el valor del juego.
 
-## 7. Comandos
+## 8. Comandos
 
 | Comando | Acción |
 |---|---|
@@ -190,11 +205,11 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 | `/pano restart` | Reiniciar el motor gráfico |
 | `/pano minimap` | Mostrar u ocultar el botón del minimapa |
 
-## 8. Restablecer
+## 9. Restablecer
 
 - El botón **Predeterminado** de cada línea restablece ese ajuste.
 - El botón **Predeterminado** del menú de Gráficos del juego restablece solo los ajustes que gestiona
   ese menú, y Panorama lo sigue. Usa los botones Predeterminado de `/pano` para los demás y para los filtros.
 - **Restablecer todo** (pie, con confirmación) o `/pano reset`: devuelve cada ajuste cambiado en Panorama
   y cada filtro a su valor por defecto. No se puede deshacer.
-  La pestaña Ambiente y las zonas ajustadas también se restablecen.
+  La pestaña Ambiente y las zonas ajustadas también se restablecen. Tus filtros de la pestaña Mis filtros también se borran.

@@ -16,7 +16,7 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **44 settings and 10 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **47 settings and 13 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, advanced, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -39,16 +39,23 @@ Guide button in the panel opens the same guide in the game.
 - **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
   cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a
-  sepia, warm, cold, night, emerald or dusk tint with its own strength. They change no CVar.
-- **Automatic day and night** (Ambiance tab, off by default): at night (game's day and night), a night
-  tint with its own strength replaces the tint. It does not work together with the automatic ambiance: turning one on turns the
+  sepia, warm, cold, night, emerald or dusk tint, with its
+  own strength. They change no CVar.
+- **My filters** (its own tab): build as many filters of your own as you want, each with a name, a color set
+  with Red, Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a
+  brightness and a gamma. You see the filter on the game while you set it. Use it everywhere from
+  the Filters tab, or for a place or a zone from the Ambiance tab.
+- **Automatic day and night** (Ambiance tab, off by default): a day tint by day and a night tint at
+  night (game's day and night), each with its own strength, replace the tint. It does not work together with the automatic ambiance: turning one on turns the
   other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00 (server time).
 - **Sky filter**: a color gradient from the top of the screen, with the tint colors.
 - **Automatic ambiance** (off by default): tint, vignette and grain follow the place (dungeon,
   indoors, rain, snow, sandstorm, then the kind of zone: temperate, desert, snowy, jungle, corrupted,
   volcanic, arcane); the sky follows the time of day (day, dawn and dusk, night). Each context has
-  its own values, editable in the Ambiance tab, and any zone can get its own values. Your Filters
-  tab values stay saved.
+  its own values, editable in the Ambiance tab, and any zone can get its own values, picked from
+  the list of all zones. A place or a zone can also apply a graphics preset (Low, Medium, High,
+  Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave. Your Filters tab values
+  stay saved.
 
 ## Settings
 
@@ -58,11 +65,12 @@ Guide button in the panel opens the same guide in the game.
 | Vegetation and details | Grass density, grass distance |
 | Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
 | Environment | Water detail, sky detail, weather intensity, physics |
-| Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects |
+| Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects, contrast, brightness, gamma |
 | Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
-| Filters | Black bars, vignette, film grain, color tint, tint strength, sky, sky strength |
-| Ambiance | Automatic ambiance; tint, tint strength, vignette and film grain for each place; sky and sky strength for each time of day; automatic day and night, night tint, night tint strength |
+| Filters | Black bars, vignette, film grain, my filter, color tint, tint strength, sky, sky strength |
+| My filters | For each of your filters: name, red, green, blue, tint strength, vignette, film grain, contrast, brightness, gamma |
+| Ambiance | Automatic ambiance; my filter, tint, tint strength, vignette, film grain, graphics preset and scenery distance for each place; sky and sky strength for each time of day; automatic day and night, day tint, day tint strength, night tint, night tint strength |
 
 ## Commands
 

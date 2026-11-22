@@ -23,7 +23,7 @@ The minimap button:
 | Part | What it does |
 |---|---|
 | Search box (top right) | Type a word to list the matching settings of every tab. Clear it to go back. |
-| Tabs | Quality, Filters, Ambiance, Interface, Advanced. The open tab is remembered. |
+| Tabs | Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). The open tab is remembered. |
 | Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
 | Guide (left of the search box) | Opens this guide in the game. |
 | Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
@@ -41,7 +41,7 @@ Click a section title to fold or unfold it.
 - **Yellow star**: a game menu also sets this value. Hover it to see which one. That menu does not
   read the value back, so it may show another level.
 - **Greyed line**: it depends on another setting that is off (for example fog density without
-  volumetric fog, tint strength without a tint).
+  volumetric fog, tint strength without a tint). The line says which setting to change.
 - Hover a label to read its full help.
 
 ## 3. Presets
@@ -65,6 +65,7 @@ The Filters tab adds effects on top of the image. They change no game setting.
 
 - **Tint**: click a thumbnail to apply it right away (sepia, warm, cold, night, emerald, dusk).
   **Tint strength** sets how strong it is.
+- **My filter**: uses one of your filters from the My filters tab. It replaces the tint, the vignette and the film grain.
 - **Sky**: the same colors as a gradient, full at the top of the screen and lighter at the bottom.
   **Sky strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
@@ -89,18 +90,32 @@ The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit wh
 - **Context to edit**: pick a context, then set its filters below. The Default button gives back the
   value shipped for that context.
   The menu has five groups: **Zones** (the zone you are in and the zones you set), **Dungeon and indoors**, **Weather**, **Zone type** and **Sky (time of day)**.
-  The first four set tint, vignette and grain: one place applies at a time, in the order given above.
+  The first four set tint, vignette, grain and a graphics preset: one place applies at a time, in the order given above.
   The last one sets the sky. Nothing to set to get started: every context already has its values.
 - **This zone**: first choice of the same menu, with the name of the zone you are in. Pick it to give
   this zone its own tint, vignette and grain, starting from its kind of zone. It then comes before
   the kind of zone, but after dungeon, indoors and weather. Zones you set stay in the menu.
   **Zone type** removes the values of the zone: it follows its kind of zone again.
-- **Day and night** (bottom of the tab): **Automatic day and night** lays the **Night tint** at night,
-  following the game's day and night. It replaces the Filters tab tint. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00
-  (server time). **Night tint strength** sets how strong it is.
+- **All zones**: submenu of the same menu, with every known zone. Pick one to set it without being there. Zones are sorted by continent.
+- **Graphics preset** and **Scenery distance** (first lines of a place or a zone): they apply while you are in that place, over your own settings, with the automatic ambiance on or off. The scenery distance of the place comes before the one of the preset. Your own settings are kept and come back when you leave. **My settings** changes nothing. Example: Low in dungeons, Extra in a zone you like. In a dungeon or raid, the first choice of the menu sets that dungeon alone. In the Quality tab, the **By place** button opens these lines for the place you are in; it reads **Here: …** while a place applies its own. In combat, the change waits for the end of the fight.
+- **My filter** (first line of the filters of a place or a zone): this place uses one of your filters from the My filters tab, with its contrast, brightness and gamma, while the automatic ambiance is on.
+- **Day and night** (bottom of the tab): **Automatic day and night** lays the **Day tint** by day and the **Night tint** at night,
+  following the game's day and night. They replace the Filters tab tint. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00
+  (server time). **Day tint strength** and **Night tint strength** set how strong they are.
   It does not work together with the automatic ambiance: turning one on turns the other off.
 
-## 5. Your values and the game
+## 5. My filters
+
+The My filters tab lets you create as many filters of your own as you want. **New** adds one, **Delete** removes the open one: the Filters tab, places and zones that used it go back to None.
+
+- **Filter to edit**: picks the filter that the lines below set. **Name**: give it a name (Enter to confirm).
+- **Red**, **Green**, **Blue** (in %): the tint color of the filter. **Tint strength**: how strong it is.
+- **Vignette** and **Film grain**: those of the filter.
+- **Contrast**, **Brightness**, **Gamma**: image settings the filter gives the game while it is applied; your own values come back afterwards. My settings: nothing changes. Depending on the display mode, they may have no effect.
+- While the tab is open, the filter shown is visible live on the game.
+- To use a filter: pick it on the **My filter** line of the Filters tab (everywhere), or for a place or a zone in the Ambiance tab (automatic ambiance on). It then replaces the tint, the vignette and the film grain, whose lines are greyed out. None: nothing changes.
+
+## 6. Your values and the game
 
 - On first install, Panorama reads your current game settings. Nothing changes until you move a control.
 - A change made in the game's Graphics menu or with `/console` shows in the window.
@@ -110,7 +125,7 @@ The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit wh
 - Some settings, such as MSAA, need a graphics restart. Click **Restart** in the footer, or type
   `/pano restart`. The screen flickers for a second.
 
-## 6. HDR on Windows
+## 7. HDR on Windows
 
 HDR settings exist only as console commands in the game. Panorama shows them in the **Advanced** tab,
 section **HDR (console only)**. You need a monitor that supports HDR.
@@ -172,7 +187,7 @@ If the image does not change, click **Restart** in the footer.
 
 Each HDR line has a Default button that puts back the game's value.
 
-## 7. Commands
+## 8. Commands
 
 | Command | Action |
 |---|---|
@@ -185,11 +200,11 @@ Each HDR line has a Default button that puts back the game's value.
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |
 
-## 8. Reset
+## 9. Reset
 
 - The **Default** button on each line resets that setting.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
 - **Reset all** (footer, with confirmation) or `/pano reset`: puts every setting changed in Panorama
   and every filter back to its default. It cannot be undone.
-  The Ambiance tab and the zones you set are reset too.
+  The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.

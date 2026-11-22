@@ -21,7 +21,7 @@ Le bouton de la minimap :
 | Élément | Ce qu'il fait |
 |---|---|
 | Champ de recherche (en haut à droite) | Tapez un mot pour lister les réglages correspondants de tous les onglets. Videz-le pour revenir. |
-| Onglets | Qualité, Filtres, Ambiance, Interface, Avancé. L'onglet ouvert est mémorisé. |
+| Onglets | Qualité, Interface, Avancé (réglages du jeu), puis Filtres, Mes filtres, Ambiance (effets de Panorama). L'onglet ouvert est mémorisé. |
 | Sélecteur de langue (à droite des onglets) | Langue du jeu ou l'une des dix langues. Changer de langue recharge l'interface. |
 | Guide (à gauche du champ de recherche) | Ouvre ce guide dans le jeu. |
 | Préréglages (onglet Qualité) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
@@ -39,7 +39,7 @@ Cliquez sur un titre de section pour la replier ou la déplier.
 - **Étoile jaune** : un menu du jeu définit aussi cette valeur. Survolez-la pour voir lequel. Ce menu
   ne relit pas la valeur, il peut donc afficher un autre niveau.
 - **Ligne grisée** : elle dépend d'un autre réglage désactivé (par exemple la densité du brouillard sans
-  brouillard volumétrique, l'intensité de la teinte sans teinte).
+  brouillard volumétrique, l'intensité de la teinte sans teinte). La ligne dit quel réglage changer.
 - Survolez un libellé pour lire son aide complète.
 
 ## 3. Préréglages
@@ -63,6 +63,7 @@ L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun ré
 
 - **Teinte** : cliquez sur une vignette pour l'appliquer tout de suite (sépia, chaude, froide, nuit, émeraude, crépuscule).
   **Intensité de la teinte** règle sa force.
+- **Mon filtre** : utilise un de vos filtres de l'onglet Mes filtres. Il remplace la teinte, la vignette et le grain.
 - **Ciel** : les mêmes couleurs en dégradé, pleines en haut de l'écran et plus claires en bas.
   **Intensité du ciel** règle sa force.
 - **Vignettage** : assombrit les bords de l'écran.
@@ -87,19 +88,33 @@ L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain s
 - **Contexte à modifier** : choisissez un contexte, puis réglez ses filtres en dessous. Le bouton
   Défaut rend la valeur livrée pour ce contexte.
   Le menu est rangé en cinq groupes : **Zones** (la zone où vous êtes et celles que vous avez réglées), **Donjon et intérieur**, **Météo**, **Type de zone** et **Ciel (moment)**.
-  Les quatre premiers règlent la teinte, la vignette et le grain : un seul lieu s'applique à la fois, dans l'ordre donné plus haut.
+  Les quatre premiers règlent la teinte, la vignette, le grain et un préréglage graphique : un seul lieu s'applique à la fois, dans l'ordre donné plus haut.
   Le dernier règle le ciel. Rien à régler pour commencer : chaque contexte a déjà ses valeurs.
 - **Cette zone** : premier choix du même menu, avec le nom de la zone où vous êtes. Choisissez-la pour
   donner à cette zone sa propre teinte, sa propre vignette et son propre grain, en partant de son type
   de zone. Elle passe alors avant le type de zone, mais après donjon, intérieur et météo. Les zones
   que vous réglez restent dans le menu. **Type de zone** retire les valeurs de la zone : elle suit de
   nouveau son type de zone.
-- **Jour et nuit** (bas de l'onglet) : **Jour et nuit automatiques** pose la **Teinte de nuit** la nuit,
-  selon le jour et la nuit du jeu. Elle remplace la teinte de l'onglet Filtres. Le passage est progressif de 19 h à 21 h et de 5 h à
-  7 h (heure du serveur). **Intensité de la teinte de nuit** règle sa force.
+- **Toutes les zones** : sous-menu du même menu, avec toutes les zones connues. Choisissez-en une pour la régler sans y être. Les zones sont rangées par continent.
+- **Préréglage** et **Distance des décors** (premières lignes d'un lieu ou d'une zone) : ils s'appliquent tant que vous êtes dans ce lieu, par-dessus vos propres réglages, que l'ambiance auto soit cochée ou non. La distance des décors du lieu passe avant celle du préréglage. Vos propres réglages sont conservés et reviennent quand vous partez. **Mes réglages** ne change rien. Exemple : Bas en donjon, Extra dans une zone que vous aimez. Dans un donjon ou un raid, le premier choix du menu règle ce donjon seul. Dans l'onglet Qualité, le bouton **Par lieu** ouvre ces lignes pour le lieu où vous êtes ; il affiche **Ici : …** tant qu'un lieu impose les siens. En combat, le changement attend la fin du combat.
+- **Mon filtre** (première ligne des filtres d'un lieu ou d'une zone) : ce lieu utilise un de vos filtres de l'onglet Mes filtres, avec son contraste, sa luminosité et son gamma, tant que l'ambiance auto est cochée.
+- **Jour et nuit** (bas de l'onglet) : **Jour et nuit automatiques** pose la **Teinte de jour** le jour et la **Teinte de nuit** la nuit,
+  selon le jour et la nuit du jeu. Elles remplacent la teinte de l'onglet Filtres. Le passage est progressif de 19 h à 21 h et de 5 h à
+  7 h (heure du serveur). **Intensité de la teinte de jour** et **Intensité de la teinte de nuit** règlent leur force.
   Il ne marche pas en même temps que l'ambiance automatique : activer l'un coupe l'autre.
 
-## 5. Vos valeurs et le jeu
+## 5. Mes filtres
+
+L'onglet Mes filtres sert à créer autant de filtres à vous que vous voulez. **Nouveau** en ajoute un, **Supprimer** retire le filtre ouvert : l'onglet Filtres, les lieux et les zones qui l'utilisaient repassent à Aucun.
+
+- **Filtre à modifier** : choisit le filtre que règlent les lignes en dessous. **Nom** : donnez-lui un nom (Entrée pour valider).
+- **Rouge**, **Vert**, **Bleu** (en %) : couleur de la teinte du filtre. **Intensité de la teinte** : sa force.
+- **Vignettage** et **Grain** : ceux du filtre.
+- **Contraste**, **Luminosité**, **Gamma** : réglages d'image que le filtre donne au jeu tant qu'il est appliqué ; vos propres valeurs reviennent ensuite. Mes réglages : rien ne change. Selon le mode d'affichage, ils peuvent rester sans effet.
+- Tant que l'onglet est ouvert, le filtre affiché se voit en direct sur le jeu.
+- Pour utiliser un filtre : choisissez-le à la ligne **Mon filtre** de l'onglet Filtres (partout), ou d'un lieu ou d'une zone dans l'onglet Ambiance (ambiance auto cochée). Il remplace alors la teinte, la vignette et le grain, dont les lignes sont grisées. Aucun : rien ne change.
+
+## 6. Vos valeurs et le jeu
 
 - À la première installation, Panorama lit vos réglages actuels du jeu. Rien ne change tant que vous ne touchez pas un contrôle.
 - Une modification faite dans le menu Graphismes du jeu ou avec `/console` apparaît dans la fenêtre.
@@ -109,7 +124,7 @@ L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain s
 - Certains réglages, comme le MSAA, demandent un redémarrage graphique. Cliquez sur **Redémarrer** dans le pied de fenêtre, ou tapez
   `/pano restart`. L'écran clignote une seconde.
 
-## 6. HDR sous Windows
+## 7. HDR sous Windows
 
 Les réglages HDR n'existent que sous forme de commandes de console dans le jeu. Panorama les affiche dans l'onglet **Avancé**,
 section **HDR (console seulement)**. Il vous faut un écran compatible HDR.
@@ -171,7 +186,7 @@ Si l'image ne change pas, cliquez sur **Redémarrer** dans le pied de fenêtre.
 
 Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 
-## 7. Commandes
+## 8. Commandes
 
 | Commande | Action |
 |---|---|
@@ -184,11 +199,11 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 | `/pano restart` | Redémarre le moteur graphique |
 | `/pano minimap` | Affiche ou masque le bouton de la minimap |
 
-## 8. Réinitialisation
+## 9. Réinitialisation
 
 - Le bouton **Défaut** de chaque ligne réinitialise ce réglage.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
 - **Tout réinitialiser** (pied de fenêtre, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
   dans Panorama et chaque filtre à sa valeur par défaut. Impossible d'annuler.
-  L'onglet Ambiance et les zones réglées sont remis à zéro aussi.
+  L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.

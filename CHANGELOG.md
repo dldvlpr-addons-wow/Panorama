@@ -1,5 +1,67 @@
 # Changelog
 
+## 1.9.0-beta1
+
+### New
+- **My filters tab**: build as many filters of your own as you want (New, Delete). Each has a name, a color set with Red,
+  Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a brightness and
+  a gamma. You see the filter on the game while the tab is open.
+- **My filter (Filters tab, and each place or zone of the Ambiance tab)**: uses one of your
+  filters. It replaces the tint, the vignette and the grain, and applies its contrast, brightness
+  and gamma while it is on; your own values come back after.
+- **Contrast, Brightness, Gamma**: new settings in the Quality tab. Depending on the display mode,
+  they may have no effect.
+- **Day tint and Day tint strength (automatic day and night)**: by day, a day tint replaces the
+  Filters tab tint, as the night tint does at night. Default: Warm at 25. If automatic day and
+  night was already on, your day keeps the Filters tab tint and its strength.
+- **Color tint and Tint strength (Filters tab)**: greyed while automatic day and night is on, as
+  the day tint and the night tint replace them.
+- **Graphics preset and Scenery distance by place (Ambiance tab)**: each place and each zone gets a
+  Graphics preset line and a Scenery distance line, at the top of its settings. They apply while
+  you are there, over your own settings, which come back when you leave. They work with the
+  automatic ambiance on or off. Default: My settings (nothing changes).
+- **By place button (Quality tab)**: it opens these lines for the place you are in. It reads
+  "Here: …" while a place applies its own. The Quality lines keep showing your own settings.
+- **Dungeons and raids (Ambiance tab)**: inside one, the first choice of the context menu sets
+  that dungeon alone.
+- **All zones (Ambiance tab)**: the context menu lists every known zone, sorted by continent. A
+  zone can be set without being there.
+
+### Changed
+- **Weather ambiance**: it now follows your Weather effects setting in Panorama, not the game value a
+  place preset may lower.
+- **Night sky strength (automatic ambiance)**: the default goes from 45 to 70.
+- **Volcanic tint strength (automatic ambiance)**: the default goes from 30 to 15. The volcanic
+  tint stays None.
+- **Options window**: a setting with named values (My filter, Sky, Low latency, Contrast…) is now
+  a drop-down menu. A greyed line says why it is greyed. Help text gets 3 lines and is brighter.
+  The active preset has a gold border, Reset all is red text, and the scroll bar hides when
+  nothing scrolls.
+- **Tabs**: they come in two groups, with a gap between them: game settings first (Quality,
+  Interface, Advanced), then Panorama effects (Filters, My filters, Ambiance).
+- **Ambiance tab**: the editor now opens on the place you are in (first opening of the session), not on Day, so My filter and
+  the tint of that place are shown at once.
+
+For both default changes above, the new default is for a new install, the Default button and Reset all. If Panorama is
+already installed, your current values are kept.
+
+### Fixed
+- **Ambiance tab**: the context editor rows now sit under a collapsible "Automatic ambiance" title,
+  like the Day and night section.
+- **Settings kept by the game**: when the game keeps another value than the one you chose
+  (refused, rounded or capped), the chat names the setting. A preset or Reset all gives one line.
+- **Invalid saved filter settings**: they are reset, and the chat says how many at login.
+- **/pano minimap**: the chat says whether the button is now shown or hidden.
+- **Unknown zone**: its name reads "Unknown zone (number)", not the number alone. `/pano status`
+  shows "?" for a setting it cannot read, not "nil", and names the events this client does not send.
+- **Zone kept forever**: if the game gives no map for more than 5 minutes, Panorama forgets the
+  last zone and uses Temperate.
+- **Settings not loaded**: if the game never sends its loading events, Panorama finishes loading
+  after 30 seconds.
+- **Settings window**: it refreshes once, not twice, when it opens or a place applies.
+- **Logout**: an error while writing your settings back is reported, and they are written back at
+  the next login.
+
 ## 1.8.2
 
 ### New
