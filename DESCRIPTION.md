@@ -2,7 +2,7 @@
 
 <p style="text-align: center;"><strong>The graphics settings hidden behind <code>/console</code>, in one window, reapplied at every login.</strong></p>
 
-<p style="text-align: center;">View distance, shadows, water, camera: 44 settings and 10 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
+<p style="text-align: center;">View distance, shadows, water, camera: 47 settings and 13 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
 
 <p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
@@ -50,7 +50,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">Graphics settings</span>
 
-- <span style="color: #ffd100;"><strong>44 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and mouse, advanced.
+- <span style="color: #ffd100;"><strong>47 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and mouse, advanced.
 - <span style="color: #ffd100;"><strong>Four presets:</strong></span> Low, Medium, High and Extra, with an <strong>Undo</strong> button for the last one.
 - <span style="color: #ffd100;"><strong>HDR on Windows:</strong></span> HDR output, peak or reference brightness and HDR intensity, settings the game only has as console commands.
 - <span style="color: #ffd100;"><strong>Type a value.</strong></span> Each slider has a box next to it for an exact value.
@@ -58,9 +58,10 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">Filters and ambiance</span>
 
-- <span style="color: #ffd100;"><strong>10 filters:</strong></span> black bars for a cinematic look, vignette, film grain and six tints (sepia, warm, cold, night, emerald, dusk), picked from thumbnails and a sky gradient from the top of the screen. No CVar changed.
-- <span style="color: #ffd100;"><strong>Automatic ambiance:</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Each context, and any zone you pick, has its own values.
-- <span style="color: #ffd100;"><strong>Automatic day and night:</strong></span> off by default. It lays a night tint at night. It is a separate choice: turning one on turns the other off.
+- <span style="color: #ffd100;"><strong>13 filters:</strong></span> black bars for a cinematic look, vignette, film grain and six tints (sepia, warm, cold, night, emerald, dusk), picked from thumbnails and a sky gradient from the top of the screen. No CVar changed.
+- <span style="color: #ffd100;"><strong>My filters:</strong></span> a tab to build as many filters of your own as you want, each with a name, a color set with Red, Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a brightness and a gamma. You see the filter on the game while you set it. Use it everywhere, or for a place or a zone.
+- <span style="color: #ffd100;"><strong>Automatic ambiance:</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Each context, and any zone you pick, has its own values. A place or a zone can also apply a graphics preset (Low, Medium, High, Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave.
+- <span style="color: #ffd100;"><strong>Automatic day and night:</strong></span> off by default. It lays a day tint by day and a night tint at night. It is a separate choice: turning one on turns the other off.
 
 ### <span style="color: #ffd100;">Safe for your game</span>
 
@@ -71,7 +72,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">The window</span>
 
-- <span style="color: #ffd100;"><strong>Its own window, in five tabs:</strong></span> Quality, Filters, Ambiance, Interface, Advanced. A search box looks through every tab. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
+- <span style="color: #ffd100;"><strong>Its own window, in six tabs:</strong></span> Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). A search box looks through every tab. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
 - <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo and graphics restart.
 - <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. A selector in the window changes the language.
 - <span style="color: #ffd100;"><strong>In-game guide</strong></span> in all 10 languages, HDR setup on Windows included.
@@ -93,7 +94,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ## <span style="color: #3c3;">🆕 New in 1.8.0</span>
 
-- <span style="color: #ffd100;"><strong>Automatic ambiance (Ambiance tab):</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Any zone can get its own values.
+- <span style="color: #ffd100;"><strong>Automatic ambiance (Ambiance tab):</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Any zone can get its own values, picked from the list of all zones. A place or a zone can also apply a graphics preset (Low, Medium, High, Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave.
 - <span style="color: #ffd100;"><strong>Automatic day and night (Ambiance tab):</strong></span> off by default. At night (game's day and night), a night tint with its own strength replaces the tint. It does not work together with the automatic ambiance: turning one on turns the other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00 (server time).
 - <span style="color: #ffd100;"><strong>Sky filter:</strong></span> a color gradient from the top of the screen, with the tint colors.
 - <span style="color: #ffd100;"><strong>Four distance settings (Advanced tab):</strong></span> small object culling, object fade distance, horizon start, grass fade distance.

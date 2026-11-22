@@ -38,11 +38,11 @@ local function ShowMenu()
     MenuUtil.CreateContextMenu(button, function(_, root)
         root:CreateTitle(L.OPT_PRESETS)
         for index, preset in ipairs(NS.presets) do
-            root:CreateButton(preset.label, function() NS.ApplyPreset(index) end)
+            root:CreateButton(preset.label, function() NS.CommitTyping() NS.ApplyPreset(index) end)
         end
         root:CreateDivider()
         if NS.CanUndo and NS.CanUndo() then
-            root:CreateButton(L.OPT_UNDO, NS.Undo)
+            root:CreateButton(L.OPT_UNDO, function() NS.CommitTyping() NS.Undo() end)
         end
         root:CreateButton(L.OPT_RESTART, NS.RestartGraphics)
     end)

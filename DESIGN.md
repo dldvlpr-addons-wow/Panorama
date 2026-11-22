@@ -22,17 +22,18 @@ Fenêtre `BasicFrameTemplate` 610 x 640, déplaçable, fermée par Échap (incha
 |---|---|---|
 | Barre de titre | 0-24 | gabarit, bouton fermer ; aucun texte ajouté |
 | En-tête | 26-66 | logo 32 x 32, titre, sous-titre ; recherche à droite |
-| Onglets | 70-102 | 5 onglets, filet sous la rangée à y 102 |
+| Onglets | 70-102 | 6 onglets en 2 groupes, filet sous la rangée à y 102 |
 | Bloc préréglages | 110-158 | onglet Qualité seulement |
-| Bloc ambiance | 110-158 | onglet Ambiance seulement : case « Ambiance auto » et lieu · moment détectés (ligne 1), menu du contexte à modifier, largeur 200, puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
-| Liste défilante | 166 (Qualité, Ambiance) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
-| Pied | 596-632 | filet à y 596, 2 cases à gauche, Tout réinitialiser et Redémarrer à droite |
+| Bloc ambiance | 110-158 | onglet Ambiance seulement : case « Ambiance auto » et lieu · moment détectés (ligne 1), menu du contexte à modifier, largeur 200 (groupe Zones : zone courante, zones réglées, sous-menu « Toutes les zones » : un sous-menu défilant par continent, hauteur 320, zones sans continent connu en direct), puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
+| Bloc Mes filtres | 110-158 | onglet Mes filtres seulement : libellé « Filtre à modifier » et menu des filtres du joueur, largeur 200, défilant au-delà de 320 de haut, puis bouton « Nouveau » (écart 8, texte + 24, min 80) (ligne 1, aide `CUSTOM_FILTER_TIP` en infobulle du menu), libellé « Nom », boîte de saisie 190 x 20, 24 caractères, puis bouton « Supprimer » (écart 8, texte + 24, min 80, confirmation, grisé quand il ne reste qu'un filtre) (ligne 2) |
+| Liste défilante | 166 (Qualité, Mes filtres, Ambiance) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
+| Pied | 596-632 | filet à y 596, 2 cases à gauche, lien rouge Tout réinitialiser et bouton Redémarrer à droite |
 
 ### Onglets (nouveau)
 
 Gabarit `PanelTopTabButtonTemplate` (moteur retail ; confirmer à la première création en jeu),
 `PanelTemplates_SetNumTabs`, `PanelTemplates_SetTab`, `PanelTemplates_TabResize(tab, 12)`.
-Premier onglet à x 14, 2 entre onglets. Onglet ouvert gardé dans `NS.db.tab`.
+Premier onglet à x 14, 2 entre onglets d'un groupe, 14 avant le premier onglet d'un groupe (`NS.tabGroupStart`). Ordre : réglages du jeu (Qualité, Interface, Avancé), puis effets de Panorama (Filtres, Mes filtres, Ambiance). Rangée plus large que 444 (place à gauche du menu de langue) : marge intérieure des onglets ramenée de 12 à 0. Toujours trop large : écart de groupe ramené à 2. Onglet ouvert gardé dans `NS.db.tab`.
 
 Sélecteur de langue à droite de la rangée : `WowStyle1DropdownTemplate` 130 de large, `TOPRIGHT` (-14, -73).
 Choix : « Langue du jeu » (`OPT_LANGUAGE_AUTO`) puis les 10 langues, chacune écrite dans sa langue.
@@ -51,15 +52,16 @@ par `tests/build_guide.lua`.
 | Onglet | Sections, dans l'ordre | Lignes |
 |---|---|---|
 | Qualité | Vue, Végétation, Ombres, Environnement, Image | ~22 |
-| Filtres | Filtres | 6 |
-| Ambiance | — puis Jour et nuit | 4 pour un lieu, 2 pour un moment (clés du contexte choisi seulement, hors recherche) ; puis 3 (jour et nuit auto, teinte de nuit, intensité) |
 | Interface | Caméra | 4 |
 | Avancé | HDR, Avancé (console seulement) | ~14 |
+| Filtres | Filtres | 8 (filtre du joueur en tête) |
+| Mes filtres | — | 9, celles du filtre ouvert : rouge, vert, bleu, intensité de la teinte, vignette, grain, contraste, luminosité, gamma (hors recherche) |
+| Ambiance | Ambiance auto, Jour et nuit | 7 pour un lieu (préréglage graphique et distance des décors en tête, puis filtre du joueur, teinte, intensité, vignette, grain), 2 pour un moment (clés du contexte choisi seulement, hors recherche) ; puis 5 (jour et nuit auto, teinte de jour, intensité, teinte de nuit, intensité) |
 
 Raison : les préréglages ne touchent que l'onglet Qualité (réglages à `levels`), ils y vivent seuls.
 Les réglages « console seulement » (HDR, LOD) sortent du chemin courant. Les filtres, visuels,
-ont leur propre page. Libellés d'onglet : 5 clés de locale (`TAB_QUALITY`, `TAB_FILTERS`,
-`TAB_AMBIANCE`, `TAB_INTERFACE`, `TAB_ADVANCED`), courtes (« Avancé », pas « Avancé (console seulement) »).
+ont leur propre page. Libellés d'onglet : 6 clés de locale (`TAB_QUALITY`, `TAB_FILTERS`,
+`TAB_MYFILTERS`, `TAB_AMBIANCE`, `TAB_INTERFACE`, `TAB_ADVANCED`), courtes (« Avancé », pas « Avancé (console seulement) »).
 
 Toutes les sections sont ouvertes par défaut ; le repli reste (`NS.db.collapsed`), l'ancien défaut
 « Avancé replié » tombe puisque l'onglet sépare déjà.
@@ -81,24 +83,28 @@ Aucun résultat : « Aucun réglage ne correspond » (`GameFontDisable`, clé ne
 ### Bloc préréglages (onglet Qualité)
 
 - Ligne 1 (y 110-130) : « Préréglages » `GameFontNormal` à x 14 ; bouton Annuler le dernier
-  préréglage aligné à droite (-14), hauteur 22, largeur = largeur du texte + 24 (min 120).
+  préréglage aligné à droite (-14), hauteur 22, largeur = largeur du texte + 24 (min 120). À sa gauche (écart 6), bouton « Par lieu », largeur du
+  texte + 24 (min 100) : ouvre l'onglet Ambiance sur la zone réglée, sinon sur le lieu du joueur.
+  Libellé « Ici : Bas · 400 » tant qu'un lieu impose ses réglages graphiques ; explication en infobulle.
 - Ligne 2 (y 134-158) : 4 boutons `UIPanelButtonTemplate` 24 de haut, largeur égale
   (586 - 3 x 6) / 4 = 142, espacés de 6.
 - Descriptions des préréglages (`PRESET_*_DESC`) et `OPT_PRESET_TIP` : dans l'infobulle de chaque
   bouton (titre blanc, description en couleur aide). Plus de texte sous les boutons.
-- Préréglage dont toutes les valeurs `levels` égalent les valeurs courantes : `LockHighlight()`.
+- Préréglage dont toutes les valeurs `levels` égalent les valeurs courantes : `LockHighlight()` et contour 2 or posé 2 à l'extérieur du bouton (`CreateBorder`).
   Aucun ne correspond : aucun bouton marqué.
 
 ### Pied
 
 - Cases « Appliquer à chaque connexion » et « Minimap » : `UICheckButtonTemplate` 26 x 26,
   première en `BOTTOMLEFT` (10, 11), seconde 16 après le texte de la première. Axe commun : y 24 depuis le bas.
-- À droite : bouton Tout réinitialiser (avec fenêtre de confirmation) à 8 à gauche du bouton
-  Redémarrer, `BOTTOMRIGHT` (-14, 13), hauteur 22, largeur texte + 24 (min 100).
+- À droite : bouton Redémarrer, `BOTTOMRIGHT` (-14, 13), hauteur 22, largeur texte + 24 (min 100).
+  Tout réinitialiser (avec fenêtre de confirmation) à 16 à sa gauche : action destructive, donc texte
+  `GameFontRed` sans fond de bouton (`GameFontHighlight` au survol), hauteur 22, largeur texte + 8.
 
 ## 3. Grille
 
-- Marge gauche 14, liste 560 de large (x 14-574), zone de la barre de défilement 36.
+- Marge gauche 14, liste 560 de large (x 14-574), zone de la barre de défilement 36. Barre cachée quand rien ne
+  défile (`scrollBarHideable`).
 - Pas vertical de 4 : toutes les hauteurs et marges sont des multiples de 4, sauf filets (1) et
   marqueur (2).
 - Colonnes d'une ligne de réglage (x relatifs à la ligne, 560) :
@@ -124,12 +130,12 @@ Tous les contrôles partent de x 296 : un seul bord gauche fort, pas d'alignemen
 | Libellé de réglage | `GameFontHighlight` | blanc |
 | Aide sous le libellé | `GameFontHighlightSmall` + `SetTextColor` | aide |
 | Valeur saisie (boîte) | `GameFontHighlight` | blanc, rouge si invalide |
-| Valeur nommée (Faible latence) | `GameFontHighlightSmall` | blanc |
+| Valeur nommée (menu déroulant) | police du gabarit | gabarit |
 | Légende de vignette | `GameFontHighlightSmall`, `GameFontNormalSmall` si choisie | blanc / or |
 | Ligne désactivée | mêmes polices | gris désactivé |
 
-Libellé : 2 lignes max (russe : 48 caractères), aide : 2 lignes max (110 caractères mesurés en
-fr/de/ru). Texte tronqué (`SetMaxLines`) : infobulle de la ligne avec le texte entier.
+Libellé : 2 lignes max (russe : 48 caractères), aide : 3 lignes max (110 caractères mesurés en
+fr/de/ru, plus la mention de redémarrage). Texte tronqué (`SetMaxLines`) : infobulle de la ligne avec le texte entier.
 Étoile « aussi dans un menu du jeu » : couleur aide, plus en or.
 
 ## 5. Couleurs
@@ -138,7 +144,8 @@ fr/de/ru). Texte tronqué (`SetMaxLines`) : infobulle de la ligne avec le texte 
 |---|---|---|---|
 | Or | 1, 0.82, 0 | 1 | titres, marqueur modifié, contour de vignette choisie |
 | Blanc | 1, 1, 1 | 1 | libellés, valeurs |
-| Aide | 0.72, 0.72, 0.72 | 1 | aide, sous-titre, étoile, compteur |
+| Aide | 0.82, 0.82, 0.82 | 1 | aide, sous-titre, étoile, compteur, texte d'aide de la recherche |
+| Rouge destructif | 1, 0.1, 0.1 (`GameFontRed`) | 1 | Tout réinitialiser, et rien d'autre |
 | Désactivé | 0.5, 0.5, 0.5 | 1 | ligne désactivée, et rien d'autre |
 | Erreur | 1, 0.125, 0.125 | 1 | saisie invalide |
 | Filet de ligne | 1, 1, 1 | 0.08 | sous chaque ligne (x 8 à -4) |
@@ -155,7 +162,8 @@ Contrastes vérifiés (fond de fenêtre estimé `#1c1c1c`, survol `#2a2a2a`, fon
 |---|---|---|---|
 | Blanc | 17.0 | 14.4 | AAA |
 | Or | 11.7 | 9.8 | AAA |
-| Aide 0.72 | 8.6 | 7.2 | AAA |
+| Aide 0.82 | 11.3 | 9.4 | AAA |
+| Rouge destructif | 4.4 | | sous AA de 0.1 ; blanc au survol (17.0) |
 | Désactivé 0.5 | 4.3 | 3.6 | exempté (désactivé) ; c'est pourquoi l'aide n'est plus en 0.5 |
 | Erreur sur boîte noire | 5.5 | | AA |
 
@@ -168,20 +176,24 @@ Contrastes vérifiés (fond de fenêtre estimé `#1c1c1c`, survol `#2a2a2a`, fon
 | Valeur = défaut | pas de marqueur ; bouton Défaut désactivé (`SetEnabled(false)`, icône désaturée) |
 | Défaut | celui de `NS.GameDefault(setting)` pour une CVar, `setting.default` pour un filtre |
 | Choix courant (1024/2048, MSAA) | bouton radio coché ; jamais un bouton désactivé |
-| Ligne désactivée | libellé et aide en gris 0.5, contrôle `Disable()`, curseur `SetEnabled(false)` + poignée `SetVertexColor(0.5, 0.5, 0.5)`, pas de survol |
+| Ligne désactivée | libellé et aide en gris 0.5, contrôle `Disable()`, curseur `SetEnabled(false)` + poignée `SetVertexColor(0.5, 0.5, 0.5)`, pas de survol. L'aide est remplacée par la raison (`NS.UnavailableReason` : « Réglé par … », « Remplacé par … », « Activez ou choisissez d'abord … ») ; l'infobulle garde l'aide entière et ajoute la raison en or |
 | Saisie en cours | contour du gabarit ; texte rouge tant que non numérique ou hors bornes |
 | Recherche | voir § 2 |
 
 Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé,
 `HDRPeakBrightness` si `useHDRPeakBrightness` coupé, `HDRBrightness` si `useHDRBrightness` coupé,
-`tintStrength` si `tint` = 0, `skyStrength` si `sky` = 0, `tintNight` si `autoDayNight` coupé,
+`tintStrength` si `tint` = 0, `skyStrength` si `sky` = 0, `tintDay` et `tintNight` si `autoDayNight` coupé,
+`tintDayStrength` si `autoDayNight` coupé ou `tintDay` = 0,
 `tintNightStrength` si `autoDayNight` coupé ou `tintNight` = 0. Champ `requires` dans la définition du
-réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées quand l'ambiance auto est active.
+réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées quand l'ambiance auto est active ;
+`tint` et `tintStrength` le sont aussi quand `autoDayNight` est coché. Filtre du joueur choisi (`customFilter` autre que 0) :
+`tint`, `tintStrength`, `vignette` et `grain` de la même table (filtres de base, lieu ou zone) sont grisés, il les remplace ; `tintDay`, `tintNight` et leurs intensités aussi.
+Onglet Mes filtres ouvert : le filtre ouvert est posé sur le monde (aperçu, contraste, luminosité et gamma compris), jusqu'au changement d'onglet, à une recherche ou à la fermeture.
 
 ## 7. Composant : ligne de réglage
 
 - Cadre 560 de large. Hauteur = 8 + hauteur du libellé + 4 + hauteur de l'aide + 8, arrondie au
-  multiple de 4 supérieur, minimum 44 (1+1 ligne : 44, 1+2 : 56, 2+2 : 68). `Layout()` lit déjà
+  multiple de 4 supérieur, minimum 44 (1+1 ligne : 44, 1+2 : 56, 2+2 : 68, 2+3 : 80). `Layout()` lit déjà
   `item.height`.
 - Libellé `TOPLEFT` (10, -8), largeur 276. Aide sous le libellé (0, -4), largeur 276.
 - Contrôles centrés sur la première ligne du libellé : point d'ancrage `LEFT` à (x, -14) depuis le
@@ -189,7 +201,8 @@ réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées qu
 - Curseur numérique : piste 172 x 16 à x 296 (poignée `UI-SliderBar-Button-Horizontal`, piste noire
   0.6 de 6 de haut), boîte de saisie à x 476.
 - Repère de défaut : trait 1 x 10 blanc 0.35 sur la piste, à la position de la valeur par défaut.
-- Valeur nommée (`names`, Faible latence) : curseur 128 à x 296, nom à x 432, largeur 92, sans boîte.
+- Valeur nommée (`names` : Faible latence, Mon filtre, Ciel, contraste…) : menu déroulant `WowStyle1DropdownTemplate`
+  220 à x 296, une option par valeur, défilant au-delà de 320 de haut.
 - Case (booléen) : `UICheckButtonTemplate` 26 x 26 à x 292 (la case dessinée tombe sur x 296).
   Plus de texte « Activé / Désactivé » à côté : la case suffit.
 - Choix (`choices`) : `UIRadioButtonTemplate` 16 x 16 à partir de x 296, texte `GameFontHighlightSmall`
@@ -213,19 +226,21 @@ réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées qu
 
 ## 8. Composant : grille de vignettes de teinte
 
-Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, en tête de l'onglet Filtres,
+Remplace le curseur du réglage `tint`. Ligne spéciale, pleine largeur, sous la ligne du filtre du joueur (`customFilter`) dans l'onglet Filtres,
 suivie de Intensité de teinte, Ciel, Intensité du ciel, Vignettage, Grain, Bandes noires. La même grille sert à la
-teinte de nuit (`tintNight`, onglet Ambiance, section Jour et nuit) et à la teinte de l'éditeur
+teinte de jour et à la teinte de nuit (`tintDay`, `tintNight`, onglet Ambiance, section Jour et nuit) et à la teinte de l'éditeur
 d'ambiance ; l'intensité remise à son défaut est celle nommée par `strength`.
 
 - Libellé et aide comme une ligne normale, aide en largeur 500 ; bouton Défaut à x 532, y -14.
 - Grille sous l'aide (+8), à x 10 : **7 vignettes sur une rangée** (Aucune + 6 teintes, ordre de
-  `TINTS`), 72 x 40 chacune, 6 entre deux (largeur totale 540).
+  `TINTS`), 62 x 40 chacune, 6 entre deux (largeur totale 470).
+- Couleur libre : pas de vignette ni de sélecteur de couleur, elle se règle dans l'onglet Mes filtres
+  (barres `tintRed`, `tintGreen`, `tintBlue`, 0 à 100, lignes à curseur numérique ordinaires).
 - Image : `Media\\tint-preview.tga`, capture du jeu 256 x 128, scène à lumière neutre (ciel, feuillage,
-  pierre) pour que chaque teinte se lise. `SetTexCoord(0.05, 0.95, 0, 1)` (rapport 1.8). Teinte par
+  pierre) pour que chaque teinte se lise. `SetTexCoord(0.1125, 0.8875, 0, 1)` (rapport 1.55). Teinte par
   `SetVertexColor(r, g, b)` avec la couleur de `TINTS` à 100 % : même multiplication que le filtre (MOD).
   « Aucune » : capture sans teinte.
-- Légende sous la vignette (-3), largeur 72, centrée, 1 ligne : nom (`TINT_*`).
+- Légende sous la vignette (-3), largeur 68 (vignette + écart), centrée, 1 ligne : nom (`TINT_*`).
 - Survol : contour 1 blanc 0.6, infobulle avec le nom.
 - Choisie : contour 2 or posé 2 à l'extérieur de la vignette (4 textures `SetColorTexture`),
   légende en `GameFontNormalSmall`.

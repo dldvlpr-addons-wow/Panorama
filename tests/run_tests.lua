@@ -9,6 +9,9 @@ GetCVarDefault = function() return nil end
 -- Minuteries gardées sans être lancées : le test les déclenche lui-même.
 local timers = {}
 C_Timer = { After = function(delay, callback) timers[#timers + 1] = { delay = delay, callback = callback } end }
+-- Horloge du jeu, avancée à la main par les tests.
+local now = 0
+GetTime = function() return now end
 -- Midi, jour : remplacés plus bas par les tests de l'ambiance.
 GetGameTime = function() return 12, 0 end
 C_DateAndTime = { IsDayTime = function() return true end }
@@ -36,7 +39,10 @@ frame = { events = {},
               return texture
           end }
 WorldFrame = {}
-CreateColor = function(r, g, b, a) return { r = r, g = g, b = b, a = a } end
+CreateColor = function(r, g, b, a)
+    return { r = r, g = g, b = b, a = a,
+             SetRGBA = function(self, nr, ng, nb, na) self.r, self.g, self.b, self.a = nr, ng, nb, na end }
+end
 CreateFrame = function() return frame end
 SlashCmdList = {}
 strtrim = function(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
@@ -78,6 +84,26 @@ local function Load(savedVariables, extraCVars)
 end
 
 -- Premier lancement : les valeurs actuelles du jeu sont reprises, pas le preset.
+-- Ambiance. Contexte du joueur simulé : hors instance, dehors, temps clair, midi, en Elwynn (1429).
+-- Cartes : 1426 Dun Morogh -> 1415 Royaumes de l'Est -> 947 Azeroth ; 9999 inconnue sous 1414 Kalimdor.
+local instance, indoors, weather, hour, mapID = { false }, false, { type = 0, intensity = 0 }, 12, 1429
+local parents = { [1426] = 1415, [1415] = 947, [947] = 0, [9999] = 1414, [1414] = 947, [5555] = 1426 }
+IsInInstance = function() return instance[1], instance[2] end
+IsIndoors = function() return indoors end
+C_Weather = { GetCurrentWeather = function() return weather end }
+local minute = 0
+GetGameTime = function() return hour, minute end
+local isDayTime   -- nil : signal du jeu absent, heure seule
+C_DateAndTime = { IsDayTime = function() return isDayTime end }
+C_Map = { GetBestMapForUnit = function() return mapID end,
+          GetMapInfo = function(id)
+              return parents[id] and { mapID = id, parentMapID = parents[id], mapType = id == 1415 and 2 or 3,
+                                       name = id == 1415 and "Royaumes de l'Est" or nil }
+          end }
+Enum = { UIMapType = { Continent = 2 } }
+-- Donjon ou raid : nom et instanceID (1er et 8e retours de GetInstanceInfo).
+local instanceName, instanceID
+GetInstanceInfo = function() return instanceName, instance[2], nil, nil, nil, nil, nil, instanceID end
 local ns = Load(nil)
 
 -- Traductions : aucune clé hors de enUS, chaque réglage a son libellé et sa bulle d'aide.
@@ -86,7 +112,7 @@ for _, code in ipairs(LOCALES) do
         assert(ns.locales.enUS[key], code .. " : clé inconnue de enUS " .. key)
     end
 end
-for _, list in ipairs({ ns.settings, ns.filterSettings }) do
+for _, list in ipairs({ ns.settings, ns.filterSettings, ns.customFilterSettings }) do
     for _, setting in ipairs(list) do
         assert(setting.title or (setting.label and setting.tip),
             "texte manquant " .. tostring(setting.cvar or setting.key))
@@ -96,7 +122,7 @@ local doubled = 0
 for _, setting in ipairs(ns.settings) do
     if setting.menu then doubled = doubled + 1 end
 end
-assert(doubled == 25 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
+assert(doubled == 28 and ns.L.ALSO_IN_MENU:format(ns.L.MENU_SSAO):find("SSAO"), "menus du jeu marqués")
 assert(ns.presets[3].label == "Élevé" and ns.L.PREFIX == ns.locales.frFR.PREFIX, "langue du client")
 assert(PanoramaDB.values.farclip == 1000 and PanoramaDB.values.ffxDeath == true
     and PanoramaDB.values.gxMultisample == 1, "valeurs du jeu reprises")
@@ -279,6 +305,21 @@ assert(PanoramaDB.filters.tint == 0 and PanoramaDB.filters.tintStrength == 50 an
 Load({ values = {}, filters = { grain = 101, tint = 1.5, vignette = "oui" } })
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.tint == 0 and PanoramaDB.filters.vignette == 0,
     "filtres invalides remplacés")
+-- Filtres du joueur : liste suivie depuis 1 (le 6, après un trou, oublié), valeurs invalides remplacées, nom invalide oublié.
+local nsCustom = Load({ values = {}, filters = { tint = 7, customFilter = 6 },
+                        customFilters = { { tintRed = 40, grain = "x", contrast = 99, name = "Désert" },
+                                          "x", { name = "a|cffff0000b" }, { name = "  " }, nil, {} } })
+local customFilters = PanoramaDB.customFilters
+assert(#customFilters == 4 and customFilters[6] == nil and nsCustom.filterSettings[2].max == 4
+    and customFilters[1].tintRed == 40 and customFilters[1].grain == 0
+    and customFilters[1].contrast == 0 and customFilters[2].tintBlue == 100 and customFilters[4].tintStrength == 50,
+    "filtres du joueur chargés")
+assert(PanoramaDB.filters.tint == 0 and PanoramaDB.filters.customFilter == 0
+    and PanoramaDB.ambiance.contexts.temperate.customFilter == 0, "teinte 7 et filtre 6 inconnus remplacés")
+assert(customFilters[3].name == nil and customFilters[4].name == nil and nsCustom.CustomFilterName(1) == "Désert"
+    and nsCustom.CustomFilterName(3) == "Filtre 3" and nsCustom.CustomFilterName(6) == nil
+    and nsCustom.filterSettings[2].names[1] == "Désert" and nsCustom.filterSettings[2].names[0] == "Aucun",
+    "noms des filtres du joueur")
 -- Bandes noires à 10 % d'un écran de 1000 de haut : 100 chacune.
 local ns3 = Load({ values = {}, filters = { letterbox = 10, vignette = 50 } })
 handler(frame, "PLAYER_LOGIN")
@@ -294,6 +335,37 @@ assert(frame.shown == false and #bands == 6, "calque caché à 0, sans recréati
 PanoramaDB.filters.tintStrength = 100
 ns3.ApplyFilters()
 assert(frame.shown and bands[1].shown and bands[1].color[2] == 0.82, "teinte sépia")
+-- Aucun filtre enregistré : un filtre ; deux ajoutés, aux valeurs par défaut.
+assert(#PanoramaDB.customFilters == 1 and ns3.AddCustomFilter() == 2 and ns3.AddCustomFilter() == 3
+    and PanoramaDB.customFilters[3].tintStrength == 50 and ns3.filterSettings[2].max == 3, "filtres ajoutés")
+-- Filtre du joueur choisi : sa couleur, sa vignette et son grain remplacent ceux de l'onglet Filtres.
+local custom = PanoramaDB.customFilters[2]
+custom.tintRed, custom.tintGreen, custom.tintStrength, custom.vignette = 50, 25, 100, 40
+PanoramaDB.filters.customFilter = 2
+ns3.ApplyFilters()
+assert(bands[1].color[1] == 0.5 and bands[1].color[2] == 0.25 and bands[2].shown and bands[2].alpha == 0.4,
+    "filtre du joueur posé")
+-- Aperçu (onglet Mes filtres ouvert) : le filtre ouvert passe devant le filtre choisi.
+PanoramaDB.customFilters[3].tintStrength, ns3.previewCustomFilter = 0, 3
+ns3.ApplyFilters()
+assert(frame.shown == false, "aperçu du filtre ouvert")
+ns3.previewCustomFilter, PanoramaDB.filters.customFilter = nil, 0
+-- Suppression : ce qui choisissait le filtre passe à Aucun, ce qui choisissait un suivant le suit.
+PanoramaDB.filters.customFilter, PanoramaDB.ambiance.contexts.desert.customFilter = 3, 2
+PanoramaDB.ambiance.zones[1] = { customFilter = 3 }
+ns3.DeleteCustomFilter(2)
+assert(#PanoramaDB.customFilters == 2 and PanoramaDB.filters.customFilter == 2
+    and PanoramaDB.ambiance.contexts.desert.customFilter == 0 and PanoramaDB.ambiance.zones[1].customFilter == 2
+    and ns3.filterSettings[2].max == 2 and ns3.CustomFilterName(2) == "Filtre 3", "filtre supprimé, choix suivis")
+ns3.DeleteCustomFilter(1)
+ns3.DeleteCustomFilter(1)
+assert(#PanoramaDB.customFilters == 1 and PanoramaDB.filters.customFilter == 1, "un filtre reste toujours")
+-- Ajout : premier nom par défaut libre (« Filtre 3 » est pris par le filtre restant).
+assert(ns3.AddCustomFilter() == 2 and ns3.CustomFilterName(2) == "Filtre 1" and ns3.AddCustomFilter() == 3
+    and ns3.CustomFilterName(3) == "Filtre 2", "nom du filtre ajouté")
+ns3.DeleteCustomFilter(3)
+ns3.DeleteCustomFilter(2)
+PanoramaDB.filters.customFilter, PanoramaDB.ambiance.zones[1] = 0, nil
 PanoramaDB.filters.tint, PanoramaDB.filters.vignette, PanoramaDB.filters.grain = 0, 50, 100
 ns3.ApplyFilters()
 assert(not bands[1].shown and bands[2].shown and bands[2].alpha == 0.5 and bands[3].shown,
@@ -308,19 +380,6 @@ PanoramaDB.filters.skyStrength = 0
 ns3.ApplyFilters()
 assert(frame.shown == false, "ciel à 0 : calque caché")
 
--- Ambiance. Contexte du joueur simulé : hors instance, dehors, temps clair, midi, en Elwynn (1429).
--- Cartes : 1426 Dun Morogh -> 1415 Royaumes de l'Est -> 947 Azeroth ; 9999 inconnue sous 1414 Kalimdor.
-local instance, indoors, weather, hour, mapID = { false }, false, { type = 0, intensity = 0 }, 12, 1429
-local parents = { [1426] = 1415, [1415] = 947, [947] = 0, [9999] = 1414, [1414] = 947, [5555] = 1426 }
-IsInInstance = function() return instance[1], instance[2] end
-IsIndoors = function() return indoors end
-C_Weather = { GetCurrentWeather = function() return weather end }
-local minute = 0
-GetGameTime = function() return hour, minute end
-local isDayTime   -- nil : signal du jeu absent, heure seule
-C_DateAndTime = { IsDayTime = function() return isDayTime end }
-C_Map = { GetBestMapForUnit = function() return mapID end,
-          GetMapInfo = function(id) return parents[id] and { mapID = id, parentMapID = parents[id] } end }
 -- Ambiance : coupée par défaut, valeurs livrées par contexte, valeur invalide remplacée.
 local ns5 = Load({ values = {}, filters = { tint = 5, tintStrength = 80 },
                    ambiance = { enabled = true, contexts = { night = { sky = 99, skyStrength = 60 }, rain = "x" } } })
@@ -357,12 +416,23 @@ mapID = 1426
 Detect()
 mapID = nil
 assert(Detect() == "frozen night" and select(3, ns5.DetectAmbiance()) == 1426, "carte illisible : dernière zone gardée")
+-- Carte illisible plus de 5 minutes : zone d'avant oubliée, tempéré.
+now = now + 301
+assert(Detect() == "temperate night" and select(3, ns5.DetectAmbiance()) == nil, "carte perdue : zone oubliée")
+mapID = 1426
+Detect()
+mapID = nil
+assert(Detect() == "frozen night", "carte relue : délai repris de zéro")
 mapID = 1427
 weather.type = 2
 assert(Detect() == "snow night", "météo avant le biome")
+-- Réglage du joueur, pas la CVar : un préréglage de lieu peut couper la météo sans quitter le lieu.
 cvars.WeatherDensity = "0"
-assert(Detect() == "volcanic night", "effets météo coupés : pas d'ambiance météo")
+assert(Detect() == "snow night", "météo coupée dans le jeu seulement : ambiance météo gardée")
 cvars.WeatherDensity = nil
+ns5.db.values.WeatherDensity = 0
+assert(Detect() == "volcanic night", "effets météo coupés : pas d'ambiance météo")
+ns5.db.values.WeatherDensity = nil
 indoors = true
 assert(Detect() == "indoor", "intérieur : pas de ciel")
 instance = { true, "pvp" }
@@ -376,7 +446,7 @@ assert(applied.tint == 4 and applied.vignette == 40 and applied.sky == 0 and app
     "ambiance donjon appliquée, sans ciel")
 instance, indoors, weather.type, hour, mapID = { false }, false, 0, 2, 1427
 applied = ns5.AppliedFilters()
-assert(applied.tint == 0 and applied.tintStrength == 30 and applied.sky == 4 and applied.skyStrength == 45,
+assert(applied.tint == 0 and applied.tintStrength == 15 and applied.sky == 4 and applied.skyStrength == 70,
     "Gorge des Vents brûlants de nuit")
 assert(PanoramaDB.filters.tint == 5 and PanoramaDB.filters.tintStrength == 80 and PanoramaDB.filters.vignette == 0,
     "filtres de base intacts")
@@ -409,6 +479,186 @@ PanoramaDB.ambiance.enabled = false
 ns6.UpdateAmbiance()
 ns6.ApplyFilters()
 assert(frame.shown == false and not frame.onUpdate, "ambiance coupée : calque caché sans fondu")
+-- Préréglage du lieu : écrit dans le jeu par-dessus les réglages du joueur, qui restent intacts
+-- dans PanoramaDB ; réglages du joueur réécrits en sortant du lieu et à la déconnexion.
+instance, indoors, weather.type, hour, mapID = { false }, false, 0, 12, 1429
+local nsPlace = Load({ schema = 2, values = { farclip = 3000 }, touched = { farclip = true },
+                       ambiance = { contexts = { volcanic = { preset = 1 }, indoor = { viewDistance = 2 } },
+                                    zones = { [1426] = { preset = 4 } } } })
+assert(PanoramaDB.ambiance.enabled == false, "réglages du lieu : sans l'ambiance auto")
+assert(PanoramaDB.ambiance.contexts.temperate.preset == 0 and PanoramaDB.ambiance.contexts.day.preset == nil
+    and PanoramaDB.ambiance.zones[1426].preset == 4, "préréglage de lieu relu, absent des moments")
+assert(nsPlace.placeSettings[1].names[0] == "Mes réglages" and nsPlace.placeSettings[1].label == "Préréglage"
+    and nsPlace.placeSettings[2].label == "Distance des décors" and nsPlace.placeSettings[2].names[2] == "800",
+    "réglages de lieu traduits")
+assert(PanoramaDB.ambiance.contexts.temperate.viewDistance == 0 and PanoramaDB.ambiance.zones[1426].viewDistance == 0
+    and PanoramaDB.ambiance.contexts.day.viewDistance == nil, "distance de lieu complétée, absente des moments")
+assert(#nsPlace.zoneMaps > 40, "zones connues listées pour le menu")
+mapID = 1427
+nsPlace.ApplyFilters()
+assert(cvars.farclip == "1000", "préréglage de lieu attendu jusqu'à la fin du chargement")
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "400" and PanoramaDB.values.farclip == 3000 and PanoramaDB.undo == nil,
+    "préréglage du volcan posé, réglages du joueur intacts")
+assert(nsPlace.DetectedText():find(nsPlace.presets[1].label, 1, true), "préréglage du lieu dans l'état")
+handler(frame, "CVAR_UPDATE", "farclip")
+assert(PanoramaDB.values.farclip == 3000, "valeur du préréglage de lieu : pas un réglage du joueur")
+cvars.farclip = "5000"
+handler(frame, "CVAR_UPDATE", "farclip")
+assert(PanoramaDB.values.farclip == 5000, "changement du joueur dans le lieu : suivi")
+-- Revenu à la valeur du lieu dans le menu du jeu : c'est son dernier choix, il est gardé.
+cvars.farclip = "400"
+handler(frame, "CVAR_UPDATE", "farclip")
+assert(PanoramaDB.values.farclip == 400, "retour du joueur à la valeur du lieu : suivi")
+combat, mapID = true, 1426
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "400", "préréglage de lieu différé en combat")
+combat = false
+handler(frame, "PLAYER_REGEN_ENABLED")
+assert(cvars.farclip == "7000" and PanoramaDB.values.farclip == 400, "préréglage de la zone posé après le combat")
+handler(frame, "CVAR_UPDATE", "farclip")
+assert(PanoramaDB.values.farclip == 400, "nouveau lieu : sa valeur n'est plus un choix du joueur")
+PanoramaDB.values.farclip = 5000
+assert(cvars.gxMultisample == "1", "préréglage du lieu : réglage à redémarrage laissé au joueur")
+mapID = 1429
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "5000", "lieu sans préréglage : réglages du joueur rendus")
+mapID = 1427
+nsPlace.UpdateAmbiance()
+handler(frame, "PLAYER_LOGOUT")
+assert(cvars.farclip == "5000", "déconnexion : réglages du joueur rendus")
+mapID = 1426
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "7000", "réglages du lieu reposés après la déconnexion annulée")
+-- Distance du lieu : passe avant le préréglage ; intérieur sans préréglage : celui de la zone reste.
+indoors = true
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "800" and cvars.gxMultisample == "1", "distance de l'intérieur avant celle du préréglage")
+for _, setting in ipairs(nsPlace.settings) do
+    if setting.cvar == "farclip" then nsPlace.farclipSetting = setting end
+end
+local placeIndex, placeDistance = nsPlace.PlacePreset()
+assert(placeIndex == 4 and placeDistance == 800, "intérieur sur Mes réglages : préréglage de la zone gardé")
+assert(nsPlace.DetectedText():find("800", 1, true), "distance du lieu dans l'état")
+-- Réglage changé dans Panorama pendant que le lieu le tient : gardé, écrit en sortant du lieu.
+PanoramaDB.values.farclip = 6000
+nsPlace.Change(nsPlace.farclipSetting)
+assert(cvars.farclip == "800" and PanoramaDB.values.farclip == 6000, "réglage tenu par le lieu : choix du joueur gardé")
+nsPlace.ApplyAll()
+assert(cvars.farclip == "800", "tout réappliquer : réglage du lieu gardé")
+-- Donjon : réglage propre, rangé sous l'opposé de son instanceID, nom gardé.
+indoors, instance, instanceName, instanceID = false, { true, "party" }, "Mortemines", 36
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "6000", "donjon sans réglage : réglages du joueur")
+assert(nsPlace.CurrentZone() == -36 and nsPlace.ZoneName(-36) == "Mortemines" and nsPlace.ZoneBiome(-36) == "dungeon",
+    "donjon : zone propre nommée")
+nsPlace.CustomizeZone(-36).viewDistance = 1
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "400" and PanoramaDB.placePreset == 0, "distance propre au donjon posée, repère gardé")
+instanceID = 48
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "6000", "autre donjon : réglages du joueur")
+instance, instanceName, instanceID, mapID = { false }, nil, nil, 1429
+nsPlace.UpdateAmbiance()
+assert(cvars.farclip == "6000", "lieu sans réglage : réglages du joueur rendus")
+assert(PanoramaDB.placePreset == nil, "repère du préréglage de lieu effacé une fois les réglages rendus")
+
+mapID = 1429
+-- Session finie en combat avec un préréglage de lieu : il reste dans le jeu. Il n'est pas relu
+-- comme réglage du joueur, et les réglages enregistrés sont réécrits.
+Load({ schema = 2, values = { farclip = 3000 }, placePreset = 1 }, { farclip = "400" })
+assert(PanoramaDB.values.farclip == 3000, "préréglage resté dans le jeu : pas relu au chargement")
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "3000" and PanoramaDB.values.farclip == 3000 and PanoramaDB.placePreset == nil,
+    "préréglage resté dans le jeu : réglages du joueur réécrits")
+Load({ schema = 2, values = { farclip = 3000 } }, { farclip = "400" })
+assert(PanoramaDB.values.farclip == 400, "sans repère : réglage qui suit le jeu relu")
+-- Rechargé en combat : rien n'est écrit, le repère reste jusqu'à l'écriture de sortie de combat.
+local nsCombat = Load({ schema = 2, values = { farclip = 3000 }, placePreset = 1 }, { farclip = "400" })
+combat = true
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "400" and PanoramaDB.placePreset == 1, "rechargé en combat : repère gardé")
+combat = false
+handler(frame, "PLAYER_REGEN_ENABLED")
+assert(cvars.farclip == "3000" and PanoramaDB.values.farclip == 3000 and PanoramaDB.placePreset == nil,
+    "sortie de combat : réglages du joueur réécrits, repère effacé")
+-- Repère resté et réglage sans valeur enregistrée : valeur par défaut, pas celle du lieu.
+local nsNew = Load({ schema = 2, values = {}, placePreset = 1 }, { farclip = "400" })
+for _, setting in ipairs(nsNew.settings) do
+    if setting.cvar == "farclip" then
+        assert(PanoramaDB.values.farclip == nsNew.GameDefault(setting) and PanoramaDB.values.farclip ~= 400,
+            "repère resté, réglage neuf à la valeur du lieu : valeur par défaut")
+    end
+end
+Load({ schema = 2, values = {}, placePreset = 1 }, { farclip = "1234" })
+assert(PanoramaDB.values.farclip == 1234, "repère resté, réglage neuf : valeur du jeu, celle du joueur")
+-- Écriture du lieu refusée hors combat : reprise à la passe suivante.
+mapID = 1426
+local nsRefused = Load({ schema = 2, values = { farclip = 3000 },
+                         ambiance = { zones = { [1426] = { viewDistance = 1 } } } }, { farclip = "3000" })
+local acceptCVar = C_CVar.SetCVar
+C_CVar.SetCVar = function() return false end
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "3000", "écriture du lieu refusée")
+C_CVar.SetCVar = acceptCVar
+nsRefused.UpdateAmbiance()
+assert(cvars.farclip == "400" and PanoramaDB.values.farclip == 3000, "écriture du lieu reprise à la passe suivante")
+-- Sortie du lieu refusée : repère gardé, à la déconnexion aussi ; la valeur du lieu n'est pas relue.
+C_CVar.SetCVar = function() return false end
+mapID = 1429
+nsRefused.UpdateAmbiance()
+assert(cvars.farclip == "400" and PanoramaDB.placePreset ~= nil, "réglages du joueur non rendus : repère gardé")
+-- Essais épuisés : un seul message, qui nomme le réglage par son libellé.
+local refusedMessages, silentPrint = {}, print
+print = function(text) refusedMessages[#refusedMessages + 1] = text end
+for _ = 1, 5 do nsRefused.UpdateAmbiance() end
+print = silentPrint
+assert(#refusedMessages == 1 and refusedMessages[1]:find(nsRefused.L.farclip, 1, true),
+    "essais épuisés : réglage nommé une fois")
+handler(frame, "PLAYER_LOGOUT")
+assert(PanoramaDB.placePreset ~= nil, "déconnexion refusée : repère gardé")
+C_CVar.SetCVar = acceptCVar
+Load(PanoramaDB, { farclip = "400" })
+assert(PanoramaDB.values.farclip == 3000, "session suivante : valeur du lieu pas prise pour celle du joueur")
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "3000" and PanoramaDB.placePreset == nil, "session suivante : réglages du joueur rendus")
+-- Écriture du lieu refusée, puis le joueur choisit la valeur du lieu dans le menu du jeu : suivi.
+mapID = 1426
+local nsChosen = Load({ schema = 2, values = { farclip = 3000 },
+                        ambiance = { zones = { [1426] = { viewDistance = 1 } } } }, { farclip = "3000" })
+C_CVar.SetCVar = function() return false end
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+C_CVar.SetCVar = acceptCVar
+cvars.farclip = "400"
+handler(frame, "CVAR_UPDATE", "farclip")
+assert(PanoramaDB.values.farclip == 400, "lieu refusé : choix du joueur égal à la valeur du lieu suivi")
+-- Reprise : le réglage changé par le joueur entre-temps n'est pas réécrit.
+cvars.farclip = "2000"
+handler(frame, "CVAR_UPDATE", "farclip")
+nsChosen.UpdateAmbiance()
+assert(cvars.farclip == "2000" and PanoramaDB.values.farclip == 2000, "reprise : choix du joueur laissé dans le jeu")
+mapID = 1429
+-- Continent d'une zone, pour ranger « Toutes les zones ».
+assert(nsCombat.ZoneContinent(1426) == "Royaumes de l'Est" and nsCombat.ZoneContinent(5555) == "Royaumes de l'Est"
+    and nsCombat.ZoneContinent(1429) == nil, "continent d'une zone, nil si le jeu ne le dit pas")
 -- Zone illisible supprimée, valeur invalide remplacée par celle du biome enregistré.
 Load({ ambiance = { contexts = { frozen = { vignette = 55 } },
                     zones = { [1426] = { tint = 3, tintStrength = 40, vignette = "x" }, abc = {}, [1429] = 5 } } })
@@ -459,10 +709,27 @@ hour, minute = 19, 30
 nsDay.ApplyFilters()
 assert(math.abs(bands[1].color[1] - 0.8875) < 1e-9, "19 h 30 : quart de nuit")
 hour, minute = 12, 0
+-- Teinte de jour (chaude, bleu 0.72) : remplace celle de l'onglet Filtres (nuit, bleu 1) tant que
+-- jour/nuit est coché.
+PanoramaDB.filters.tint, PanoramaDB.filters.tintStrength = 4, 100
+PanoramaDB.filters.tintDay, PanoramaDB.filters.tintDayStrength = 2, 100
+nsDay.ApplyFilters()
+assert(math.abs(bands[1].color[3] - 0.72) < 1e-9, "jour : teinte de jour, pas celle des filtres")
 PanoramaDB.filters.autoDayNight = false
+nsDay.ApplyFilters()
+assert(bands[1].color[3] == 1, "auto coupé : teinte de l'onglet Filtres")
+PanoramaDB.filters.tint = 0
 nsDay.ApplyFilters()
 assert(frame.shown == false, "auto coupé : teinte de jour Aucune, calque caché")
 isDayTime = nil
+-- Teinte de jour livrée : chaude à 25 %. Jour/nuit déjà coché sans teinte de jour enregistrée
+-- (version d'avant) : la teinte de l'onglet Filtres est gardée le jour.
+Load(nil)
+assert(PanoramaDB.filters.tintDay == 2 and PanoramaDB.filters.tintDayStrength == 25, "teinte de jour livrée")
+Load({ values = {}, filters = { autoDayNight = true, tint = 3, tintStrength = 40 } })
+assert(PanoramaDB.filters.tintDay == 3 and PanoramaDB.filters.tintDayStrength == 40, "jour/nuit déjà coché : jour inchangé")
+Load({ values = {}, filters = { autoDayNight = true, tint = 99 } })
+assert(PanoramaDB.filters.tintDay == 0 and PanoramaDB.filters.tintDayStrength == 50, "reprise après validation")
 
 -- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.
 local ns4 = Load({ tab = "inconnu" })
@@ -503,8 +770,16 @@ for _, setting in ipairs(ns4.filterSettings) do
 end
 PanoramaDB.filters.autoDayNight, PanoramaDB.filters.tintNight = true, 4
 assert(ns4.IsAvailable(strengthSetting), "intensité de nuit active")
+assert(not ns4.IsAvailable({ key = "tint" }) and ns4.IsAvailable({ key = "vignette" }),
+    "jour/nuit coché : teinte de l'onglet Filtres grisée, pas le reste")
 PanoramaDB.filters.autoDayNight = false
 assert(not ns4.IsAvailable(strengthSetting), "intensité de nuit grisée sans jour/nuit")
+local dayNightLabel
+for _, setting in ipairs(ns4.filterSettings) do
+    if setting.key == "autoDayNight" then dayNightLabel = setting.label end
+end
+assert(dayNightLabel and ns4.UnavailableReason(strengthSetting):find(dayNightLabel, 1, true),
+    "raison : jour/nuit auto, pas la teinte")
 -- Ambiance auto : ses filtres de base grisés dans l'onglet Filtres, pas dans l'éditeur.
 ns4.db.ambiance.enabled = true
 assert(not ns4.IsAvailable({ key = "vignette" }), "vignette suit l'ambiance")
@@ -569,11 +844,31 @@ for _, code in ipairs(build.codes) do
     end
 end
 assert(guides.guides.esMX == guides.guides.esES, "esMX lit le guide espagnol")
+-- Contraste et gamma du filtre du joueur d'une zone : écrits dans la zone, réglages du joueur rendus à la sortie.
+mapID = 1426
+local nsImage = Load({ schema = 2, values = { Contrast = 50, Brightness = 50, Gamma = 1 },
+                       customFilters = { { contrast = 12, gamma = 3 } },
+                       ambiance = { enabled = true, zones = { [1426] = { customFilter = 1 } } } },
+                     { Contrast = "50", Brightness = "50", Gamma = "1" })
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.Contrast == "60" and cvars.Gamma == "0.5" and cvars.Brightness == "50", "image de la zone écrite")
+assert(PanoramaDB.values.Contrast == 50 and PanoramaDB.values.Gamma == 1 and PanoramaDB.placePreset == 0,
+    "image de la zone : réglages du joueur gardés, repère posé")
+assert(nsImage.PlacePresetText(nsImage.AppliedPlacePreset()) == nil, "image du filtre : pas un réglage graphique du lieu")
+mapID = 1429
+nsImage.UpdateAmbiance()
+assert(cvars.Contrast == "50" and cvars.Gamma == "1" and PanoramaDB.placePreset == nil, "image rendue à la sortie")
 -- Tout réinitialiser : réglages rendus au jeu, filtres et ambiance par défaut, plus rien à annuler.
 local nsReset = Load(nil)
 SlashCmdList.PANORAMA("low")
 PanoramaDB.filters.vignette, PanoramaDB.ambiance.enabled, PanoramaDB.ambiance.zones[1] = 50, true, {}
+PanoramaDB.customFilters[1].tintRed, PanoramaDB.customFilters[1].name, PanoramaDB.filters.customFilter = 0, "Nuit", 1
 SlashCmdList.PANORAMA("reset")
+assert(#PanoramaDB.customFilters == 1 and PanoramaDB.customFilters[1].tintRed == 85 and PanoramaDB.customFilters[1].name == nil
+    and PanoramaDB.filters.customFilter == 0, "reset : filtres du joueur remis à neuf")
 assert(next(PanoramaDB.touched) == nil and not nsReset.CanUndo(), "reset : réglages rendus au jeu")
 assert(PanoramaDB.filters.vignette == 0, "reset : filtres par défaut")
 assert(not PanoramaDB.ambiance.enabled and next(PanoramaDB.ambiance.zones) == nil, "reset : ambiance par défaut")
@@ -602,5 +897,90 @@ print = realPrint
 isDayTime = true
 assert(printed[2]:find(": 0,", 1, true) and not printed[2]:find(": 50", 1, true), "status : teinte effacée la nuit")
 assert(printed[3]:find(": 40,", 1, true) and printed[3]:find(": 100 %", 1, true), "status : teinte de nuit pleine")
+
+-- Échecs auparavant muets : chacun dit quelque chose au joueur.
+local captured
+local function Capture(fn)
+    captured = {}
+    local silent = print
+    print = function(text) captured[#captured + 1] = text end
+    fn()
+    print = silent
+end
+mapID = 1429
+local nsQuiet = Load({ schema = 2, values = { farclip = 3000 }, touched = { farclip = true },
+                       filters = { tint = "violet" } })
+local quietL = nsQuiet.L
+Capture(function() handler(frame, "PLAYER_LOGIN") end)
+assert(#captured == 1 and captured[1] == quietL.PREFIX .. quietL.MSG_FILTERS_RESET:format(1),
+    "filtre enregistré invalide : remis à zéro et dit à la connexion")
+-- Table illisible remise à zéro : comptée ; table absente : non comptée.
+assert(nsQuiet.LoadFilters({ filters = 5 }) == 1 and nsQuiet.LoadFilters({}) == 0, "table de filtres illisible comptée")
+assert(nsQuiet.LoadAmbiance({ ambiance = { enabled = "oui", contexts = 5 } }) == 2
+    and nsQuiet.LoadAmbiance({}) == 0, "tables d'ambiance illisibles comptées")
+-- VARIABLES_LOADED et PLAYER_ENTERING_WORLD jamais reçus : passe finale faite après le repli.
+cvars.farclip = "1000"
+table.remove(timers, 1).callback()
+local fallback
+for index, timer in ipairs(timers) do if timer.delay == 30 then fallback = table.remove(timers, index) break end end
+assert(fallback and not frame.events.CVAR_UPDATE, "repli programmé, passe finale pas encore faite")
+fallback.callback()
+assert(frame.events.CVAR_UPDATE and cvars.farclip == "3000", "passe finale faite sans les événements de chargement")
+-- Valeur gardée par le jeu différente de celle choisie : réglage nommé, valeur du jeu affichée.
+local farclipSetting
+for _, setting in ipairs(nsQuiet.settings) do if setting.cvar == "farclip" then farclipSetting = setting end end
+local storeCVar = C_CVar.SetCVar
+-- CVAR_UPDATE envoyé pendant SetCVar, comme en jeu : la valeur du jeu est recopiée avant la relecture.
+C_CVar.SetCVar = function(name) cvars[name] = "1500" handler(frame, "CVAR_UPDATE", name) return true end
+Capture(function()
+    nsQuiet.db.values.farclip = 2000
+    nsQuiet.Change(farclipSetting)
+end)
+assert(nsQuiet.db.values.farclip == 1500 and #captured == 1
+    and captured[1] == quietL.PREFIX .. quietL.MSG_VALUE_ADJUSTED:format(farclipSetting.label),
+    "valeur ajustée par le jeu : dite")
+C_CVar.SetCVar = storeCVar
+Capture(function()
+    nsQuiet.db.values.farclip = 2000
+    nsQuiet.Change(farclipSetting)
+end)
+assert(#captured == 0, "valeur acceptée : aucun message")
+-- CVar illisible : la valeur choisie reste, pas le défaut de Panorama.
+C_CVar.SetCVar = function(name) cvars[name] = "" handler(frame, "CVAR_UPDATE", name) return true end
+nsQuiet.db.values.farclip = 2500
+nsQuiet.Change(farclipSetting)
+assert(nsQuiet.db.values.farclip == 2500, "CVar illisible : valeur choisie gardée")
+-- /pano apply : un seul réglage ajusté, nommé plutôt que compté.
+C_CVar.SetCVar = function(name, value)
+    cvars[name] = name == "farclip" and "1500" or value
+    handler(frame, "CVAR_UPDATE", name)
+    return true
+end
+nsQuiet.db.values.farclip = 2000
+Capture(function() SlashCmdList.PANORAMA("apply") end)
+assert(captured[#captured] == quietL.PREFIX .. quietL.MSG_VALUE_ADJUSTED:format(farclipSetting.label),
+    "un seul réglage ajusté : nommé")
+C_CVar.SetCVar = storeCVar
+-- /pano minimap : l'état est dit.
+Capture(function() SlashCmdList.PANORAMA("minimap") end)
+assert(captured[1] == quietL.PREFIX .. quietL.MSG_MINIMAP_HIDDEN, "bouton de minicarte masqué : dit")
+Capture(function() SlashCmdList.PANORAMA("minimap") end)
+assert(captured[1] == quietL.PREFIX .. quietL.MSG_MINIMAP_SHOWN, "bouton de minicarte affiché : dit")
+-- Carte sans nom connu du jeu : libellé, pas le numéro seul.
+assert(nsQuiet.ZoneName(9999) == quietL.AMBIANCE_ZONE_UNKNOWN:format(9999), "zone inconnue : nommée")
+-- Erreur d'écriture à la déconnexion : rattrapée, repère gardé pour la session suivante.
+mapID = 1426
+local nsLogout = Load({ schema = 2, values = { farclip = 3000 },
+                        ambiance = { zones = { [1426] = { viewDistance = 1 } } } }, { farclip = "3000" })
+handler(frame, "PLAYER_LOGIN")
+handler(frame, "VARIABLES_LOADED")
+handler(frame, "PLAYER_ENTERING_WORLD")
+table.remove(timers, 1).callback()
+assert(cvars.farclip == "400" and PanoramaDB.placePreset ~= nil, "lieu posé avant la déconnexion")
+C_CVar.SetCVar = function() error("écriture impossible") end
+local loggedOut = pcall(handler, frame, "PLAYER_LOGOUT")
+C_CVar.SetCVar = storeCVar
+assert(loggedOut and PanoramaDB.placePreset ~= nil, "erreur à la déconnexion rattrapée, repère gardé")
+assert(nsLogout.db == PanoramaDB)
 
 io.write("ok\n")
