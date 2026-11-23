@@ -21,6 +21,7 @@ local DISABLED = 0.5    -- gris d'une ligne désactivée, et de rien d'autre
 local TAB_LABELS = { quality = "TAB_QUALITY", filters = "TAB_FILTERS", myfilters = "TAB_MYFILTERS",
                      ambiance = "TAB_AMBIANCE",
                      interface = "TAB_INTERFACE", advanced = "TAB_ADVANCED" }
+local ADVANCED_TABS = { advanced = true, myfilters = true }   -- cachés en mode simple
 
 local panel
 local items = {}      -- dans l'ordre d'affichage : { frame, tab, section ou header, height, text }
@@ -32,6 +33,9 @@ local refreshing = false
 local editedContext = "day"   -- contexte d'ambiance ouvert dans l'éditeur (NS.ambianceContexts), ou "zone"
 local editedZone              -- uiMapID édité quand editedContext vaut "zone"
 local editedCustomFilter = 1  -- filtre du joueur ouvert dans l'onglet Mes filtres (NS.db.customFilters)
+-- Lu et rendu par l'historique : Annuler une suppression rouvre le filtre rendu.
+function NS.GetEditedCustomFilter() return editedCustomFilter end
+function NS.SetEditedCustomFilter(index) editedCustomFilter = index end
 
 local function Round(value, step)
     return math.floor(value / step + 0.5) * step
@@ -189,21 +193,39 @@ end
 
 local function Layout()
     local searching = filter ~= ""
+    local advanced = NS.db.advancedMode
+    -- Mode simple : un onglet avancé encore ouvert (case décochée) laisse place au premier.
+    if not advanced and ADVANCED_TABS[NS.db.tab] then NS.db.tab = NS.tabs[1] end
     local matches = {}   -- section -> true si une de ses lignes correspond
     for _, item in ipairs(items) do
         item.match = searching and item.text and item.text:find(filter, 1, true) ~= nil
         if item.match then matches[item.section] = true end
     end
-    -- Recherche : lignes qui correspondent dans tous les onglets, sous leur titre, sections
-    -- repliées comprises. Sinon : onglet ouvert, sections repliées cachées.
+    -- Mode simple : une seule page, lignes `basic` de tous les onglets, sans titres ni repli.
+    -- Mode avancé : ligne de l'onglet ouvert, clé présente dans le contexte d'ambiance édité,
+    -- section Jour et nuit seulement en mode jour/nuit.
+    local function Shown(item)
+        if not advanced then return item.basic end
+        return item.tab == NS.db.tab
+            and (not item.ambianceKey or EditedContext().values[item.ambianceKey] ~= nil)
+            and (item.section ~= "SECTION_DAYNIGHT" or NS.db.filters.autoDayNight)
+    end
+    -- Titre montré seulement si une de ses lignes l'est, section repliée comprise.
+    local filled = {}
+    for _, item in ipairs(items) do
+        if item.section and Shown(item) then filled[item.section] = true end
+    end
+    -- Recherche : lignes qui correspondent dans tous les onglets et les deux modes, sous leur titre,
+    -- sections repliées comprises. Sinon : onglet ouvert, sections repliées cachées.
     local y = 0
     for _, item in ipairs(items) do
         local visible
         if searching then
             visible = item.match or matches[item.header]
+        elseif item.header then
+            visible = advanced and filled[item.header]
         else
-            visible = item.tab == NS.db.tab and not (item.section and collapsed[item.section])
-                and (not item.ambianceKey or EditedContext().values[item.ambianceKey] ~= nil)
+            visible = Shown(item) and not (advanced and item.section and collapsed[item.section])
         end
         if visible then
             item.frame:ClearAllPoints()
@@ -217,17 +239,50 @@ local function Layout()
     panel.content:SetHeight(y + 10)
     panel.noResult:SetShown(searching and y == 0)
 
-    -- Bloc préréglages (Qualité), bloc Ambiance ou bloc Mes filtres : même hauteur, liste en dessous.
-    local presets = not searching and NS.db.tab == "quality"
-    local ambiance = not searching and NS.db.tab == "ambiance"
-    local customFilters = not searching and NS.db.tab == "myfilters"
+    -- Mode avancé : bloc préréglages (Qualité), bloc Ambiance ou bloc Mes filtres, même hauteur, liste en dessous.
+    -- Mode simple, onglets cachés : barre d'outils remontée à leur place, préréglages puis Mode
+    -- d'ambiance (première ligne du bloc seule) empilés au-dessus de la liste. Rétablir à gauche du
+    -- menu de langue (130 de large, TOPRIGHT -14, -73), qui reste sur la rangée.
+    local raise = advanced and 0 or 34
+    panel.advancedMode:SetPoint("TOPLEFT", 10, -105 + raise)
+    panel.redo:SetPoint("TOPRIGHT", advanced and -14 or -14 - 130 - 6, -107 + raise)
+    local presets = not searching and (not advanced or NS.db.tab == "quality")
+    local ambiance = not searching and (not advanced or NS.db.tab == "ambiance")
+    local customFilters = not searching and advanced and NS.db.tab == "myfilters"
     panel.presets:SetShown(presets)
+    panel.presets:SetPoint("TOPLEFT", 0, -134 + raise)
+    panel.presets:SetPoint("TOPRIGHT", 0, -134 + raise)
+    panel.placePreset:SetShown(advanced)
     panel.ambiance:SetShown(ambiance)
-    panel.ambianceReset:SetShown(editedContext == "zone")
+    local ambianceTop = advanced and -134 or -134 + raise - 52   -- 4 sous les boutons de préréglage
+    panel.ambiance:SetPoint("TOPLEFT", 0, ambianceTop)
+    panel.ambiance:SetPoint("TOPRIGHT", 0, ambianceTop)
+    panel.ambianceEditor:SetShown(advanced)
+    panel.ambianceReset:SetShown(advanced and editedContext == "zone")
     panel.customFilters:SetShown(customFilters)
-    panel.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 14, (presets or ambiance or customFilters) and -166 or -110)
+    local top
+    if not advanced then
+        top = searching and -134 + raise or ambianceTop - 26
+    else
+        top = (presets or customFilters or ambiance) and -190 or -134
+    end
+    panel.scroll:SetPoint("TOPLEFT", panel, "TOPLEFT", 14, top)
+    -- Onglets du mode courant, chaînés de gauche à droite.
+    local previous
     for index, tab in ipairs(panel.tabs) do
-        if not searching and NS.tabs[index] == NS.db.tab then
+        local id = NS.tabs[index]
+        local shown = advanced
+        tab:SetShown(shown)
+        if shown then
+            tab:ClearAllPoints()
+            if previous then
+                tab:SetPoint("LEFT", previous, "RIGHT", NS.tabGroupStart[id] and panel.tabGroupGap or TAB_GAP, 0)
+            else
+                tab:SetPoint("TOPLEFT", 14, -70)
+            end
+            previous = tab
+        end
+        if not searching and id == NS.db.tab then
             PanelTemplates_SelectTab(tab)
         else
             PanelTemplates_DeselectTab(tab)
@@ -239,14 +294,16 @@ end
 -- Panneau caché : rien à rafraîchir, OnShow relit tout à l'ouverture.
 function NS.RefreshOptions()
     if not panel or not panel:IsShown() then return end
-    UpdatePreview()
+    -- Annuler peut retirer le filtre ouvert ou changer de mode : borne et lignes visibles relues.
+    if not NS.db.customFilters[editedCustomFilter] then editedCustomFilter = #NS.db.customFilters end
+    Layout()
     refreshing = true
     for setting, control in pairs(controls) do
         local value = Store(setting)[setting.cvar or setting.key]
         -- Ligne d'éditeur d'une clé que le contexte édité n'a pas (ciel d'un lieu) : cachée, rien à relire.
         if value ~= nil or not setting.ambiance then control.refresh(value) end
     end
-    panel.ambianceEnabled:SetChecked(NS.db.ambiance.enabled)
+    panel.ambianceMode:GenerateMenu()
     panel.ambianceStatus:SetText(L.AMBIANCE_DETECTED:format(NS.DetectedText()))
     panel.ambianceMenu:GenerateMenu()   -- libellé « Cette zone » relu au changement de zone
     panel.customFilterMenu:GenerateMenu()   -- nom relu après un renommage
@@ -257,7 +314,9 @@ function NS.RefreshOptions()
     panel.customFilterDelete:SetEnabled(#NS.db.customFilters > 1)
     panel.applyOnLogin:SetChecked(NS.db.applyOnLogin)
     panel.showMinimap:SetChecked(NS.db.minimap.show)
+    panel.advancedMode:SetChecked(NS.db.advancedMode)
     panel.undo:SetEnabled(NS.CanUndo())
+    panel.redo:SetEnabled(NS.CanRedo())
     -- Réglages graphiques du lieu en cours : dits sur le bouton, les lignes gardent ceux du joueur.
     local placeGraphics = NS.PlacePresetText(NS.AppliedPlacePreset())
     panel.placePreset:SetText(placeGraphics and L.PLACE_PRESET_ACTIVE:format(placeGraphics) or L.PLACE_PRESET_BUTTON)
@@ -518,14 +577,14 @@ local function CreateRowBase(setting, tipWidth)
     function row.Current()
         return Store(setting)[setting.cvar or setting.key]
     end
-    function row.Change(value)
+    -- `checkpointed` : point d'annulation déjà posé par l'appelant, qui a écrit avant.
+    function row.Change(value, checkpointed)
+        if not checkpointed then NS.Checkpoint() end
         if setting.cvar then
             NS.db.values[setting.cvar] = value
             NS.Change(setting)
         else
             Store(setting, true)[setting.key] = value
-            -- Jour/nuit automatiques et ambiance auto : l'un coupe l'autre.
-            if setting.key == "autoDayNight" and value then NS.db.ambiance.enabled = false end
             NS.ApplyFilters()
             NS.RefreshOptions()
         end
@@ -579,6 +638,8 @@ local function Register(row, setting, section, tab, height, refreshControl, setE
     -- `ambianceKey` : ligne d'éditeur, cachée quand le contexte édité n'a pas cette clé.
     items[#items + 1] = { frame = row, section = section, tab = tab, height = height,
         ambianceKey = setting.ambiance and setting.key or nil,
+        -- Copies (éditeur d'ambiance, Mes filtres) : `basic` hérité du filtre, ignoré.
+        basic = setting.basic and not (setting.ambiance or setting.custom),
         text = not (setting.ambiance or setting.custom) and Fold(setting.label .. " " .. setting.tip .. " " .. (setting.cvar or setting.key)
             .. " " .. (setting.menu or "")) or nil }
 end
@@ -716,6 +777,7 @@ local function CreateTintRow(setting, section, tab)
             -- Vignette déjà choisie, intensité déjà là : rien à écrire (pas de zone réglée pour rien).
             local strengthKey = setting.strength
             if current[setting.key] == value and (value == 0 or current[strengthKey] ~= 0) then return end
+            NS.Checkpoint()   -- avant l'intensité écrite ci-dessous
             local values = Store(setting, true)
             if value ~= 0 and values[strengthKey] == 0 then
                 for _, other in ipairs(NS.filterSettings) do
@@ -725,7 +787,7 @@ local function CreateTintRow(setting, section, tab)
                     end
                 end
             end
-            row.Change(value)
+            row.Change(value, true)
         end)
         row.HoverWith(thumbnail)
         thumbnails[value] = thumbnail
@@ -790,18 +852,13 @@ NS.CommitTyping = CommitTyping
 
 local function CreatePresets()
     local block = CreateFrame("Frame", nil, panel)
-    block:SetPoint("TOPLEFT", 0, -110)
-    block:SetPoint("TOPRIGHT", 0, -110)
+    block:SetPoint("TOPLEFT", 0, -134)
+    block:SetPoint("TOPRIGHT", 0, -134)
     block:SetHeight(48)
     panel.presets = block
     local title = block:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     title:SetPoint("LEFT", block, "TOPLEFT", 14, -10)
     title:SetText(L.OPT_PRESETS)
-    -- Saisie en cours validée avant : sinon sa perte de focus écraserait le résultat du bouton.
-    panel.undo = CreateButton(block, L.OPT_UNDO, 120, function() CommitTyping() NS.Undo() end)
-    panel.undo:SetPoint("RIGHT", block, "TOPRIGHT", -14, -10)
-    panel.undo:SetMotionScriptsWhileDisabled(true)
-    Tooltip(panel.undo, L.OPT_UNDO_TIP)
     -- Renvoi vers l'éditeur de l'onglet Ambiance, ouvert sur la zone réglée ou le lieu du joueur.
     panel.placePreset = CreateButton(block, L.PLACE_PRESET_BUTTON, 100, function()
         local ambiance = NS.db.ambiance
@@ -818,7 +875,7 @@ local function CreatePresets()
         panel.scroll:SetVerticalScroll(0)
         panel.editAmbiance(target)
     end)
-    panel.placePreset:SetPoint("RIGHT", panel.undo, "LEFT", -6, 0)
+    panel.placePreset:SetPoint("RIGHT", block, "TOPRIGHT", -14, -10)
     Tooltip(panel.placePreset, L.PLACE_PRESET_TIP)
     panel.presetButtons = {}
     for index, preset in ipairs(NS.presets) do
@@ -840,30 +897,62 @@ local function CreatePresets()
     end
 end
 
--- Bloc de l'onglet Ambiance, à la place des préréglages : case « Ambiance auto », contexte détecté,
--- menu du contexte édité par les lignes de filtres en dessous (ciel pour un moment ; préréglage
+-- Bloc de l'onglet Ambiance, à la place des préréglages : menu Mode, contexte détecté ; en mode
+-- avancé, menu du contexte édité par les lignes de filtres en dessous (ciel pour un moment ; préréglage
 -- graphique, distance de vue, filtre du joueur, teinte, vignette et grain pour un lieu). Zone du joueur dans le menu : la choisir lui crée un réglage
 -- propre, copié de son biome ; « Type de zone » le supprime.
 local function CreateAmbiance()
     local block = CreateFrame("Frame", nil, panel)
-    block:SetPoint("TOPLEFT", 0, -110)
-    block:SetPoint("TOPRIGHT", 0, -110)
+    block:SetPoint("TOPLEFT", 0, -134)
+    block:SetPoint("TOPRIGHT", 0, -134)
     block:SetHeight(48)
     panel.ambiance = block
-    panel.ambianceEnabled = CreateCheckbox(block, L.AMBIANCE_AUTO, L.AMBIANCE_AUTO_TIP, function(value)
-        NS.db.ambiance.enabled = value
-        if value then NS.db.filters.autoDayNight = false end
+    -- Mode : aucun automatisme (filtres de l'onglet Filtres), jour et nuit, ou ambiance auto.
+    -- Un seul choix : jour/nuit et ambiance auto ne vont jamais ensemble.
+    local modeLabel = block:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    modeLabel:SetPoint("LEFT", block, "TOPLEFT", 14, -10)
+    modeLabel:SetText(L.AMBIANCE_MODE)
+    local mode = CreateFrame("DropdownButton", nil, block, "WowStyle1DropdownTemplate")
+    mode:SetWidth(200)
+    mode:SetPoint("LEFT", modeLabel, "RIGHT", 8, 0)
+    panel.ambianceMode = mode
+    local function IsMode(id)
+        local current = NS.db.ambiance.enabled and "auto" or NS.db.filters.autoDayNight and "daynight" or "off"
+        return current == id
+    end
+    local function SetMode(id)
+        CommitTyping()
+        if IsMode(id) then return end
+        NS.Checkpoint()
+        NS.db.ambiance.enabled = id == "auto"
+        NS.db.filters.autoDayNight = id == "daynight"
         NS.ApplyFilters()
         NS.RefreshOptions()
+    end
+    mode:SetupMenu(function(_, root)
+        root:CreateRadio(L.OPT_OFF, IsMode, SetMode, "off")
+        root:CreateRadio(L.autoDayNight, IsMode, SetMode, "daynight")
+        root:CreateRadio(L.AMBIANCE_AUTO, IsMode, SetMode, "auto")
     end)
-    panel.ambianceEnabled:SetPoint("LEFT", block, "TOPLEFT", 10, -10)
+    -- HookScript : garde le survol du gabarit.
+    mode:HookScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:SetText(L.AMBIANCE_MODE, 1, 1, 1)
+        GameTooltip:AddLine(L.AMBIANCE_MODE_TIP, HELP, HELP, HELP, true)
+        GameTooltip:Show()
+    end)
+    mode:HookScript("OnLeave", function() GameTooltip:Hide() end)
     panel.ambianceStatus = block:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     panel.ambianceStatus:SetTextColor(HELP, HELP, HELP)
     panel.ambianceStatus:SetPoint("RIGHT", block, "TOPRIGHT", -14, -10)
-    local label = block:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    -- Seconde ligne, mode avancé seulement : contexte édité (lieu, moment, zone).
+    local editor = CreateFrame("Frame", nil, block)
+    editor:SetAllPoints()
+    panel.ambianceEditor = editor
+    local label = editor:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     label:SetPoint("LEFT", block, "TOPLEFT", 14, -36)
     label:SetText(L.AMBIANCE_EDIT)
-    local dropdown = CreateFrame("DropdownButton", nil, block, "WowStyle1DropdownTemplate")
+    local dropdown = CreateFrame("DropdownButton", nil, editor, "WowStyle1DropdownTemplate")
     dropdown:SetWidth(200)   -- noms de zone longs
     dropdown:SetPoint("LEFT", label, "RIGHT", 8, 0)
     panel.ambianceMenu = dropdown
@@ -883,8 +972,9 @@ local function CreateAmbiance()
         NS.RefreshOptions()
     end
     panel.editAmbiance = Edit
-    panel.ambianceReset = CreateButton(block, L.AMBIANCE_ZONE_RESET, 100, function()
+    panel.ambianceReset = CreateButton(editor, L.AMBIANCE_ZONE_RESET, 100, function()
         CommitTyping()
+        NS.Checkpoint()
         NS.db.ambiance.zones[editedZone] = nil
         -- Filtres et réglages du lieu reposés avant le rafraîchissement d'Edit.
         NS.ApplyFilters()
@@ -962,8 +1052,8 @@ end
 -- Pour s'en servir, le joueur le choisit à la ligne `customFilter` de l'onglet Filtres ou d'un lieu.
 local function CreateCustomFilters()
     local block = CreateFrame("Frame", nil, panel)
-    block:SetPoint("TOPLEFT", 0, -110)
-    block:SetPoint("TOPRIGHT", 0, -110)
+    block:SetPoint("TOPLEFT", 0, -134)
+    block:SetPoint("TOPRIGHT", 0, -134)
     block:SetHeight(48)
     panel.customFilters = block
     local label = block:CreateFontString(nil, "ARTWORK", "GameFontNormal")
@@ -992,7 +1082,11 @@ local function CreateCustomFilters()
         GameTooltip:SetText(L.CUSTOM_FILTER_TIP, 1, 1, 1, 1, true)
     end)
     dropdown:HookScript("OnLeave", function() GameTooltip:Hide() end)
-    local add = CreateButton(block, L.CUSTOM_FILTER_ADD, 80, function() Edit(NS.AddCustomFilter()) end)
+    local add = CreateButton(block, L.CUSTOM_FILTER_ADD, 80, function()
+        CommitTyping()
+        NS.Checkpoint()
+        Edit(NS.AddCustomFilter())
+    end)
     add:SetPoint("LEFT", dropdown, "RIGHT", 8, 0)
     Tooltip(add, L.CUSTOM_FILTER_ADD_TIP)
 
@@ -1019,8 +1113,14 @@ local function CreateCustomFilters()
         if custom and not cancelled then
             -- `|` : code d'échappement du jeu, retiré du nom.
             local text = strtrim((self:GetText():gsub("|", "")))
-            custom.name = nil
-            if text ~= "" and text ~= NS.CustomFilterName(editedCustomFilter) then custom.name = text end
+            local previous = custom.name
+            custom.name = nil   -- nom par défaut lu sans le nom enregistré
+            local renamed = text ~= "" and text ~= NS.CustomFilterName(editedCustomFilter) and text or nil
+            custom.name = previous
+            if renamed ~= previous then
+                NS.Checkpoint()
+                custom.name = renamed
+            end
         end
         cancelled = false
         self:SetText(NS.CustomFilterName(editedCustomFilter))
@@ -1033,6 +1133,7 @@ local function CreateCustomFilters()
             CommitTyping()
             for index, current in ipairs(NS.db.customFilters) do
                 if current == custom then
+                    NS.Checkpoint()   -- avant le décalage : Annuler rouvre le filtre ouvert à la suppression
                     -- Filtre ouvert placé après le supprimé : il garde sa place dans la liste.
                     if editedCustomFilter > index then editedCustomFilter = editedCustomFilter - 1 end
                     NS.DeleteCustomFilter(index)
@@ -1054,6 +1155,7 @@ end
 
 local function CreateTabs(search)
     panel.tabs = {}
+    panel.tabGroupGap = TAB_GROUP_GAP   -- lu par Layout, qui chaîne les onglets du mode courant
     for index, id in ipairs(NS.tabs) do
         local tab = CreateFromTemplate("Button", panel, "PanelTopTabButtonTemplate", "PanelTabButtonTemplate")
         tab:SetID(index)
@@ -1085,14 +1187,7 @@ local function CreateTabs(search)
     if RowWidth() > TABS_WIDTH then
         panel.tabPadding = 0
         for _, tab in ipairs(panel.tabs) do PanelTemplates_TabResize(tab, 0) end
-        if RowWidth() > TABS_WIDTH then
-            for index, tab in ipairs(panel.tabs) do
-                if index > 1 and NS.tabGroupStart[NS.tabs[index]] then
-                    tab:ClearAllPoints()
-                    tab:SetPoint("LEFT", panel.tabs[index - 1], "RIGHT", TAB_GAP, 0)
-                end
-            end
-        end
+        if RowWidth() > TABS_WIDTH then panel.tabGroupGap = TAB_GAP end
     end
     local rule = panel:CreateTexture(nil, "BORDER")
     rule:SetColorTexture(1, 1, 1, 0.15)
@@ -1140,6 +1235,25 @@ local function CreateLanguage(search)
     Tooltip(guide, L.OPT_GUIDE_TIP)
 end
 
+-- Barre sous les onglets, sur tous les onglets : case du mode avancé à gauche, Annuler et Rétablir à droite.
+local function CreateToolbar()
+    panel.advancedMode = CreateCheckbox(panel, L.OPT_ADVANCED_MODE, L.OPT_ADVANCED_MODE_TIP, function(value)
+        NS.db.advancedMode = value
+        panel.scroll:SetVerticalScroll(0)
+        Layout()
+    end)
+    panel.advancedMode:SetPoint("TOPLEFT", 10, -105)
+    -- Saisie en cours validée avant : sinon sa perte de focus écraserait le résultat du bouton.
+    panel.redo = CreateButton(panel, L.OPT_REDO, 90, function() CommitTyping() NS.Redo() end)
+    panel.redo:SetPoint("TOPRIGHT", -14, -107)
+    panel.redo:SetMotionScriptsWhileDisabled(true)
+    Tooltip(panel.redo, L.OPT_REDO_TIP)
+    panel.undo = CreateButton(panel, L.OPT_UNDO, 90, function() CommitTyping() NS.Undo() end)
+    panel.undo:SetPoint("RIGHT", panel.redo, "LEFT", -6, 0)
+    panel.undo:SetMotionScriptsWhileDisabled(true)
+    Tooltip(panel.undo, L.OPT_UNDO_TIP)
+end
+
 local function CreateFooter()
     local rule = panel:CreateTexture(nil, "BORDER")
     rule:SetColorTexture(1, 1, 1, 0.15)
@@ -1158,7 +1272,7 @@ local function CreateFooter()
     local restart = CreateButton(panel, L.OPT_RESTART, 100, NS.RestartGraphics)
     restart:SetPoint("BOTTOMRIGHT", -14, 13)
     Tooltip(restart, L.OPT_RESTART_TIP)
-    -- Tout remettre par défaut, après confirmation : aucune annulation possible ensuite.
+    -- Tout remettre par défaut, après confirmation ; Annuler le défait.
     StaticPopupDialogs.PANORAMA_RESET_ALL = { text = L.OPT_RESET_ALL_CONFIRM, button1 = YES, button2 = NO,
         OnAccept = function() CommitTyping() NS.ResetAll() end, timeout = 0, whileDead = true, hideOnEscape = true }
     -- Action destructive : texte rouge sans fond de bouton, à 16 du bouton Redémarrer.
@@ -1175,7 +1289,7 @@ end
 function NS.BuildOptions()
     panel = CreateFrame("Frame", "PanoramaFrame", UIParent, "BasicFrameTemplate")
     panel:Hide()
-    panel:SetSize(610, 640)
+    panel:SetSize(610, 664)
     panel:SetPoint("CENTER")
     panel:SetFrameStrata("DIALOG")
     panel:SetToplevel(true)
@@ -1219,6 +1333,7 @@ function NS.BuildOptions()
     panel.tabPadding = 12
     CreateTabs(search)
     CreateLanguage(search)
+    CreateToolbar()
     CreatePresets()
     CreateAmbiance()
     CreateCustomFilters()
@@ -1227,7 +1342,7 @@ function NS.BuildOptions()
     local scroll = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")
     panel.scroll = scroll
     scroll.scrollBarHideable = true
-    scroll:SetPoint("TOPLEFT", 14, -110)
+    scroll:SetPoint("TOPLEFT", 14, -134)
     scroll:SetPoint("BOTTOMRIGHT", -36, 48)
     panel.content = CreateFrame("Frame", nil, scroll)
     panel.content:SetSize(LIST_WIDTH, 10)
@@ -1267,6 +1382,8 @@ function NS.BuildOptions()
         for _, setting in ipairs(list) do
             if setting.title then
                 section, title, tab, headerPending = setting.titleKey, setting.title, setting.tab, true
+            -- Jour et nuit automatiques : réglés par le menu Mode du bloc Ambiance, sans ligne.
+            elseif setting.key == "autoDayNight" then
             elseif setting.key or NS.Exists(setting) then
                 if headerPending then
                     CreateHeader(section, title, tab)

@@ -15,7 +15,7 @@ Other languages: [Deutsch](GUIDE.deDE.md) · [Español](GUIDE.esES.md) · [Fran�
 The minimap button:
 
 - Left click opens or closes the window.
-- Right click shows the presets, undo and graphics restart.
+- Right click shows the presets, undo, redo and graphics restart.
 - Drag it to move it around the minimap. `/pano minimap` shows or hides it.
 
 ## 2. The window
@@ -24,6 +24,8 @@ The minimap button:
 |---|---|
 | Search box (top right) | Type a word to list the matching settings of every tab. Clear it to go back. |
 | Tabs | Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). The open tab is remembered. |
+| Advanced settings (under the title) | Unticked: no tabs, one page with the presets, the main quality settings (view distance, volumetric fog, shadows, ambient occlusion, liquid detail, multisampling, sharpness), HDR output and peak brightness, contrast, brightness, camera zoom, filter, filter strength and the ambiance mode. Ticked: every tab and every setting. On first install it is unticked; if you already used Panorama, it is ticked. The search always finds every setting. |
+| Undo, Redo (under the tabs, right) | Undo cancels your last change: slider, box, preset, filter, ambiance or Reset all. Redo puts it back. The last 20 changes are kept until `/reload`. |
 | Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
 | Guide (left of the search box) | Opens this guide in the game. |
 | Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
@@ -56,8 +58,8 @@ Click a section title to fold or unfold it.
 Presets change only the graphics quality settings of the Quality tab. They do not touch camera,
 mouse, interface, sharpening, low latency, HDR or filters.
 
-Changed your mind? **Undo last preset** (button next to the presets, or `/pano undo`) restores the settings from
-before the last preset.
+Changed your mind? **Undo** (under the tabs, or `/pano undo`) restores the settings from
+before the preset.
 
 ## 4. Filters
 
@@ -77,8 +79,11 @@ The Filters tab adds effects on top of the image. They change no game setting.
 
 The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit where you are.
 
-- **Automatic ambiance**: on, these filters follow the place and the time of day. Off by default.
-  The values of the Filters tab stay saved and come back when you turn it off.
+- **Mode** (top of the tab): **Off** (the Filters tab applies everywhere), **Automatic day and night** (see Day and
+  night below) or **Automatic ambiance**. Off by default.
+- **Automatic ambiance**: these filters follow the place and the time of day.
+  The values of the Filters tab stay saved and come back when you change the mode.
+  Without Advanced settings, the single page shows only the mode and the place detected; tick Advanced settings to edit the contexts.
 - **Place**: sets the tint, vignette and grain. Order: dungeon or raid, indoors, weather (rain, snow,
   sandstorm), then the kind of zone: temperate, desert, snowy, jungle and marsh, corrupted, volcanic,
   arcane forest. A zone not known yet counts as temperate. Weather counts only when Weather
@@ -99,14 +104,13 @@ The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit wh
 - **All zones**: submenu of the same menu, with every known zone. Pick one to set it without being there. Zones are sorted by continent.
 - **Graphics preset** and **Scenery distance** (first lines of a place or a zone): they apply while you are in that place, over your own settings, with the automatic ambiance on or off. The scenery distance of the place comes before the one of the preset. Your own settings are kept and come back when you leave. **My settings** changes nothing. Example: Low in dungeons, Extra in a zone you like. In a dungeon or raid, the first choice of the menu sets that dungeon alone. In the Quality tab, the **By place** button opens these lines for the place you are in; it reads **Here: …** while a place applies its own. In combat, the change waits for the end of the fight.
 - **My filter** (first line of the filters of a place or a zone): this place uses one of your filters from the My filters tab, with its contrast, brightness and gamma, while the automatic ambiance is on.
-- **Day and night** (bottom of the tab): **Automatic day and night** lays the **Day tint** by day and the **Night tint** at night,
+- **Day and night** (mode **Automatic day and night**): Panorama lays the **Day tint** by day and the **Night tint** at night,
   following the game's day and night. They replace the Filters tab tint. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00
-  (server time). **Day tint strength** and **Night tint strength** set how strong they are.
-  It does not work together with the automatic ambiance: turning one on turns the other off.
+  (server time). The day and night tints and their strengths are set with Advanced settings.
 
 ## 5. My filters
 
-The My filters tab lets you create as many filters of your own as you want. **New** adds one, **Delete** removes the open one: the Filters tab, places and zones that used it go back to None.
+The My filters tab (shown with Advanced settings) lets you create as many filters of your own as you want. **New** adds one, **Delete** removes the open one: the Filters tab, places and zones that used it go back to None.
 
 - **Filter to edit**: picks the filter that the lines below set. **Name**: give it a name (Enter to confirm).
 - **Red**, **Green**, **Blue** (in %): the tint color of the filter. **Tint strength**: how strong it is.
@@ -193,7 +197,8 @@ Each HDR line has a Default button that puts back the game's value.
 |---|---|
 | `/pano` | Open or close the window |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
-| `/pano undo` | Restore the settings from before the last preset |
+| `/pano undo` | Cancel the last change |
+| `/pano redo` | Put back the change you just undid |
 | `/pano reset` | Put every setting and filter back to its default |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano apply` | Write again the settings changed in Panorama |
@@ -206,5 +211,5 @@ Each HDR line has a Default button that puts back the game's value.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
 - **Reset all** (footer, with confirmation) or `/pano reset`: puts every setting changed in Panorama
-  and every filter back to its default. It cannot be undone.
+  and every filter back to its default. **Undo** cancels it until `/reload`.
   The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.

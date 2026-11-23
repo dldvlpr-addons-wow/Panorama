@@ -2,7 +2,7 @@
 
 <p style="text-align: center;"><strong>The graphics settings hidden behind <code>/console</code>, in one window, reapplied at every login.</strong></p>
 
-<p style="text-align: center;">View distance, shadows, water, camera: 47 settings and 13 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
+<p style="text-align: center;">View distance, shadows, water, camera: 46 settings and 13 filters with sliders, checkboxes and buttons, for WoW Forever.</p>
 
 <p style="text-align: center;"><a href="https://muscalab.com/addons/panorama"><strong>🌐 Website</strong></a> · <a href="https://discord.gg/EyYpyMq2km"><strong>💬 Discord</strong></a></p>
 
@@ -41,7 +41,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 | HDR output and brightness | ✖ | ✔ |
 | Screen filters: black bars, vignette, film grain, tints, sky | ✖ | ✔ |
 | Settings written again at every login | ✖ | ✔ |
-| Undo the last preset | ✖ | ✔ |
+| Undo and redo your last 20 changes | ✖ | ✔ |
 | Every setting in one window, with a Default button per line | ✖ | ✔ |
 
 ---
@@ -50,8 +50,8 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">Graphics settings</span>
 
-- <span style="color: #ffd100;"><strong>47 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and mouse, advanced.
-- <span style="color: #ffd100;"><strong>Four presets:</strong></span> Low, Medium, High and Extra, with an <strong>Undo</strong> button for the last one.
+- <span style="color: #ffd100;"><strong>46 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and mouse, advanced.
+- <span style="color: #ffd100;"><strong>Four presets:</strong></span> Low, Medium, High and Extra.
 - <span style="color: #ffd100;"><strong>HDR on Windows:</strong></span> HDR output, peak or reference brightness and HDR intensity, settings the game only has as console commands.
 - <span style="color: #ffd100;"><strong>Type a value.</strong></span> Each slider has a box next to it for an exact value.
 - <span style="color: #ffd100;"><strong>Default button on every line.</strong></span>
@@ -72,8 +72,8 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">The window</span>
 
-- <span style="color: #ffd100;"><strong>Its own window, in six tabs:</strong></span> Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). A search box looks through every tab. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
-- <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo and graphics restart.
+- <span style="color: #ffd100;"><strong>Its own window, in six tabs:</strong></span> Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). A search box looks through every tab. Without <strong>Advanced settings</strong>, the window is one simple page: presets, main quality settings, HDR, contrast, brightness, camera zoom, filter and ambiance mode. <strong>Undo</strong> and <strong>Redo</strong> buttons cancel or put back your last changes. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
+- <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo, redo and graphics restart.
 - <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. A selector in the window changes the language.
 - <span style="color: #ffd100;"><strong>In-game guide</strong></span> in all 10 languages, HDR setup on Windows included.
 
@@ -109,7 +109,8 @@ Full list in the **Files** tab.
 |---|---|
 | `/pano` | Open or close the window |
 | `/pano low`, `medium`, `high`, `extra` | Apply a preset |
-| `/pano undo` | Restore the settings from before the last preset |
+| `/pano undo` | Cancel the last change |
+| `/pano redo` | Put back the change you just undid |
 | `/pano reset` | Reset every setting changed in Panorama, and every filter |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano apply` | Write again the settings changed in Panorama |

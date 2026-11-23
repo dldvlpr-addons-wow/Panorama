@@ -13,7 +13,7 @@ Comment utiliser Panorama sur WoW Forever, et comment configurer le HDR sous Win
 Le bouton de la minimap :
 
 - Le clic gauche ouvre ou ferme la fenêtre.
-- Le clic droit affiche les préréglages, l'annulation et le redémarrage graphique.
+- Le clic droit affiche les préréglages, l'annulation, le rétablissement et le redémarrage graphique.
 - Faites-le glisser pour le déplacer autour de la minimap. `/pano minimap` l'affiche ou le masque.
 
 ## 2. La fenêtre
@@ -22,6 +22,8 @@ Le bouton de la minimap :
 |---|---|
 | Champ de recherche (en haut à droite) | Tapez un mot pour lister les réglages correspondants de tous les onglets. Videz-le pour revenir. |
 | Onglets | Qualité, Interface, Avancé (réglages du jeu), puis Filtres, Mes filtres, Ambiance (effets de Panorama). L'onglet ouvert est mémorisé. |
+| Réglages avancés (sous le titre) | Décoché : pas d'onglets, une seule page avec les préréglages, les réglages principaux de qualité (distance d'affichage, brouillard volumétrique, ombres, occlusion ambiante, détail de l'eau, anticrénelage, atténuation de la netteté), la sortie HDR et la crête, le contraste, la luminosité, le recul de la caméra, le filtre, l'intensité du filtre et le mode d'ambiance. Coché : tous les onglets et tous les réglages. À la première installation, il est décoché ; si vous utilisiez déjà Panorama, il est coché. La recherche trouve toujours tous les réglages. |
+| Annuler, Rétablir (sous les onglets, à droite) | Annuler défait votre dernière modification : curseur, champ, préréglage, filtre, ambiance ou Tout réinitialiser. Rétablir la remet. Les 20 dernières modifications sont conservées jusqu'à `/reload`. |
 | Sélecteur de langue (à droite des onglets) | Langue du jeu ou l'une des dix langues. Changer de langue recharge l'interface. |
 | Guide (à gauche du champ de recherche) | Ouvre ce guide dans le jeu. |
 | Préréglages (onglet Qualité) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
@@ -54,8 +56,8 @@ Cliquez sur un titre de section pour la replier ou la déplier.
 Les préréglages ne modifient que les réglages de qualité graphique de l'onglet Qualité. Ils ne touchent pas à la caméra,
 à la souris, à l'interface, à la netteté, à la faible latence, au HDR ni aux filtres.
 
-Vous avez changé d'avis ? **Annuler le dernier préréglage** (bouton à côté des préréglages, ou `/pano undo`) rétablit les réglages d'avant
-le dernier préréglage.
+Vous avez changé d'avis ? **Annuler** (sous les onglets, ou `/pano undo`) rétablit les réglages d'avant
+le préréglage.
 
 ## 4. Filtres
 
@@ -75,8 +77,10 @@ L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun ré
 
 L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain selon l'endroit où vous êtes.
 
-- **Ambiance auto** : cochée, ces filtres suivent le lieu et l'heure. Décochée par défaut. Les valeurs
-  de l'onglet Filtres restent enregistrées et reviennent quand vous la décochez.
+- **Mode** (haut de l'onglet) : **Désactivé** (l'onglet Filtres s'applique partout), **Jour et nuit automatiques** (voir Jour et nuit plus bas) ou **Ambiance auto**. Désactivé par défaut.
+- **Ambiance auto** : ces filtres suivent le lieu et l'heure. Les valeurs
+  de l'onglet Filtres restent enregistrées et reviennent quand vous changez de mode.
+  Sans Réglages avancés, la page unique n'affiche que le mode et le lieu détecté ; cochez Réglages avancés pour modifier les contextes.
 - **Lieu** : règle la teinte, la vignette et le grain. Ordre : donjon ou raid, intérieur, météo (pluie,
   neige, tempête de sable), puis le type de zone : terres tempérées, déserts et terres arides, terres
   enneigées, jungle et marais, terres corrompues, terres volcaniques, forêts arcaniques. Une zone pas
@@ -98,14 +102,13 @@ L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain s
 - **Toutes les zones** : sous-menu du même menu, avec toutes les zones connues. Choisissez-en une pour la régler sans y être. Les zones sont rangées par continent.
 - **Préréglage** et **Distance des décors** (premières lignes d'un lieu ou d'une zone) : ils s'appliquent tant que vous êtes dans ce lieu, par-dessus vos propres réglages, que l'ambiance auto soit cochée ou non. La distance des décors du lieu passe avant celle du préréglage. Vos propres réglages sont conservés et reviennent quand vous partez. **Mes réglages** ne change rien. Exemple : Bas en donjon, Extra dans une zone que vous aimez. Dans un donjon ou un raid, le premier choix du menu règle ce donjon seul. Dans l'onglet Qualité, le bouton **Par lieu** ouvre ces lignes pour le lieu où vous êtes ; il affiche **Ici : …** tant qu'un lieu impose les siens. En combat, le changement attend la fin du combat.
 - **Mon filtre** (première ligne des filtres d'un lieu ou d'une zone) : ce lieu utilise un de vos filtres de l'onglet Mes filtres, avec son contraste, sa luminosité et son gamma, tant que l'ambiance auto est cochée.
-- **Jour et nuit** (bas de l'onglet) : **Jour et nuit automatiques** pose la **Teinte de jour** le jour et la **Teinte de nuit** la nuit,
+- **Jour et nuit** (mode **Jour et nuit automatiques**) : Panorama pose la **Teinte de jour** le jour et la **Teinte de nuit** la nuit,
   selon le jour et la nuit du jeu. Elles remplacent la teinte de l'onglet Filtres. Le passage est progressif de 19 h à 21 h et de 5 h à
-  7 h (heure du serveur). **Intensité de la teinte de jour** et **Intensité de la teinte de nuit** règlent leur force.
-  Il ne marche pas en même temps que l'ambiance automatique : activer l'un coupe l'autre.
+  7 h (heure du serveur). Les teintes de jour et de nuit et leurs intensités se règlent avec Réglages avancés.
 
 ## 5. Mes filtres
 
-L'onglet Mes filtres sert à créer autant de filtres à vous que vous voulez. **Nouveau** en ajoute un, **Supprimer** retire le filtre ouvert : l'onglet Filtres, les lieux et les zones qui l'utilisaient repassent à Aucun.
+L'onglet Mes filtres (affiché avec Réglages avancés) sert à créer autant de filtres à vous que vous voulez. **Nouveau** en ajoute un, **Supprimer** retire le filtre ouvert : l'onglet Filtres, les lieux et les zones qui l'utilisaient repassent à Aucun.
 
 - **Filtre à modifier** : choisit le filtre que règlent les lignes en dessous. **Nom** : donnez-lui un nom (Entrée pour valider).
 - **Rouge**, **Vert**, **Bleu** (en %) : couleur de la teinte du filtre. **Intensité de la teinte** : sa force.
@@ -192,7 +195,8 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 |---|---|
 | `/pano` | Ouvre ou ferme la fenêtre |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applique un préréglage |
-| `/pano undo` | Rétablit les réglages d'avant le dernier préréglage |
+| `/pano undo` | Annule la dernière modification |
+| `/pano redo` | Rétablit la modification que vous venez d'annuler |
 | `/pano reset` | Remet chaque réglage et chaque filtre par défaut |
 | `/pano status` | Affiche dans le chat le lieu et le moment détectés et les filtres appliqués à l'instant (pendant un fondu, les valeurs visées) |
 | `/pano apply` | Réécrit les réglages modifiés dans Panorama |
@@ -205,5 +209,5 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
 - **Tout réinitialiser** (pied de fenêtre, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
-  dans Panorama et chaque filtre à sa valeur par défaut. Impossible d'annuler.
+  dans Panorama et chaque filtre à sa valeur par défaut. **Annuler** l'annule jusqu'à `/reload`.
   L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.
