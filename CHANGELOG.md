@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.9.0-beta2
+
+### New
+- **Advanced settings (box at the top of the window)**: unticked, the window is one page with no
+  tabs: presets, main quality settings, HDR output and peak brightness, contrast, brightness, camera
+  zoom, filter, filter strength and ambiance mode. Ticked, every tab and every setting shows. New
+  installs start unticked; if you already used Panorama, it starts ticked. The search always finds
+  every setting.
+- **Undo and Redo (buttons under the tabs, `/pano undo`, `/pano redo`, minimap menu)**: Undo
+  cancels your last change: slider, box, preset, filter, ambiance or Reset all. Redo puts it back.
+  The last 20 changes are kept until `/reload`.
+- **Mode (Ambiance tab)**: one menu picks Off, Automatic day and night, or Automatic ambiance. It
+  replaces the Automatic ambiance box and the Automatic day and night line. The day and night
+  lines show only in that mode.
+
+### Changed
+- **Undo last preset** becomes **Undo**, under the tabs. **Reset all** can now be undone.
+
+### Removed
+- **Full-screen glow** (`ffxGlow`): it has no visible effect on WoW Forever, and with it off the
+  bloom stayed. Use **Bloom intensity** (Image section) to lower the bloom.
+
 ## 1.9.0-beta1
 
 ### New

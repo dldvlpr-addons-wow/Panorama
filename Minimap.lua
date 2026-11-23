@@ -1,5 +1,5 @@
 -- Bouton de minimap : logo Panorama, déplaçable autour de la minimap, sans bibliothèque.
--- Clic gauche : panneau. Clic droit : préréglages, annulation, redémarrage du moteur.
+-- Clic gauche : panneau. Clic droit : préréglages, annulation, rétablissement, redémarrage du moteur.
 local addonName, NS = ...
 local L = NS.L
 
@@ -43,6 +43,9 @@ local function ShowMenu()
         root:CreateDivider()
         if NS.CanUndo and NS.CanUndo() then
             root:CreateButton(L.OPT_UNDO, function() NS.CommitTyping() NS.Undo() end)
+        end
+        if NS.CanRedo and NS.CanRedo() then
+            root:CreateButton(L.OPT_REDO, function() NS.CommitTyping() NS.Redo() end)
         end
         root:CreateButton(L.OPT_RESTART, NS.RestartGraphics)
     end)

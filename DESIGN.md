@@ -16,18 +16,19 @@ de la fenêtre, hors logo, est la capture teintée des vignettes de teinte : c'e
 
 ## 2. Structure
 
-Fenêtre `BasicFrameTemplate` 610 x 640, déplaçable, fermée par Échap (inchangé).
+Fenêtre `BasicFrameTemplate` 610 x 664, déplaçable, fermée par Échap.
 
 | Zone | y (depuis le haut) | Contenu |
 |---|---|---|
 | Barre de titre | 0-24 | gabarit, bouton fermer ; aucun texte ajouté |
 | En-tête | 26-66 | logo 32 x 32, titre, sous-titre ; recherche à droite |
-| Onglets | 70-102 | 6 onglets en 2 groupes, filet sous la rangée à y 102 |
-| Bloc préréglages | 110-158 | onglet Qualité seulement |
-| Bloc ambiance | 110-158 | onglet Ambiance seulement : case « Ambiance auto » et lieu · moment détectés (ligne 1), menu du contexte à modifier, largeur 200 (groupe Zones : zone courante, zones réglées, sous-menu « Toutes les zones » : un sous-menu défilant par continent, hauteur 320, zones sans continent connu en direct), puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
-| Bloc Mes filtres | 110-158 | onglet Mes filtres seulement : libellé « Filtre à modifier » et menu des filtres du joueur, largeur 200, défilant au-delà de 320 de haut, puis bouton « Nouveau » (écart 8, texte + 24, min 80) (ligne 1, aide `CUSTOM_FILTER_TIP` en infobulle du menu), libellé « Nom », boîte de saisie 190 x 20, 24 caractères, puis bouton « Supprimer » (écart 8, texte + 24, min 80, confirmation, grisé quand il ne reste qu'un filtre) (ligne 2) |
-| Liste défilante | 166 (Qualité, Mes filtres, Ambiance) ou 110 (autres) jusqu'à 592 | sections repliables, lignes de réglage |
-| Pied | 596-632 | filet à y 596, 2 cases à gauche, lien rouge Tout réinitialiser et bouton Redémarrer à droite |
+| Onglets | 70-102 | 6 onglets en 2 groupes, filet sous la rangée à y 102 ; aucun sans Réglages avancés |
+| Barre d'outils | 104-130 | tous les onglets : case « Réglages avancés » `TOPLEFT` (10, -105) à gauche ; à droite, boutons Rétablir `TOPRIGHT` (-14, -107) puis Annuler à 6 à sa gauche, hauteur 22, largeur texte + 24 (min 90), grisés quand la file est vide (infobulle gardée au survol). Sans Réglages avancés : barre remontée de 34 (y 70-96), Rétablir à `TOPRIGHT` (-150, -73), à gauche du menu de langue |
+| Bloc préréglages | 134-182 | onglet Qualité seulement ; sans Réglages avancés : 100-148, page unique |
+| Bloc ambiance | 134-182 | onglet Ambiance seulement (sans Réglages avancés : ligne 1 seule, à y 152, page unique) : libellé « Mode » et menu Mode (Désactivé, Jour et nuit automatiques, Ambiance auto), largeur 200, puis lieu · moment détectés à droite (ligne 1) ; en Réglages avancés seulement, ligne 2 : menu du contexte à modifier, largeur 200 (groupe Zones : zone courante, zones réglées, sous-menu « Toutes les zones » : un sous-menu défilant par continent, hauteur 320, zones sans continent connu en direct), puis bouton « Type de zone » (texte + 24, min 100) visible quand une zone est éditée (ligne 2) |
+| Bloc Mes filtres | 134-182 | onglet Mes filtres seulement : libellé « Filtre à modifier » et menu des filtres du joueur, largeur 200, défilant au-delà de 320 de haut, puis bouton « Nouveau » (écart 8, texte + 24, min 80) (ligne 1, aide `CUSTOM_FILTER_TIP` en infobulle du menu), libellé « Nom », boîte de saisie 190 x 20, 24 caractères, puis bouton « Supprimer » (écart 8, texte + 24, min 80, confirmation, grisé quand il ne reste qu'un filtre) (ligne 2) |
+| Liste défilante | 190 (Qualité, Mes filtres, Ambiance), 134 (autres onglets et recherche) ; sans Réglages avancés : 178, 100 en recherche ; jusqu'à 616 | sections repliables, lignes de réglage |
+| Pied | 620-656 | filet à y 620, 2 cases à gauche, lien rouge Tout réinitialiser et bouton Redémarrer à droite |
 
 ### Onglets (nouveau)
 
@@ -56,7 +57,13 @@ par `tests/build_guide.lua`.
 | Avancé | HDR, Avancé (console seulement) | ~14 |
 | Filtres | Filtres | 8 (filtre du joueur en tête) |
 | Mes filtres | — | 9, celles du filtre ouvert : rouge, vert, bleu, intensité de la teinte, vignette, grain, contraste, luminosité, gamma (hors recherche) |
-| Ambiance | Ambiance auto, Jour et nuit | 7 pour un lieu (préréglage graphique et distance des décors en tête, puis filtre du joueur, teinte, intensité, vignette, grain), 2 pour un moment (clés du contexte choisi seulement, hors recherche) ; puis 5 (jour et nuit auto, teinte de jour, intensité, teinte de nuit, intensité) |
+| Ambiance | Ambiance auto, Jour et nuit | 7 pour un lieu (préréglage graphique et distance des décors en tête, puis filtre du joueur, teinte, intensité, vignette, grain), 2 pour un moment (clés du contexte choisi seulement, hors recherche, Réglages avancés seulement) ; puis 4 (teinte de jour, intensité, teinte de nuit, intensité), section affichée seulement en mode Jour et nuit ; la case `autoDayNight` n'a plus de ligne, le menu Mode la remplace |
+
+Sans Réglages avancés (`NS.db.advancedMode` faux, défaut d'une nouvelle installation ; vrai pour un joueur
+qui avait déjà Panorama), la fenêtre est une page unique, sans onglets : préréglages, menu Mode de l'ambiance, puis les lignes
+`basic = true` sans titres de section ni repli : `farclip`, `volumeFog`, `shadowLevel`, `SSAO`,
+`waterDetail`, `gxMultisample`, `ResampleSharpness`, `Contrast`, `Brightness`, `HDROutput`,
+`useHDRPeakBrightness`, `HDRPeakBrightness`, `cameraDistanceMaxZoomFactor`, `tint`, `tintStrength`. La recherche trouve toujours tous les réglages.
 
 Raison : les préréglages ne touchent que l'onglet Qualité (réglages à `levels`), ils y vivent seuls.
 Les réglages « console seulement » (HDR, LOD) sortent du chemin courant. Les filtres, visuels,
@@ -82,11 +89,10 @@ Aucun résultat : « Aucun réglage ne correspond » (`GameFontDisable`, clé ne
 
 ### Bloc préréglages (onglet Qualité)
 
-- Ligne 1 (y 110-130) : « Préréglages » `GameFontNormal` à x 14 ; bouton Annuler le dernier
-  préréglage aligné à droite (-14), hauteur 22, largeur = largeur du texte + 24 (min 120). À sa gauche (écart 6), bouton « Par lieu », largeur du
-  texte + 24 (min 100) : ouvre l'onglet Ambiance sur la zone réglée, sinon sur le lieu du joueur.
+- Ligne 1 (y 134-154) : « Préréglages » `GameFontNormal` à x 14 ; bouton « Par lieu » aligné à droite (-14),
+  hauteur 22, largeur du texte + 24 (min 100), en Réglages avancés seulement : ouvre l'onglet Ambiance sur la zone réglée, sinon sur le lieu du joueur.
   Libellé « Ici : Bas · 400 » tant qu'un lieu impose ses réglages graphiques ; explication en infobulle.
-- Ligne 2 (y 134-158) : 4 boutons `UIPanelButtonTemplate` 24 de haut, largeur égale
+- Ligne 2 (y 158-182) : 4 boutons `UIPanelButtonTemplate` 24 de haut, largeur égale
   (586 - 3 x 6) / 4 = 142, espacés de 6.
 - Descriptions des préréglages (`PRESET_*_DESC`) et `OPT_PRESET_TIP` : dans l'infobulle de chaque
   bouton (titre blanc, description en couleur aide). Plus de texte sous les boutons.
@@ -186,7 +192,7 @@ Dépendances qui désactivent une ligne : `volumeFogLevel` si `volumeFog` coupé
 `tintDayStrength` si `autoDayNight` coupé ou `tintDay` = 0,
 `tintNightStrength` si `autoDayNight` coupé ou `tintNight` = 0. Champ `requires` dans la définition du
 réglage. Les lignes de l'onglet Filtres suivies par l'ambiance sont grisées quand l'ambiance auto est active ;
-`tint` et `tintStrength` le sont aussi quand `autoDayNight` est coché. Filtre du joueur choisi (`customFilter` autre que 0) :
+`tint` et `tintStrength` le sont aussi en mode Jour et nuit. Filtre du joueur choisi (`customFilter` autre que 0) :
 `tint`, `tintStrength`, `vignette` et `grain` de la même table (filtres de base, lieu ou zone) sont grisés, il les remplace ; `tintDay`, `tintNight` et leurs intensités aussi.
 Onglet Mes filtres ouvert : le filtre ouvert est posé sur le monde (aperçu, contraste, luminosité et gamma compris), jusqu'au changement d'onglet, à une recherche ou à la fermeture.
 

@@ -13,7 +13,7 @@ So benutzt du Panorama auf WoW Forever und richtest HDR unter Windows ein.
 Der Minimap-Button:
 
 - Linksklick öffnet oder schließt das Fenster.
-- Rechtsklick zeigt die Voreinstellungen, Rückgängig und den Neustart der Grafik.
+- Rechtsklick zeigt die Voreinstellungen, Rückgängig, Wiederholen und den Neustart der Grafik.
 - Ziehe ihn, um ihn um die Minimap zu bewegen. `/pano minimap` zeigt oder versteckt ihn.
 
 ## 2. Das Fenster
@@ -22,6 +22,8 @@ Der Minimap-Button:
 |---|---|
 | Suchfeld (oben rechts) | Gib ein Wort ein, um die passenden Einstellungen aller Reiter aufzulisten. Leere es, um zurückzukehren. |
 | Reiter | Qualität, Oberfläche, Erweitert (Spieleinstellungen), dann Filter, Meine Filter, Stimmung (Effekte von Panorama). Der geöffnete Reiter wird gespeichert. |
+| Erweiterte Einstellungen (unter dem Titel) | Nicht angehakt: keine Reiter, eine Seite mit den Voreinstellungen, den wichtigsten Qualitätseinstellungen (Sichtweite, volumetrischer Nebel, Schatten, Umgebungsverdeckung, Wasserdetails, Kantenglättung, Schärfeabschwächung), HDR-Ausgabe und Spitzenhelligkeit, Kontrast, Helligkeit, Kameradistanz, Filter, Filterstärke und dem Stimmungsmodus. Angehakt: alle Reiter und alle Einstellungen. Bei der Erstinstallation ist es nicht angehakt; wenn du Panorama schon benutzt hast, ist es angehakt. Die Suche findet immer alle Einstellungen. |
+| Rückgängig, Wiederholen (unter den Reitern, rechts) | Rückgängig macht deine letzte Änderung rückgängig: Regler, Feld, Voreinstellung, Filter, Stimmung oder Alles zurücksetzen. Wiederholen stellt sie wieder her. Die letzten 20 Änderungen bleiben bis `/reload` erhalten. |
 | Sprachauswahl (rechts neben den Reitern) | Spielsprache oder eine von zehn Sprachen. Eine Änderung lädt die Oberfläche neu. |
 | Anleitung (links neben dem Suchfeld) | Öffnet diese Anleitung im Spiel. |
 | Voreinstellungen (Reiter Qualität) | Niedrig, Mittel, Hoch, Extra. Die Voreinstellung, die zu deinen Einstellungen passt, ist hervorgehoben. |
@@ -56,8 +58,8 @@ Klicke auf einen Abschnittstitel, um ihn ein- oder auszuklappen.
 Voreinstellungen ändern nur die Grafikqualitäts-Einstellungen im Reiter Qualität. Sie ändern nicht
 Kamera, Maus, Oberfläche, Schärfung, niedrige Latenz, HDR oder Filter.
 
-Anders überlegt? **Letzte Voreinstellung rückgängig** (Button neben den Voreinstellungen, oder `/pano undo`)
-stellt die Einstellungen von vor der letzten Voreinstellung wieder her.
+Anders überlegt? **Rückgängig** (unter den Reitern, oder `/pano undo`)
+stellt die Einstellungen von vor der Voreinstellung wieder her.
 
 ## 4. Filter
 
@@ -77,8 +79,10 @@ Der Reiter Filter fügt Effekte über dem Bild hinzu. Sie ändern keine Spielein
 
 Der Reiter Stimmung ändert Tönung, Himmel, Vignette und Körnung von selbst, passend zu deinem Ort.
 
-- **Automatische Stimmung**: aktiviert folgen diese Filter Ort und Tageszeit. Standardmäßig aus. Die
-  Werte des Reiters Filter bleiben gespeichert und kehren zurück, wenn du sie ausschaltest.
+- **Modus** (oben im Reiter): **Aus** (der Reiter Filter gilt überall), **Automatisch Tag und Nacht** (siehe Tag und Nacht unten) oder **Automatische Stimmung**. Standardmäßig aus.
+- **Automatische Stimmung**: diese Filter folgen Ort und Tageszeit. Die
+  Werte des Reiters Filter bleiben gespeichert und kehren zurück, wenn du den Modus wechselst.
+  Ohne Erweiterte Einstellungen zeigt die einzelne Seite nur den Modus und den erkannten Ort; hake Erweiterte Einstellungen an, um die Kontexte zu bearbeiten.
 - **Ort**: legt Tönung, Vignette und Körnung fest. Reihenfolge: Dungeon oder Schlachtzug, Innenraum,
   Wetter (Regen, Schnee, Sandsturm), dann die Art der Zone: gemäßigte Lande, Wüsten und Ödland,
   Schneelande, Dschungel und Sumpf, verderbte Lande, Vulkanlande, Arkane Wälder. Eine noch unbekannte
@@ -100,14 +104,13 @@ Der Reiter Stimmung ändert Tönung, Himmel, Vignette und Körnung von selbst, p
 - **Alle Zonen**: Untermenü desselben Menüs, mit allen bekannten Zonen. Wähle eine, um sie einzustellen, ohne dort zu sein. Die Zonen sind nach Kontinent geordnet.
 - **Voreinstellung** und **Sichtweite der Umgebung** (erste Zeilen eines Ortes oder einer Zone): Sie gelten, solange du an diesem Ort bist, über deinen eigenen Einstellungen, mit oder ohne automatische Stimmung. Die Sichtweite des Ortes hat Vorrang vor der Sichtweite der Voreinstellung. Deine eigenen Einstellungen bleiben gespeichert und kommen zurück, wenn du gehst. **Meine Einstellungen** ändert nichts. Beispiel: Niedrig in Dungeons, Extra in einer Zone, die du magst. In einem Dungeon oder Schlachtzug stellt die erste Auswahl des Menüs nur diesen Dungeon ein. Im Tab Qualität öffnet die Schaltfläche **Nach Ort** diese Zeilen für den Ort, an dem du bist; sie zeigt **Hier: …**, solange ein Ort eigene Werte vorgibt. Im Kampf wartet die Änderung bis zum Ende des Kampfes.
 - **Mein Filter** (erste Zeile der Filter eines Ortes oder einer Zone): Dieser Ort nutzt einen deiner Filter aus dem Reiter Meine Filter, mit dessen Kontrast, Helligkeit und Gamma, solange die automatische Stimmung aktiviert ist.
-- **Tag und Nacht** (unten im Reiter): **Automatisch Tag und Nacht** legt tagsüber den **Tagfarbton** und nachts den **Nachtfarbton**
+- **Tag und Nacht** (Modus **Automatisch Tag und Nacht**): Panorama legt tagsüber den **Tagfarbton** und nachts den **Nachtfarbton**
   auf, nach Tag und Nacht des Spiels. Sie ersetzen den Farbton des Reiters Filter. Der Wechsel erfolgt allmählich von 19 bis
-  21 Uhr und von 5 bis 7 Uhr (Serverzeit). **Tagfarbtonstärke** und **Nachtfarbtonstärke** legen fest, wie stark sie sind.
-  Es funktioniert nicht zusammen mit der automatischen Stimmung: Das eine einzuschalten schaltet das andere aus.
+  21 Uhr und von 5 bis 7 Uhr (Serverzeit). Die Tag- und Nachtfarbtöne und ihre Stärken werden mit Erweiterte Einstellungen festgelegt.
 
 ## 5. Meine Filter
 
-Der Reiter Meine Filter dient dazu, beliebig viele eigene Filter zu erstellen. **Neu** fügt einen hinzu, **Löschen** entfernt den geöffneten: der Reiter Filter, Orte und Zonen, die ihn nutzten, wechseln zu Keiner.
+Der Reiter Meine Filter (mit Erweiterte Einstellungen sichtbar) dient dazu, beliebig viele eigene Filter zu erstellen. **Neu** fügt einen hinzu, **Löschen** entfernt den geöffneten: der Reiter Filter, Orte und Zonen, die ihn nutzten, wechseln zu Keiner.
 
 - **Zu bearbeitender Filter**: wählt den Filter, den die Zeilen darunter einstellen. **Name**: gib ihm einen Namen (Enter zum Bestätigen).
 - **Rot**, **Grün**, **Blau** (in %): Farbe des Farbtons des Filters. **Farbtonstärke**: seine Stärke.
@@ -198,7 +201,8 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 |---|---|
 | `/pano` | Das Fenster öffnen oder schließen |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Eine Voreinstellung anwenden |
-| `/pano undo` | Die Einstellungen von vor der letzten Voreinstellung wiederherstellen |
+| `/pano undo` | Die letzte Änderung rückgängig machen |
+| `/pano redo` | Die gerade rückgängig gemachte Änderung wiederherstellen |
 | `/pano reset` | Jede Einstellung und jeden Filter auf Standard zurücksetzen |
 | `/pano status` | Zeigt im Chat den erkannten Ort, die Tageszeit und die gerade angewendeten Filter (während einer Überblendung die Zielwerte) |
 | `/pano apply` | In Panorama geänderte Einstellungen erneut schreiben |
@@ -211,5 +215,5 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 - Der Button **Standard** des Grafikmenüs des Spiels setzt nur die Einstellungen zurück, die dieses Menü
   verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in `/pano`.
 - **Alles zurücksetzen** (Fußzeile, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
-  Einstellung und jeden Filter auf den Standard zurück. Lässt sich nicht rückgängig machen.
+  Einstellung und jeden Filter auf den Standard zurück. **Rückgängig** macht es bis `/reload` rückgängig.
   Der Tab Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.

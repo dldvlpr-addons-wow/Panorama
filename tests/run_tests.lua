@@ -281,14 +281,105 @@ combat = false
 handler(frame, "PLAYER_REGEN_ENABLED")
 assert(cvars.farclip == "1000", "annulation écrite après le combat")
 
--- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, plus d'annulation.
+-- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, annulable.
 local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } })
 SlashCmdList.PANORAMA("low")
 cvars.cameraZoomSpeed = "35"   -- réglé par le jeu, jamais touché dans Panorama
 SlashCmdList.PANORAMA("reset")
 assert(cvars.cameraZoomSpeed == "35", "réglage non touché laissé au jeu")
-assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and not nsReset.CanUndo(), "CVars remises au jeu")
+assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and nsReset.CanUndo(), "CVars remises au jeu")
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.letterbox == 0, "filtres remis au défaut")
+bands = {}   -- calque de filtres créé par l'annulation (grain rendu)
+SlashCmdList.PANORAMA("undo")
+assert(cvars.farclip == "400" and PanoramaDB.touched.farclip and PanoramaDB.filters.grain == 50, "reset annulé")
+
+-- Historique : plusieurs pas, Rétablir, file Rétablir vidée par une modification, 20 pas au plus.
+local nsHistory = Load(nil)
+SlashCmdList.PANORAMA("low")
+nsHistory.Checkpoint()
+PanoramaDB.filters.vignette = 40
+SlashCmdList.PANORAMA("undo")
+assert(PanoramaDB.filters.vignette == 0 and cvars.farclip == "400" and nsHistory.CanRedo(), "un pas annulé")
+SlashCmdList.PANORAMA("undo")
+assert(cvars.farclip == "1000" and not nsHistory.CanUndo(), "deux pas annulés")
+SlashCmdList.PANORAMA("redo")
+SlashCmdList.PANORAMA("redo")
+assert(cvars.farclip == "400" and PanoramaDB.filters.vignette == 40 and not nsHistory.CanRedo(), "deux pas rétablis")
+SlashCmdList.PANORAMA("undo")
+nsHistory.Checkpoint()   -- modification sans effet : Rétablir gardé
+assert(nsHistory.CanRedo(), "point sans effet : Rétablir gardé")
+nsHistory.Checkpoint()
+PanoramaDB.filters.vignette = 10
+assert(not nsHistory.CanRedo(), "modification : Rétablir vidé")
+for step = 1, 25 do
+    nsHistory.Checkpoint()
+    PanoramaDB.filters.grain = step
+end
+for _ = 1, 25 do SlashCmdList.PANORAMA("undo") end
+assert(PanoramaDB.filters.grain == 5, "20 pas gardés")
+-- Nouvelle modification après une annulation, même suivie d'un point sans effet : Rétablir vidé.
+nsHistory = Load(nil)
+for _, command in ipairs({ "low", "undo", "high", "high" }) do SlashCmdList.PANORAMA(command) end
+assert(not nsHistory.CanRedo(), "point sans effet après une modification : Rétablir vidé")
+-- Points sans effet : ne prennent pas de pas.
+nsHistory = Load(nil)
+for _ = 1, 22 do SlashCmdList.PANORAMA("low") end
+SlashCmdList.PANORAMA("medium")
+for _ = 1, 25 do SlashCmdList.PANORAMA("undo") end
+assert(cvars.farclip == "1000", "points sans effet hors des 20 pas")
+-- Changement fait dans le menu du jeu entre deux pas : Annuler ne le défait pas.
+nsHistory = Load(nil)
+SlashCmdList.PANORAMA("low")
+cvars.cameraDistanceMaxZoomFactor = "1.5"
+handler(frame, "CVAR_UPDATE", "cameraDistanceMaxZoomFactor")
+SlashCmdList.PANORAMA("undo")
+assert(cvars.farclip == "1000" and cvars.cameraDistanceMaxZoomFactor == "1.5", "changement du jeu gardé par Annuler")
+-- Annuler en combat : le message dit que l'écriture attend la fin du combat.
+nsHistory = Load(nil)
+SlashCmdList.PANORAMA("low")
+local historyPrinted, historyPrint = {}, print
+print = function(text) historyPrinted[#historyPrinted + 1] = text end
+combat = true
+SlashCmdList.PANORAMA("undo")
+combat = false
+print = historyPrint
+assert(historyPrinted[#historyPrinted]:find(nsHistory.L.MSG_APPLIED_AFTER_COMBAT, 1, true) and cvars.farclip == "400",
+    "Annuler en combat : écriture annoncée pour la fin du combat")
+handler(frame, "PLAYER_REGEN_ENABLED")
+assert(cvars.farclip == "1000", "Annuler en combat : écrit à la sortie du combat")
+-- Annuler une suppression : le filtre ouvert à la suppression est rouvert.
+nsHistory = Load(nil)
+local openedFilter = 3
+nsHistory.GetEditedCustomFilter = function() return openedFilter end
+nsHistory.SetEditedCustomFilter = function(index) openedFilter = index end
+nsHistory.Checkpoint()
+PanoramaDB.filters.vignette = 30
+openedFilter = 2
+SlashCmdList.PANORAMA("undo")
+assert(openedFilter == 3, "Annuler rouvre le filtre ouvert au moment du pas")
+-- Erreur pendant un préréglage : signalée, et le panneau se rafraîchit encore ensuite.
+nsHistory = Load(nil)
+local refreshed, reported = 0, nil
+nsHistory.RefreshOptions = function() refreshed = refreshed + 1 end
+geterrorhandler = function() return function(message) reported = message end end
+local setCVar = C_CVar.SetCVar
+C_CVar.SetCVar = function() error("refusé") end
+SlashCmdList.PANORAMA("low")
+C_CVar.SetCVar = setCVar
+refreshed = 0
+for _, setting in ipairs(nsHistory.settings) do
+    if setting.cvar == "farclip" then
+        nsHistory.db.values.farclip = 600
+        nsHistory.Change(setting)
+    end
+end
+assert(reported and reported:find("refusé") and refreshed == 1, "erreur de préréglage : panneau encore rafraîchi")
+geterrorhandler = nil
+-- Mode simple au premier lancement, mode avancé pour un joueur qui avait déjà Panorama.
+Load(nil)
+assert(PanoramaDB.advancedMode == false, "nouveau joueur : mode simple")
+Load({ values = {} })
+assert(PanoramaDB.advancedMode == true, "joueur existant : mode avancé")
 
 -- Recherche : casse ignorée hors ASCII (latin accentué, cyrillique).
 local options = { L = ns.L }
@@ -861,7 +952,7 @@ assert(nsImage.PlacePresetText(nsImage.AppliedPlacePreset()) == nil, "image du f
 mapID = 1429
 nsImage.UpdateAmbiance()
 assert(cvars.Contrast == "50" and cvars.Gamma == "1" and PanoramaDB.placePreset == nil, "image rendue à la sortie")
--- Tout réinitialiser : réglages rendus au jeu, filtres et ambiance par défaut, plus rien à annuler.
+-- Tout réinitialiser : réglages rendus au jeu, filtres et ambiance par défaut, annulable.
 local nsReset = Load(nil)
 SlashCmdList.PANORAMA("low")
 PanoramaDB.filters.vignette, PanoramaDB.ambiance.enabled, PanoramaDB.ambiance.zones[1] = 50, true, {}
@@ -869,7 +960,7 @@ PanoramaDB.customFilters[1].tintRed, PanoramaDB.customFilters[1].name, PanoramaD
 SlashCmdList.PANORAMA("reset")
 assert(#PanoramaDB.customFilters == 1 and PanoramaDB.customFilters[1].tintRed == 85 and PanoramaDB.customFilters[1].name == nil
     and PanoramaDB.filters.customFilter == 0, "reset : filtres du joueur remis à neuf")
-assert(next(PanoramaDB.touched) == nil and not nsReset.CanUndo(), "reset : réglages rendus au jeu")
+assert(next(PanoramaDB.touched) == nil and nsReset.CanUndo(), "reset : réglages rendus au jeu")
 assert(PanoramaDB.filters.vignette == 0, "reset : filtres par défaut")
 assert(not PanoramaDB.ambiance.enabled and next(PanoramaDB.ambiance.zones) == nil, "reset : ambiance par défaut")
 -- /pano status : contexte détecté et valeurs posées, ambiance active.

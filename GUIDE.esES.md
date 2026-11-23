@@ -13,7 +13,7 @@ Cómo usar Panorama en WoW Forever y cómo configurar HDR en Windows.
 El botón del minimapa:
 
 - El clic izquierdo abre o cierra la ventana.
-- El clic derecho muestra los preajustes, deshacer y el reinicio de los gráficos.
+- El clic derecho muestra los preajustes, deshacer, rehacer y el reinicio de los gráficos.
 - Arrástralo para moverlo alrededor del minimapa. `/pano minimap` lo muestra u oculta.
 
 ## 2. La ventana
@@ -22,6 +22,8 @@ El botón del minimapa:
 |---|---|
 | Cuadro de búsqueda (arriba a la derecha) | Escribe una palabra para listar los ajustes que coinciden de todas las pestañas. Bórrala para volver. |
 | Pestañas | Calidad, Interfaz, Avanzado (ajustes del juego), luego Filtros, Mis filtros, Ambiente (efectos de Panorama). Se recuerda la pestaña abierta. |
+| Ajustes avanzados (bajo el título) | Sin marcar: sin pestañas, una sola página con los preajustes, los ajustes principales de calidad (distancia de visión, niebla volumétrica, sombras, oclusión ambiental, detalle del agua, suavizado de bordes, atenuación de la nitidez), la salida HDR y el brillo máximo, el contraste, el brillo, la distancia de la cámara, el filtro, la intensidad del filtro y el modo de ambiente. Marcado: todas las pestañas y todos los ajustes. En la primera instalación está sin marcar; si ya usabas Panorama, está marcado. La búsqueda siempre encuentra todos los ajustes. |
+| Deshacer, Rehacer (bajo las pestañas, a la derecha) | Deshacer anula tu último cambio: control deslizante, casilla, preajuste, filtro, ambiente o Restablecer todo. Rehacer lo recupera. Los últimos 20 cambios se conservan hasta `/reload`. |
 | Selector de idioma (a la derecha de las pestañas) | Idioma del juego o uno de diez idiomas. Al cambiarlo se recarga la interfaz. |
 | Guía (a la izquierda del cuadro de búsqueda) | Abre esta guía en el juego. |
 | Preajustes (pestaña Calidad) | Bajo, Medio, Alto, Extra. Se resalta el preajuste que coincide con tus ajustes. |
@@ -56,8 +58,8 @@ Haz clic en el título de una sección para plegarla o desplegarla.
 Los preajustes solo cambian los ajustes de calidad gráfica de la pestaña Calidad. No tocan la cámara,
 el ratón, la interfaz, el enfoque, la baja latencia, HDR ni los filtros.
 
-¿Has cambiado de opinión? **Deshacer el último preajuste** (botón junto a los preajustes, o `/pano undo`)
-restaura los ajustes de antes del último preajuste.
+¿Has cambiado de opinión? **Deshacer** (bajo las pestañas, o `/pano undo`)
+restaura los ajustes de antes del preajuste.
 
 ## 4. Filtros
 
@@ -77,8 +79,9 @@ La pestaña Filtros añade efectos sobre la imagen. No cambian ningún ajuste de
 
 La pestaña Ambiente cambia sola el tinte, el cielo, la viñeta y el grano según dónde estés.
 
-- **Ambiente automático**: activado, estos filtros siguen el lugar y la hora del día. Desactivado por
-  defecto. Los valores de la pestaña Filtros siguen guardados y vuelven al desactivarlo.
+- **Modo** (parte superior de la pestaña): **Desactivado** (la pestaña Filtros se aplica en todas partes), **Día y noche automáticos** (ver Día y noche más abajo) o **Ambiente automático**. Desactivado por defecto.
+- **Ambiente automático**: estos filtros siguen el lugar y la hora del día. Los valores de la pestaña Filtros siguen guardados y vuelven al cambiar de modo.
+  Sin Ajustes avanzados, la página única solo muestra el modo y el lugar detectado; marca Ajustes avanzados para editar los contextos.
 - **Lugar**: define el tinte, la viñeta y el grano. Orden: mazmorra o banda, interior, clima (lluvia,
   nieve, tormenta de arena) y luego el tipo de zona: tierras templadas, desiertos y tierras áridas,
   tierras nevadas, jungla y pantano, tierras corruptas, tierras volcánicas, bosques arcanos. Una zona
@@ -101,14 +104,13 @@ La pestaña Ambiente cambia sola el tinte, el cielo, la viñeta y el grano segú
 - **Todas las zonas**: submenú del mismo menú, con todas las zonas conocidas. Elige una para ajustarla sin estar allí. Las zonas están ordenadas por continente.
 - **Preajuste** y **Distancia del escenario** (primeras líneas de un lugar o de una zona): se aplican mientras estás en ese lugar, por encima de tus propios ajustes, con el ambiente automático activado o no. La distancia del escenario del lugar va antes que la del preajuste. Tus propios ajustes se conservan y vuelven cuando te vas. **Mis ajustes** no cambia nada. Ejemplo: Bajo en mazmorras, Extra en una zona que te gusta. En una mazmorra o banda, la primera opción del menú ajusta solo esa mazmorra. En la pestaña Calidad, el botón **Por lugar** abre estas líneas para el lugar donde estás; muestra **Aquí: …** mientras un lugar aplica los suyos. En combate, el cambio espera al final del combate.
 - **Mi filtro** (primera línea de los filtros de un lugar o de una zona): ese lugar usa uno de tus filtros de la pestaña Mis filtros, con su contraste, su brillo y su gamma, mientras el ambiente automático está activado.
-- **Día y noche** (abajo de la pestaña): **Día y noche automáticos** aplica el **Tono diurno** de día y el **Tono nocturno** de
+- **Día y noche** (modo **Día y noche automáticos**): Panorama aplica el **Tono diurno** de día y el **Tono nocturno** de
   noche, según el día y la noche del juego. Sustituyen al tono de la pestaña Filtros. El cambio es gradual de 19:00 a 21:00 y de 5:00
-  a 7:00 (hora del servidor). **Intensidad del tono diurno** e **Intensidad del tono nocturno** definen su fuerza.
-  No funciona a la vez que la ambientación automática: activar uno desactiva el otro.
+  a 7:00 (hora del servidor). Los tonos diurno y nocturno y sus intensidades se definen con Ajustes avanzados.
 
 ## 5. Mis filtros
 
-La pestaña Mis filtros sirve para crear tantos filtros propios como quieras. **Nuevo** añade uno, **Eliminar** quita el filtro abierto: la pestaña Filtros, los lugares y las zonas que lo usaban vuelven a Ninguno.
+La pestaña Mis filtros (visible con Ajustes avanzados) sirve para crear tantos filtros propios como quieras. **Nuevo** añade uno, **Eliminar** quita el filtro abierto: la pestaña Filtros, los lugares y las zonas que lo usaban vuelven a Ninguno.
 
 - **Filtro a editar**: elige el filtro que ajustan las líneas de abajo. **Nombre**: ponle un nombre (Intro para confirmar).
 - **Rojo**, **Verde**, **Azul** (en %): color del tono del filtro. **Intensidad del tono**: su fuerza.
@@ -198,7 +200,8 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 |---|---|
 | `/pano` | Abrir o cerrar la ventana |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Aplicar un preajuste |
-| `/pano undo` | Restaurar los ajustes de antes del último preajuste |
+| `/pano undo` | Deshacer el último cambio |
+| `/pano redo` | Rehacer el cambio que acabas de deshacer |
 | `/pano reset` | Devolver cada ajuste y cada filtro a su valor por defecto |
 | `/pano status` | Muestra en el chat el lugar y el momento detectados y los filtros aplicados ahora (durante un fundido, los valores de destino) |
 | `/pano apply` | Escribir de nuevo los ajustes cambiados en Panorama |
@@ -211,5 +214,5 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 - El botón **Predeterminado** del menú de Gráficos del juego restablece solo los ajustes que gestiona
   ese menú, y Panorama lo sigue. Usa los botones Predeterminado de `/pano` para los demás y para los filtros.
 - **Restablecer todo** (pie, con confirmación) o `/pano reset`: devuelve cada ajuste cambiado en Panorama
-  y cada filtro a su valor por defecto. No se puede deshacer.
+  y cada filtro a su valor por defecto. **Deshacer** lo anula hasta `/reload`.
   La pestaña Ambiente y las zonas ajustadas también se restablecen. Tus filtros de la pestaña Mis filtros también se borran.

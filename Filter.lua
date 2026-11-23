@@ -69,10 +69,10 @@ NS.filterSettings = {
                            { __index = function(_, index) return NS.CustomFilterName(index) end }) },
     -- Teinte : la fenêtre l'affiche en vignettes cliquables (Options.lua).
     -- `strength` : intensité remise à son défaut quand on clique une teinte à intensité 0.
-    { key = "tint", strength = "tintStrength", min = 0, max = #TINTS, step = 1, default = 0,
+    { key = "tint", basic = true, strength = "tintStrength", min = 0, max = #TINTS, step = 1, default = 0,
       names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
                 "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
-    { key = "tintStrength", requires = "tint", min = 0, max = 100, step = 5, default = 50 },
+    { key = "tintStrength", basic = true, requires = "tint", min = 0, max = 100, step = 5, default = 50 },
     -- Ciel : même palette que la teinte, en dégradé, pleine force en haut de l'écran.
     { key = "sky", min = 0, max = #TINTS, step = 1, default = 0,
       names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",

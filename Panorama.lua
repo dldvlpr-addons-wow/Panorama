@@ -24,13 +24,14 @@ NS.L = L
 -- estimées. Extra : Élevé, et farclip 7000.
 -- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `requires` : réglage grisé tant que
 -- la CVar nommée est coupée (false ou 0).
+-- `basic` : ligne de la page unique du mode simple (case « Réglages avancés » décochée).
 -- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
 -- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
     { title = "SECTION_VIEW", tab = "quality" },
-    { cvar = "farclip", menu = "MENU_VIEW_DISTANCE", min = 185, max = 10000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
+    { cvar = "farclip", basic = true, menu = "MENU_VIEW_DISTANCE", min = 185, max = 10000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
     { cvar = "horizonfarclip", menu = "MENU_VIEW_DISTANCE", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
-    { cvar = "volumeFog", default = false, levels = { false, false, true, true } },
+    { cvar = "volumeFog", basic = true, default = false, levels = { false, false, true, true } },
     -- Défaut 3 relevé en jeu (1.60.1.70790). La CVar accepte 0-4 ; plafond 3 à la demande, imposé
     -- (`hardMax`) : le jeu la repasse parfois à 4, que le curseur ne sait pas afficher.
     { cvar = "volumeFogLevel", requires = "volumeFog", min = 0, max = 3, hardMax = true, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
@@ -41,38 +42,38 @@ NS.settings = {
     { cvar = "groundEffectDist", menu = "MENU_GROUND_CLUTTER", min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 300, 300 } },
 
     { title = "SECTION_SHADOWS", tab = "quality" },
-    { cvar = "shadowLevel", menu = "MENU_SHADOWS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "shadowLevel", basic = true, menu = "MENU_SHADOWS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "shadowSoft", menu = "MENU_SHADOWS", default = true, levels = { false, false, true, true } },
     { cvar = "shadowTextureSize", menu = "MENU_SHADOWS", choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
     { cvar = "sunShafts", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
-    { cvar = "SSAO", menu = "MENU_SSAO", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
+    { cvar = "SSAO", basic = true, menu = "MENU_SSAO", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "SSFX", default = true, levels = { false, true, true, true } },
 
     { title = "SECTION_ENVIRONMENT", tab = "quality" },
     -- waterDetail 3 fait planter le client à l'entrée des Ruines de Lordaeron (signalé par un joueur) :
     -- plafond 2, imposé même à une valeur sauvegardée ou posée par /console (`hardMax`).
-    { cvar = "waterDetail", menu = "MENU_LIQUID", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
+    { cvar = "waterDetail", basic = true, menu = "MENU_LIQUID", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "skyCloudLod", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "WeatherDensity", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     -- Le menu natif demande de relancer le client (ClientRestart, Graphics.lua:1427, 1.60.1.70862).
     { cvar = "physicsLevel", menu = "MENU_PHYSICS", restart = "client", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
     { title = "SECTION_IMAGE", tab = "quality" },
-    { cvar = "gxMultisample", menu = "MENU_MSAA", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
+    { cvar = "gxMultisample", basic = true, menu = "MENU_MSAA", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
     { cvar = "ResampleAlwaysSharpen", default = true },
     -- Sens inverse du nom : 0 = netteté la plus forte, 2 = la plus faible (menu natif, 1.60.1.70938).
-    { cvar = "ResampleSharpness", menu = "MENU_SHARPNESS", min = 0, max = 2, step = 0.1, default = 0.5 },
+    { cvar = "ResampleSharpness", basic = true, menu = "MENU_SHARPNESS", min = 0, max = 2, step = 0.1, default = 0.5 },
     -- Valeurs relevées en jeu (1.60.1.70790) : 0 auto, 1 aucun, 2 intégré, 3 Reflex, 4 Reflex + Boost, 5 XeLL.
     { cvar = "LowLatencyMode", menu = "MENU_LOW_LATENCY", min = 0, max = 5, step = 1, default = 0,
       names = { [0] = "LATENCY_AUTO", "OPT_OFF", "LATENCY_BUILTIN", "Reflex", "Reflex + Boost", "XeLL" } },
-    { cvar = "ffxGlow", default = true, levels = { false, true, true, true } },
-    -- Bloom du rendu linéaire : seul réglage à effet visible (relevé en jeu 2026-11-21), ffxGlow n'en a pas.
+    -- Bloom du rendu linéaire : seul réglage à effet visible (relevé en jeu 2026-11-21). ffxGlow et
+    -- bloomEnable n'en ont pas : pas de ligne, pour ne pas laisser croire que le bloom est coupé.
     -- Curseur natif 0 à 1 par pas de 0.2 (Blizzard_SettingsDefinitions_Shared/Graphics.lua:1588).
     -- `advanced` : écrit seulement après modification, défaut lu dans le jeu.
     { cvar = "bloomUserMult", menu = "MENU_BLOOM", advanced = true, min = 0, max = 1, step = 0.2, default = 1 },
     -- Image du jeu entier. `place` : clé du réglage du filtre du joueur (NS.customFilterSettings) qui peut imposer sa valeur (NS.PlacePreset).
-    { cvar = "Contrast", menu = "MENU_CONTRAST", place = "contrast", advanced = true, min = 0, max = 100, step = 1, default = 50 },
-    { cvar = "Brightness", menu = "MENU_BRIGHTNESS", place = "brightness", advanced = true, min = 0, max = 100, step = 1, default = 50 },
+    { cvar = "Contrast", basic = true, menu = "MENU_CONTRAST", place = "contrast", advanced = true, min = 0, max = 100, step = 1, default = 50 },
+    { cvar = "Brightness", basic = true, menu = "MENU_BRIGHTNESS", place = "brightness", advanced = true, min = 0, max = 100, step = 1, default = 50 },
     { cvar = "Gamma", menu = "MENU_GAMMA", place = "gamma", advanced = true, min = 0.3, max = 2.8, step = 0.1, default = 1 },
     { cvar = "ffxDeath", default = false },
     { cvar = "violenceLevel", min = 0, max = 5, step = 1, default = 5 },
@@ -84,9 +85,9 @@ NS.settings = {
     -- Blizzard) ; HDRFactor actif seulement sous useHDRPeakBrightness. Bornes des curseurs choisies par
     -- Panorama, celles du moteur non relevées.
     { title = "SECTION_HDR", tab = "advanced" },
-    { cvar = "HDROutput", advanced = true, default = false },
-    { cvar = "useHDRPeakBrightness", advanced = true, default = false },
-    { cvar = "HDRPeakBrightness", requires = "useHDRPeakBrightness", advanced = true, min = 80, max = 2000, step = 10, default = 400 },
+    { cvar = "HDROutput", basic = true, advanced = true, default = false },
+    { cvar = "useHDRPeakBrightness", basic = true, advanced = true, default = false },
+    { cvar = "HDRPeakBrightness", basic = true, requires = "useHDRPeakBrightness", advanced = true, min = 80, max = 2000, step = 10, default = 400 },
     { cvar = "HDRFactor", requires = "useHDRPeakBrightness", advanced = true, min = 0, max = 2, step = 0.1, default = 2 },
     { cvar = "useHDRBrightness", advanced = true, default = false },
     { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
@@ -94,7 +95,7 @@ NS.settings = {
     { title = "SECTION_CAMERA", tab = "interface" },
     -- Max du curseur : relevés joueurs (/console accepte 4, et farclip 10000 gardé par le jeu). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
-    { cvar = "cameraDistanceMaxZoomFactor", menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
+    { cvar = "cameraDistanceMaxZoomFactor", basic = true, menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
     -- Absente du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
@@ -460,24 +461,165 @@ local function SetValue(setting, value)
     NS.Change(setting)
 end
 
--- Valeurs d'avant le dernier préréglage, gardées dans PanoramaDB.undo, et réglages touchés à ce
--- moment dans PanoramaDB.undoTouched : l'annulation rend aussi au jeu ceux qu'il gérait.
+-- Historique Annuler / Rétablir, en mémoire de session (vidé au /reload) : état d'avant chaque
+-- modification du joueur (CVars et réglages touchés, filtres, ambiance, filtres du joueur).
+-- NS.Checkpoint est appelé juste avant d'écrire ; une nouvelle modification vide Rétablir.
+local HISTORY_SIZE = 20
+local undoStack, redoStack = {}, {}
+
+local function Copy(value)
+    if type(value) ~= "table" then return value end
+    local copy = {}
+    for key, inner in pairs(value) do copy[key] = Copy(inner) end
+    return copy
+end
+
+local function Same(a, b)
+    if type(a) ~= "table" or type(b) ~= "table" then return a == b end
+    for key, value in pairs(a) do
+        if not Same(value, b[key]) then return false end
+    end
+    for key in pairs(b) do
+        if a[key] == nil then return false end
+    end
+    return true
+end
+
+local function Snapshot()
+    local db = NS.db
+    local state = { values = Copy(db.values), touched = Copy(db.touched), filters = Copy(db.filters),
+                    ambiance = Copy(db.ambiance), customFilters = Copy(db.customFilters) }
+    -- Cache des noms de donjon : ni un choix du joueur ni un pas d'historique.
+    state.ambiance.instanceNames = nil
+    return state
+end
+
+-- État au dernier point posé : Rétablir n'est vidé que si la modification qui suit change vraiment
+-- quelque chose (curseur relâché sur sa valeur, préréglage déjà actif : Rétablir gardé).
+local checkpointState
+
+-- Filtre ouvert dans Mes filtres au moment de chaque état : rendu par Annuler et Rétablir, hors de
+-- la comparaison des états (changer de filtre ouvert n'est pas une modification).
+local editedOf = setmetatable({}, { __mode = "k" })
+
+local function EditedCustomFilter()
+    return NS.GetEditedCustomFilter and NS.GetEditedCustomFilter()
+end
+
+-- Écritures groupées : une erreur au milieu est signalée et `batching` remis quand même, sinon le
+-- panneau ne se rafraîchit plus jusqu'au /reload.
+local function Batch(write)
+    batching, adjustedCount = true, 0
+    xpcall(write, function(message) geterrorhandler()(message) end)
+    batching = false
+end
+
+-- Point suivi d'une vraie modification : Rétablir vidé. Point sans effet : retiré, il ne prend
+-- pas l'un des 20 pas.
+local function DropStaleRedo()
+    if not checkpointState then return end
+    if not Same(checkpointState, Snapshot()) then
+        for index = #redoStack, 1, -1 do redoStack[index] = nil end
+    elseif undoStack[#undoStack] == checkpointState then
+        undoStack[#undoStack] = nil
+    end
+    checkpointState = nil
+end
+
+function NS.Checkpoint()
+    DropStaleRedo()
+    checkpointState = Snapshot()
+    editedOf[checkpointState] = EditedCustomFilter()
+    undoStack[#undoStack + 1] = checkpointState
+    if #undoStack > HISTORY_SIZE then table.remove(undoStack, 1) end
+end
+
+-- Changement fait hors de Panorama (menu du jeu, /console) : reporté dans les états de l'historique
+-- qui avaient la valeur d'avant, pour qu'Annuler ne le défasse pas avec le pas annulé.
+local function FollowExternalChange(setting, previous, value)
+    for _, stack in ipairs({ undoStack, redoStack }) do
+        for _, state in ipairs(stack) do
+            if NS.SameValue(setting, state.values[setting.cvar], previous) then state.values[setting.cvar] = value end
+        end
+    end
+end
+
+-- Remet l'état `state` : CVars changées réécrites (relues comme un changement du joueur), puis
+-- marque « touché » d'origine ; un réglage rendu au jeu le redevient.
+local function Restore(state)
+    local deferred = false   -- CVar rendue en combat : écrite à la sortie du combat
+    Batch(function()
+        for _, setting in ipairs(NS.settings) do
+            local cvar = setting.cvar
+            if cvar and state.values[cvar] ~= nil and NS.Exists(setting)
+                    and (not NS.SameValue(setting, state.values[cvar], NS.db.values[cvar])
+                         or state.touched[cvar] ~= NS.db.touched[cvar]) then
+                SetValue(setting, NS.Sanitize(setting, state.values[cvar]))
+                NS.db.touched[cvar] = state.touched[cvar]
+                if InCombatLockdown() then deferred = true end
+            end
+        end
+    end)
+    local instanceNames = NS.db.ambiance.instanceNames
+    NS.db.filters, NS.db.ambiance, NS.db.customFilters = state.filters, state.ambiance, state.customFilters
+    NS.db.ambiance.instanceNames = instanceNames
+    NS.LoadFilters(NS.db)   -- relève le nombre de filtres du joueur (choix `customFilter`)
+    NS.ApplyFilters()
+    if editedOf[state] and NS.SetEditedCustomFilter then NS.SetEditedCustomFilter(editedOf[state]) end
+    if NS.RefreshOptions then NS.RefreshOptions() end
+    ReportAdjustedCount()
+    return deferred
+end
+
+-- Dépile `from` jusqu'à un état différent de l'actuel (une modification sans effet ne compte pas),
+-- l'état actuel passe sur `to`. Rend false si rien ne diffère ; sinon true, puis vrai si une CVar attend la fin du combat.
+local function Step(from, to)
+    DropStaleRedo()
+    local current = Snapshot()
+    while #from > 0 do
+        local state = table.remove(from)
+        if not Same(state, current) then
+            to[#to + 1] = current
+            editedOf[current] = EditedCustomFilter()
+            return true, Restore(state)
+        end
+    end
+    if NS.RefreshOptions then NS.RefreshOptions() end   -- boutons grisés : pile vidée d'états sans effet
+    return false
+end
+
 function NS.CanUndo()
-    return NS.db.undo ~= nil
+    return #undoStack > 0
+end
+
+function NS.CanRedo()
+    DropStaleRedo()
+    return #redoStack > 0
+end
+
+-- En combat, les CVars rendues attendent la sortie du combat : le message le dit.
+local function ReportStep(doneMessage, nothingMessage, done, deferred)
+    print(L.PREFIX .. (done and doneMessage or nothingMessage))
+    if deferred then print(L.PREFIX .. L.MSG_APPLIED_AFTER_COMBAT) end
+end
+
+function NS.Undo()
+    ReportStep(L.MSG_UNDONE, L.MSG_NOTHING_TO_UNDO, Step(undoStack, redoStack))
+end
+
+function NS.Redo()
+    ReportStep(L.MSG_REDONE, L.MSG_NOTHING_TO_REDO, Step(redoStack, undoStack))
 end
 
 function NS.ApplyPreset(index)
-    NS.db.undo = {}
-    NS.db.undoTouched = {}
-    for cvar, value in pairs(NS.db.values) do NS.db.undo[cvar] = value end
-    for cvar, touched in pairs(NS.db.touched) do NS.db.undoTouched[cvar] = touched end
-    batching, adjustedCount = true, 0
-    for _, setting in ipairs(NS.settings) do
-        if setting.levels and NS.Exists(setting) then
-            SetValue(setting, NS.Sanitize(setting, setting.levels[index]))
+    NS.Checkpoint()
+    Batch(function()
+        for _, setting in ipairs(NS.settings) do
+            if setting.levels and NS.Exists(setting) then
+                SetValue(setting, NS.Sanitize(setting, setting.levels[index]))
+            end
         end
-    end
-    batching = false
+    end)
     if NS.RefreshOptions then NS.RefreshOptions() end
     print(L.PREFIX .. L.MSG_PRESET:format(NS.presets[index].label))
     ReportAdjustedCount()
@@ -485,49 +627,29 @@ function NS.ApplyPreset(index)
     if placePreset or placeViewDistance then print(L.PREFIX .. L.MSG_PRESET_HELD) end
 end
 
-function NS.Undo()
-    if not NS.db.undo then
-        print(L.PREFIX .. L.MSG_NOTHING_TO_UNDO)
-        return
-    end
-    local values, touched = NS.db.undo, NS.db.undoTouched
-    NS.db.undo, NS.db.undoTouched = nil, nil
-    batching, adjustedCount = true, 0
-    for _, setting in ipairs(NS.settings) do
-        if setting.cvar and setting.levels and values[setting.cvar] ~= nil and NS.Exists(setting) then
-            SetValue(setting, NS.Sanitize(setting, values[setting.cvar]))
-            if touched then NS.db.touched[setting.cvar] = touched[setting.cvar] end
-        end
-    end
-    batching = false
-    if NS.RefreshOptions then NS.RefreshOptions() end
-    print(L.PREFIX .. L.MSG_UNDONE)
-    ReportAdjustedCount()
-end
-
 -- Remise à zéro complète : chaque CVar modifiée dans Panorama à son défaut (NS.GameDefault), puis
 -- rendue au jeu (plus réécrite à la connexion) ; les autres suivent déjà le jeu et restent telles
 -- quelles. Chaque filtre à son défaut, ambiance coupée et remise aux valeurs livrées, zones
--- oubliées, filtres du joueur remis à neuf. Efface aussi l'annulation de préréglage.
+-- oubliées, filtres du joueur remis à neuf. Annulable comme toute modification.
 function NS.ResetAll()
-    NS.db.undo, NS.db.undoTouched = nil, nil
+    NS.Checkpoint()
     local restartNote = ""
-    batching, adjustedCount = true, 0
-    for _, setting in ipairs(NS.settings) do
-        if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
-            local default = NS.GameDefault(setting)
-            if setting.restart and NS.db.values[setting.cvar] ~= default then
-                if setting.restart == "client" then
-                    restartNote = " " .. L.OPT_NEEDS_CLIENT_RESTART
-                elseif restartNote == "" then
-                    restartNote = " " .. L.OPT_NEEDS_RESTART
+    Batch(function()
+        for _, setting in ipairs(NS.settings) do
+            if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
+                local default = NS.GameDefault(setting)
+                if setting.restart and NS.db.values[setting.cvar] ~= default then
+                    if setting.restart == "client" then
+                        restartNote = " " .. L.OPT_NEEDS_CLIENT_RESTART
+                    elseif restartNote == "" then
+                        restartNote = " " .. L.OPT_NEEDS_RESTART
+                    end
                 end
+                SetValue(setting, default)
+                NS.db.touched[setting.cvar] = nil
             end
-            SetValue(setting, default)
-            NS.db.touched[setting.cvar] = nil
         end
-    end
-    batching = false
+    end)
     for _, setting in ipairs(NS.filterSettings) do
         if setting.key then NS.db.filters[setting.key] = setting.default end
     end
@@ -627,8 +749,10 @@ events:SetScript("OnEvent", function(self, event, arg1)
         -- Réapplication coupée : rien n'était réécrit, rien à garder.
         local migrate = not firstRun and db.schema ~= 2 and db.applyOnLogin
         db.schema = 2
-        if type(db.undo) ~= "table" then db.undo = nil end
-        if type(db.undoTouched) ~= "table" then db.undoTouched = nil end
+        -- Ancienne annulation du dernier préréglage, sauvegardée : remplacée par l'historique de session.
+        db.undo, db.undoTouched = nil, nil
+        -- Mode simple au premier lancement ; un joueur qui avait déjà Panorama garde toutes ses lignes.
+        if type(db.advancedMode) ~= "boolean" then db.advancedMode = not firstRun end
         -- Fenêtre à onglets (layout 2) : sections toutes dépliées, l'ancien « Avancé replié » tombe une fois.
         if type(db.collapsed) ~= "table" or db.layout ~= 2 then db.collapsed = {} end
         db.layout = 2
@@ -708,6 +832,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
             if PlaceValue(setting) ~= nil then placeOverridden[setting.cvar] = true end
             local previous = NS.db.values[setting.cvar]
             NS.db.values[setting.cvar] = NS.Sanitize(setting, ReadCVar(setting))
+            if not batching then FollowExternalChange(setting, previous, NS.db.values[setting.cvar]) end
             -- Au-delà du plafond `hardMax` (menu du jeu, /console) : ramenée au maximum.
             if setting.hardMax and (ReadCVar(setting) or 0) > setting.max then NS.Apply(setting) end
             -- Valeur inchangée (réglages rendus en sortant d'un lieu) : le fondu en cours n'est pas coupé.
@@ -769,6 +894,9 @@ SlashCmdList.PANORAMA = function(message)
     elseif command == "undo" then
         if NS.CommitTyping then NS.CommitTyping() end
         NS.Undo()
+    elseif command == "redo" then
+        if NS.CommitTyping then NS.CommitTyping() end
+        NS.Redo()
     elseif command == "reset" then
         if NS.CommitTyping then NS.CommitTyping() end
         NS.ResetAll()

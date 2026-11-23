@@ -16,7 +16,7 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **47 settings and 13 filters** grouped by theme: view distance, vegetation, shadows and lighting,
+- **46 settings and 13 filters** grouped by theme: view distance, vegetation, shadows and lighting,
   environment, image, HDR, camera and interface, advanced, filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
@@ -65,7 +65,7 @@ Guide button in the panel opens the same guide in the game.
 | Vegetation and details | Grass density, grass distance |
 | Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
 | Environment | Water detail, sky detail, weather intensity, physics |
-| Image | Sharpening filter, sharpening reduction, low latency mode, full-screen glow, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects, contrast, brightness, gamma |
+| Image | Sharpening filter, sharpening reduction, low latency mode, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects, contrast, brightness, gamma |
 | Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
 | Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
 | Filters | Black bars, vignette, film grain, my filter, color tint, tint strength, sky, sky strength |
@@ -80,7 +80,8 @@ Guide button in the panel opens the same guide in the game.
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Apply a preset |
-| `/pano undo` | Restore the settings from before the last preset |
+| `/pano undo` | Cancel the last change |
+| `/pano redo` | Put back the change you just undid |
 | `/pano reset` | Put every setting and filter back to its default |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano minimap` | Show or hide the minimap button |

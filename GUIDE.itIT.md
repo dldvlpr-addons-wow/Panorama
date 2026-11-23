@@ -13,7 +13,7 @@ Come usare Panorama su WoW Forever e come configurare l'HDR su Windows.
 Il pulsante della minimappa:
 
 - Il clic sinistro apre o chiude la finestra.
-- Il clic destro mostra i preset, annulla e il riavvio della grafica.
+- Il clic destro mostra i preset, annulla, ripeti e il riavvio della grafica.
 - Trascinalo per spostarlo intorno alla minimappa. `/pano minimap` lo mostra o lo nasconde.
 
 ## 2. La finestra
@@ -22,6 +22,8 @@ Il pulsante della minimappa:
 |---|---|
 | Casella di ricerca (in alto a destra) | Digita una parola per elencare le impostazioni corrispondenti di tutte le schede. Cancellala per tornare indietro. |
 | Schede | Qualità, Interfaccia, Avanzate (impostazioni del gioco), poi Filtri, I miei filtri, Atmosfera (effetti di Panorama). La scheda aperta viene ricordata. |
+| Impostazioni avanzate (sotto il titolo) | Non spuntata: nessuna scheda, una sola pagina con le preimpostazioni, le impostazioni principali di qualità (distanza visiva, nebbia volumetrica, ombre, occlusione ambientale, dettaglio dell'acqua, antialiasing, attenuazione nitidezza), l'uscita HDR e la luminosità di picco, il contrasto, la luminosità, la distanza della telecamera, il filtro, l'intensità del filtro e la modalità atmosfera. Spuntata: tutte le schede e tutte le impostazioni. Alla prima installazione è non spuntata; se usavi già Panorama, è spuntata. La ricerca trova sempre tutte le impostazioni. |
+| Annulla, Ripeti (sotto le schede, a destra) | Annulla cancella la tua ultima modifica: cursore, casella, preset, filtro, atmosfera o Ripristina tutto. Ripeti la rimette. Le ultime 20 modifiche restano fino a `/reload`. |
 | Selettore della lingua (a destra delle schede) | Lingua del gioco o una di dieci lingue. Cambiarla ricarica l'interfaccia. |
 | Guida (a sinistra della casella di ricerca) | Apre questa guida nel gioco. |
 | Preset (scheda Qualità) | Bassa, Media, Alta, Extra. Il preset che corrisponde alle tue impostazioni è evidenziato. |
@@ -56,8 +58,8 @@ Fai clic sul titolo di una sezione per comprimerla o espanderla.
 I preset cambiano solo le impostazioni di qualità grafica della scheda Qualità. Non toccano
 fotocamera, mouse, interfaccia, nitidezza, bassa latenza, HDR né filtri.
 
-Hai cambiato idea? **Annulla l'ultimo preset** (pulsante accanto ai preset, o `/pano undo`) ripristina
-le impostazioni di prima dell'ultimo preset.
+Hai cambiato idea? **Annulla** (sotto le schede, o `/pano undo`) ripristina
+le impostazioni di prima del preset.
 
 ## 4. Filtri
 
@@ -77,9 +79,9 @@ La scheda Filtri aggiunge effetti sopra l'immagine. Non cambiano nessuna imposta
 
 La scheda Atmosfera cambia da sola tinta, cielo, vignettatura e grana in base a dove ti trovi.
 
-- **Atmosfera automatica**: attiva, questi filtri seguono il luogo e l'ora del giorno. Disattiva per
-  impostazione predefinita. I valori della scheda Filtri restano salvati e tornano quando la
-  disattivi.
+- **Modalità** (in alto nella scheda): **Disattivo** (la scheda Filtri si applica ovunque), **Giorno e notte automatici** (vedi Giorno e notte più sotto) o **Atmosfera automatica**. Disattivo per impostazione predefinita.
+- **Atmosfera automatica**: questi filtri seguono il luogo e l'ora del giorno. I valori della scheda Filtri restano salvati e tornano quando cambi modalità.
+  Senza Impostazioni avanzate, la pagina unica mostra solo la modalità e il luogo rilevato; spunta Impostazioni avanzate per modificare i contesti.
 - **Luogo**: imposta tinta, vignettatura e grana. Ordine: spedizione o incursione, al chiuso, meteo
   (pioggia, neve, tempesta di sabbia), poi il tipo di zona: terre temperate, deserti e terre aride,
   terre innevate, giungla e palude, terre corrotte, terre vulcaniche, foreste arcane. Una zona non
@@ -101,14 +103,13 @@ La scheda Atmosfera cambia da sola tinta, cielo, vignettatura e grana in base a 
 - **Tutte le zone**: sottomenu dello stesso menu, con tutte le zone conosciute. Scegline una per impostarla senza essere lì. Le zone sono ordinate per continente.
 - **Preimpostazione** e **Distanza dello scenario** (prime righe di un luogo o di una zona): si applicano finché sei in quel luogo, sopra le tue impostazioni, con l'atmosfera automatica attiva o no. La distanza dello scenario del luogo viene prima di quella della preimpostazione. Le tue impostazioni restano salvate e tornano quando te ne vai. **Le mie impostazioni** non cambia nulla. Esempio: Bassa nelle spedizioni, Extra in una zona che ti piace. In una spedizione o incursione, la prima scelta del menu regola solo quella spedizione. Nella scheda Qualità, il pulsante **Per luogo** apre queste righe per il luogo in cui sei; mostra **Qui: …** finché un luogo applica le sue. In combattimento, la modifica attende la fine del combattimento.
 - **Il mio filtro** (prima riga dei filtri di un luogo o di una zona): quel luogo usa uno dei tuoi filtri della scheda I miei filtri, con il suo contrasto, la sua luminosità e il suo gamma, finché l'atmosfera automatica è attiva.
-- **Giorno e notte** (in fondo alla scheda): **Giorno e notte automatici** applica la **Tinta diurna** di giorno e la **Tinta notturna**
+- **Giorno e notte** (modalità **Giorno e notte automatici**): Panorama applica la **Tinta diurna** di giorno e la **Tinta notturna**
   di notte, secondo il giorno e la notte del gioco. Sostituiscono la tinta della scheda Filtri. Il passaggio è graduale dalle 19 alle 21 e
-  dalle 5 alle 7 (ora del server). **Intensità della tinta diurna** e **Intensità della tinta notturna** impostano quanto sono forti.
-  Non funziona insieme all'atmosfera automatica: attivare l'uno disattiva l'altra.
+  dalle 5 alle 7 (ora del server). Le tinte diurna e notturna e le loro intensità si impostano con Impostazioni avanzate.
 
 ## 5. I miei filtri
 
-La scheda I miei filtri serve a creare tutti i filtri tuoi che vuoi. **Nuovo** ne aggiunge uno, **Elimina** toglie il filtro aperto: la scheda Filtri, i luoghi e le zone che lo usavano tornano a Nessuno.
+La scheda I miei filtri (visibile con Impostazioni avanzate) serve a creare tutti i filtri tuoi che vuoi. **Nuovo** ne aggiunge uno, **Elimina** toglie il filtro aperto: la scheda Filtri, i luoghi e le zone che lo usavano tornano a Nessuno.
 
 - **Filtro da modificare**: sceglie il filtro che le righe sotto regolano. **Nome**: dagli un nome (Invio per confermare).
 - **Rosso**, **Verde**, **Blu** (in %): colore della tinta del filtro. **Intensità della tinta**: la sua forza.
@@ -198,7 +199,8 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 |---|---|
 | `/pano` | Apre o chiude la finestra |
 | `/pano low`, `/pano medium`, `/pano high`, `/pano extra` | Applica un preset |
-| `/pano undo` | Ripristina le impostazioni di prima dell'ultimo preset |
+| `/pano undo` | Annulla l'ultima modifica |
+| `/pano redo` | Rimette la modifica appena annullata |
 | `/pano reset` | Riporta ogni impostazione e ogni filtro al valore predefinito |
 | `/pano status` | Mostra nella chat il luogo e il momento rilevati e i filtri applicati ora (durante una dissolvenza, i valori di arrivo) |
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
@@ -211,5 +213,5 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 - Il pulsante **Predefiniti** del menu Grafica del gioco ripristina solo le impostazioni che quel menu
   gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in `/pano` per le altre e per i filtri.
 - **Ripristina tutto** (piè di pagina, con conferma) o `/pano reset`: riporta ogni impostazione modificata
-  in Panorama e ogni filtro al valore predefinito. Non si può annullare.
+  in Panorama e ogni filtro al valore predefinito. **Annulla** la annulla fino a `/reload`.
   Anche la scheda Atmosfera e le zone impostate vengono ripristinate. Anche i tuoi filtri della scheda I miei filtri vengono cancellati.
