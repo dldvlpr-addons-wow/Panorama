@@ -203,6 +203,9 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 | `/pano apply` | Grava de novo as configurações mudadas no Panorama |
 | `/pano restart` | Reinicia o motor gráfico |
 | `/pano minimap` | Mostra ou oculta o botão do minimapa |
+| `/pano blackbars 10` | Faixas pretas a 10% da altura da tela (0 a 20). `off` as remove |
+| `/pano grain 10` | Granulação em 10 (0 a 100). `off` a remove |
+| `/pano vignette 10` | Vinheta em 10 (0 a 100). `off` a remove |
 
 ## 9. Redefinição
 

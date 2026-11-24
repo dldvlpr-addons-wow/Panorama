@@ -198,6 +198,9 @@ HDR의 각 줄에는 게임의 값으로 되돌리는 기본값 버튼이 있습
 | `/pano apply` | Panorama에서 바꾼 설정을 다시 적용 |
 | `/pano restart` | 그래픽 엔진 재시작 |
 | `/pano minimap` | 미니맵 버튼 표시 또는 숨기기 |
+| `/pano blackbars 10` | 화면 높이의 10% 검은 띠(0~20). `off`로 제거 |
+| `/pano grain 10` | 필름 그레인 10(0~100). `off`로 제거 |
+| `/pano vignette 10` | 비네트 10(0~100). `off`로 제거 |
 
 ## 9. 초기화
 

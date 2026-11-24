@@ -1057,6 +1057,37 @@ Capture(function() SlashCmdList.PANORAMA("minimap") end)
 assert(captured[1] == quietL.PREFIX .. quietL.MSG_MINIMAP_HIDDEN, "bouton de minicarte masqué : dit")
 Capture(function() SlashCmdList.PANORAMA("minimap") end)
 assert(captured[1] == quietL.PREFIX .. quietL.MSG_MINIMAP_SHOWN, "bouton de minicarte affiché : dit")
+-- /pano blackbars|grain|vignette : filtre de base réglé, off = 0, hors bornes refusé, annulable.
+assert(loadfile("Options.lua"))("Panorama", nsQuiet)
+SlashCmdList.PANORAMA("blackbars 10")
+SlashCmdList.PANORAMA("GRAIN 15")
+assert(nsQuiet.db.filters.letterbox == 10 and nsQuiet.db.filters.grain == 15, "filtres réglés par commande")
+SlashCmdList.PANORAMA("grain off")
+assert(nsQuiet.db.filters.grain == 0, "grain off : 0")
+nsQuiet.Undo()
+assert(nsQuiet.db.filters.grain == 15, "commande de filtre annulable")
+Capture(function() SlashCmdList.PANORAMA("blackbars 50") end)
+assert(captured[1] == quietL.PREFIX .. quietL.MSG_FILTER_RANGE:format("blackbars", 20, "blackbars")
+    and nsQuiet.db.filters.letterbox == 10, "valeur hors bornes refusée")
+Capture(function() SlashCmdList.PANORAMA("vignette") end)
+assert(captured[1] == quietL.PREFIX .. quietL.MSG_FILTER_RANGE:format("vignette", 100, "vignette"), "valeur absente")
+SlashCmdList.PANORAMA("blackbars 0")
+assert(nsQuiet.db.filters.letterbox == 0, "bandes retirées")
+SlashCmdList.PANORAMA("grain 12")
+assert(nsQuiet.db.filters.grain == 10, "valeur arrondie au pas du curseur")
+-- Ligne grisée dans le panneau : refusée avec sa raison ; les bandes restent réglables.
+nsQuiet.db.ambiance.enabled = true
+Capture(function() SlashCmdList.PANORAMA("grain 30") end)
+assert(captured[1] == quietL.PREFIX .. nsQuiet.UnavailableReason({ key = "grain" })
+    and nsQuiet.db.filters.grain == 10, "grain sous ambiance auto : refusé, raison dite")
+SlashCmdList.PANORAMA("blackbars 5")
+assert(nsQuiet.db.filters.letterbox == 5, "bandes sous ambiance auto")
+nsQuiet.db.ambiance.enabled = false
+nsQuiet.db.customFilters[1] = nsQuiet.db.customFilters[1] or {}
+nsQuiet.db.filters.customFilter = 1
+Capture(function() SlashCmdList.PANORAMA("vignette 30") end)
+assert(captured[1] and nsQuiet.db.filters.vignette == 0, "vignette sous filtre du joueur : refusée")
+nsQuiet.db.filters.customFilter = 0
 -- Carte sans nom connu du jeu : libellé, pas le numéro seul.
 assert(nsQuiet.ZoneName(9999) == quietL.AMBIANCE_ZONE_UNKNOWN:format(9999), "zone inconnue : nommée")
 -- Erreur d'écriture à la déconnexion : rattrapée, repère gardé pour la session suivante.

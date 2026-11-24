@@ -208,6 +208,9 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 | `/pano apply` | In Panorama geänderte Einstellungen erneut schreiben |
 | `/pano restart` | Die Grafik-Engine neu starten |
 | `/pano minimap` | Den Minimap-Button zeigen oder verstecken |
+| `/pano blackbars 10` | Schwarze Balken mit 10 % der Bildschirmhöhe (0 bis 20). `off` entfernt sie |
+| `/pano grain 10` | Filmkorn auf 10 (0 bis 100). `off` entfernt es |
+| `/pano vignette 10` | Vignette auf 10 (0 bis 100). `off` entfernt sie |
 
 ## 9. Zurücksetzen
 
