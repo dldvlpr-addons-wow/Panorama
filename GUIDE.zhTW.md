@@ -189,6 +189,9 @@ Windows 10：**設定 > 系統 > 顯示器 > Windows HD Color 設定（Windows H
 | `/pano apply` | 重新寫入在 Panorama 中變更的設定 |
 | `/pano restart` | 重新啟動圖形引擎 |
 | `/pano minimap` | 顯示或隱藏小地圖按鈕 |
+| `/pano blackbars 10` | 黑邊為螢幕高度的 10%（0 到 20）。`off` 移除 |
+| `/pano grain 10` | 膠片顆粒為 10（0 到 100）。`off` 移除 |
+| `/pano vignette 10` | 暗角為 10（0 到 100）。`off` 移除 |
 
 ## 9. 重設
 

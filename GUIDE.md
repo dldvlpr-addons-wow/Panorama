@@ -204,6 +204,9 @@ Each HDR line has a Default button that puts back the game's value.
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
 | `/pano minimap` | Show or hide the minimap button |
+| `/pano blackbars 10` | Black bars at 10% of the screen height (0 to 20). `off` removes them |
+| `/pano grain 10` | Film grain at 10 (0 to 100). `off` removes it |
+| `/pano vignette 10` | Vignette at 10 (0 to 100). `off` removes it |
 
 ## 9. Reset
 

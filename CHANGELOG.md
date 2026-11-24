@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.0-beta3
+
+### New
+- **Filter commands for macros**: `/pano blackbars 10`, `/pano grain 10` and `/pano vignette 10`
+  set the filter of the Filters tab; `off` or `0` removes it. Black bars go from 0 to 20, grain
+  and vignette from 0 to 100. Undo puts the previous value back. While Automatic ambiance or one
+  of your filters sets the grain and vignette, the chat says so and the command changes nothing.
+
 ## 1.9.0-beta2
 
 ### New

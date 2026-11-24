@@ -189,6 +189,9 @@ Windows 10：**设置 > 系统 > 显示 > Windows 高清晰度颜色设置（Win
 | `/pano apply` | 重新写入在 Panorama 中更改的设置 |
 | `/pano restart` | 重启图形引擎 |
 | `/pano minimap` | 显示或隐藏小地图按钮 |
+| `/pano blackbars 10` | 黑边为屏幕高度的 10%（0 到 20）。`off` 移除 |
+| `/pano grain 10` | 胶片颗粒为 10（0 到 100）。`off` 移除 |
+| `/pano vignette 10` | 暗角为 10（0 到 100）。`off` 移除 |
 
 ## 9. 重置
 

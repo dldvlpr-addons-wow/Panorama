@@ -866,11 +866,40 @@ events:SetScript("OnEvent", function(self, event, arg1)
     end
 end)
 
+-- Filtres de l'onglet Filtres réglables par commande, pour une macro : mot de la commande -> clé.
+local FILTER_COMMANDS = { blackbars = "letterbox", grain = "grain", vignette = "vignette" }
+
+-- `/pano grain 10`, `/pano blackbars off` : même effet que le curseur (point d'annulation, panneau à jour).
+local function SetFilterByCommand(name, argument)
+    local key = FILTER_COMMANDS[name]
+    local setting
+    for _, candidate in ipairs(NS.filterSettings) do
+        if candidate.key == key then setting = candidate end
+    end
+    -- Même lecture que la boîte de saisie : virgule acceptée, arrondi au pas du curseur.
+    local value, inRange = 0, true
+    if argument ~= "off" then value, inRange = NS.ParseInput(setting, argument) end
+    if not value or not inRange then
+        return print(L.PREFIX .. L.MSG_FILTER_RANGE:format(name, setting.max, name))
+    end
+    -- Ligne grisée dans le panneau (ambiance auto, filtre du joueur) : la valeur ne serait pas montrée.
+    local reason = NS.UnavailableReason(setting)
+    if reason then return print(L.PREFIX .. reason) end
+    if NS.CommitTyping then NS.CommitTyping() end
+    NS.Checkpoint()
+    NS.db.filters[key] = value
+    NS.ApplyFilters()
+    if NS.RefreshOptions then NS.RefreshOptions() end
+end
+
 SLASH_PANORAMA1 = "/pano"
 SLASH_PANORAMA2 = "/panorama"
 SlashCmdList.PANORAMA = function(message)
     local command = strtrim(message or ""):lower()
-    if command == "apply" then
+    local filterName, filterArgument = command:match("^(%a+)%s*(%S*)$")
+    if FILTER_COMMANDS[filterName] then
+        SetFilterByCommand(filterName, filterArgument)
+    elseif command == "apply" then
         local wantedValues = {}
         for _, setting in ipairs(NS.settings) do
             if setting.cvar and NS.db.touched[setting.cvar] then wantedValues[setting] = NS.db.values[setting.cvar] end

@@ -206,6 +206,9 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 | `/pano apply` | Scrive di nuovo le impostazioni cambiate in Panorama |
 | `/pano restart` | Riavvia il motore grafico |
 | `/pano minimap` | Mostra o nasconde il pulsante della minimappa |
+| `/pano blackbars 10` | Bande nere al 10% dell'altezza dello schermo (da 0 a 20). `off` le toglie |
+| `/pano grain 10` | Grana a 10 (da 0 a 100). `off` la toglie |
+| `/pano vignette 10` | Vignettatura a 10 (da 0 a 100). `off` la toglie |
 
 ## 9. Ripristino
 

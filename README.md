@@ -85,6 +85,9 @@ Guide button in the panel opens the same guide in the game.
 | `/pano reset` | Put every setting and filter back to its default |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano minimap` | Show or hide the minimap button |
+| `/pano blackbars 10` | Black bars at 10% of the screen height (0 to 20). `off` removes them |
+| `/pano grain 10` | Film grain at 10 (0 to 100). `off` removes it |
+| `/pano vignette 10` | Vignette at 10 (0 to 100). `off` removes it |
 
 The panel opens in its own window, which you can move and close with Escape. Options > AddOns >
 Panorama has a button that opens it.
