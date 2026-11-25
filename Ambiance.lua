@@ -1,7 +1,7 @@
--- Ambiance automatique : les filtres suivent le contexte détecté, sur deux axes.
+-- Mode Selon le lieu : les filtres suivent le contexte détecté, sur deux axes.
 -- Lieu (donjon, intérieur, météo, zone réglée par le joueur, biome de la zone) : filtre du joueur,
 -- teinte, son intensité, vignette, grain. Chaque lieu porte aussi un préréglage graphique et une distance de
--- vue (NS.placeSettings), appliqués que l'ambiance auto soit cochée ou non.
+-- vue (NS.placeSettings), appliqués quel que soit le mode d'ambiance.
 -- Moment de la journée (jour, aube et crépuscule, nuit) : dégradé du ciel, dehors seulement.
 -- Rien n'est écrit dans PanoramaDB.filters :
 -- l'ambiance vit dans PanoramaDB.ambiance (contexts : par contexte ; zones : uiMapID -> valeurs
@@ -184,7 +184,7 @@ function NS.LoadAmbiance(db)
     if type(db.ambiance) ~= "table" then Reset(db, "ambiance", {}) end
     local ambiance = db.ambiance
     if type(ambiance.enabled) ~= "boolean" then Reset(ambiance, "enabled", false) end
-    -- Ambiance auto et jour/nuit automatiques ne marchent pas ensemble : l'ambiance garde la main.
+    -- Selon le lieu et Jour et nuit ne marchent pas ensemble : Selon le lieu garde la main.
     if ambiance.enabled and type(db.filters) == "table" then db.filters.autoDayNight = false end
     if type(ambiance.contexts) ~= "table" then Reset(ambiance, "contexts", {}) end
     for _, context in ipairs(NS.ambianceContexts) do
@@ -255,9 +255,16 @@ function NS.DetectAmbiance()
 end
 
 local applied = {}
--- Valeurs posées sur le monde : filtres de base, ou ambiance du lieu et du moment quand elle est active.
+-- Valeurs posées sur le monde : filtres de base, ou ambiance du lieu et du moment en mode Selon le lieu.
+-- NS.previewCustomFilter (onglet Mes filtres ouvert) : filtres de base avec le filtre du joueur ouvert.
+local previewed = {}
 function NS.AppliedFilters()
     local base = NS.db.filters
+    if NS.previewCustomFilter then
+        for key, value in pairs(base) do previewed[key] = value end
+        previewed.customFilter = NS.previewCustomFilter
+        return previewed
+    end
     if not NS.db.ambiance.enabled then return base end
     local contexts = NS.db.ambiance.contexts
     local place, moment, zone = NS.DetectAmbiance()
@@ -270,10 +277,10 @@ function NS.AppliedFilters()
     return applied
 end
 
--- Réglages graphiques du lieu détecté, ambiance auto cochée ou non : index du préréglage, puis
+-- Réglages graphiques du lieu détecté, quel que soit le mode d'ambiance : index du préréglage, puis
 -- distance de vue (valeur de farclip) ; nil : réglages du joueur.
--- Puis contraste, luminosité et gamma (valeurs des CVars) du filtre du joueur posé sur le monde, ou
--- ouvert dans l'onglet Mes filtres (aperçu) ; nil : réglages du joueur.
+-- Puis contraste, luminosité et gamma (valeurs des CVars) du filtre du joueur posé sur le monde
+-- (aperçu de l'onglet Mes filtres compris) ; nil : réglages du joueur.
 -- Préréglage ou distance d'un intérieur ou d'une météo laissé sur « Mes réglages » : la zone (réglage
 -- propre, sinon biome) décide. Le filtre du joueur, lui, n'en hérite pas : il suit le rendu.
 function NS.PlacePreset()
@@ -290,7 +297,7 @@ function NS.PlacePreset()
         return value ~= 0 and value or nil
     end
     local viewDistance = Choice("viewDistance")
-    local custom = NS.db.customFilters[NS.previewCustomFilter or NS.AppliedFilters().customFilter]
+    local custom = NS.db.customFilters[NS.AppliedFilters().customFilter]
     local function Image(key)
         local index = custom and custom[key]
         return index and index ~= 0 and NS.imageValues[key][index] or nil

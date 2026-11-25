@@ -20,16 +20,16 @@ O botão do minimapa:
 
 | Parte | O que faz |
 |---|---|
-| Caixa de busca (canto superior direito) | Digite uma palavra para listar as configurações correspondentes de todas as abas. Limpe-a para voltar. |
-| Abas | Qualidade, Interface, Avançado (configurações do jogo), depois Filtros, Meus filtros, Ambiente (efeitos do Panorama). A aba aberta é lembrada. |
-| Configurações avançadas (sob o título) | Desmarcada: sem abas, uma única página com as predefinições, as principais configurações de qualidade (distância de visão, neblina volumétrica, sombras, oclusão de ambiente, detalhe da água, antisserrilhamento, atenuação da nitidez), a saída HDR e o brilho de pico, o contraste, o brilho, a distância da câmera, o filtro, a intensidade do filtro e o modo de ambiente. Marcada: todas as abas e todas as configurações. Na primeira instalação fica desmarcada; se você já usava o Panorama, fica marcada. A busca sempre encontra todas as configurações. |
-| Desfazer, Refazer (sob as abas, à direita) | Desfazer cancela sua última alteração: controle deslizante, caixa, predefinição, filtro, ambiente ou Redefinir tudo. Refazer a recoloca. As últimas 20 alterações ficam guardadas até `/reload`. |
-| Seletor de idioma (à direita das abas) | Idioma do jogo ou um de dez idiomas. Mudar o idioma recarrega a interface. |
-| Guia (à esquerda da caixa de busca) | Abre este guia no jogo. |
-| Predefinições (aba Qualidade) | Baixa, Média, Alta, Extra. A predefinição que combina com suas configurações fica destacada. |
-| Rodapé | Aplicar a cada conexão, botão do minimapa, Redefinir tudo, reinicialização do motor gráfico. |
+| **Simples**, **Avançado** (ao lado do título) | Simples: cada aba mostra uma lista curta das configurações principais, sem seções. Avançado: todas as configurações, por seção, com as regras por lugar e a seção Especialistas. Na primeira instalação fica Simples; se você já usava o Panorama, fica Avançado. A busca sempre encontra todas as configurações. |
+| Guia (canto superior direito) | Abre este guia no jogo. |
+| Menu **Opções** (canto superior direito) | **Idioma** (idioma do jogo ou um de dez idiomas; mudá-lo recarrega a interface), **Aplicar a cada conexão**, **Botão do minimapa**, **Redefinir tudo…**. |
+| **Visual atual:** (barra sob o título) | O visual no mundo agora, e quem o define: você, Dia e noite ou o lugar. O botão dela (**Editar**, **Editar esta regra**) abre onde mudá-lo. Passe o mouse sobre a barra para ver qual vem primeiro. |
+| Abas | **Imagem** (qualidade gráfica), **HDR**, **Ambiente** (visual do mundo), **Meus filtros**. A aba aberta é lembrada. |
+| Caixa de busca (à direita das abas) | Digite uma palavra para listar as configurações correspondentes de todas as abas. Limpe-a para voltar. |
+| Predefinições (aba Imagem) | Baixa, Média, Alta, Extra. A predefinição que combina com suas configurações fica destacada. |
+| Rodapé | **Desfazer** cancela sua última alteração: controle deslizante, caixa, predefinição, filtro, ambiente ou Redefinir tudo. **Refazer** a recoloca. As últimas 20 alterações ficam guardadas até `/reload`. **Reiniciar** reinicia o motor gráfico. |
 
-Clique no título de uma seção para recolhê-la ou expandi-la.
+No modo Avançado, clique no título de uma seção para recolhê-la ou expandi-la. A seção **Especialistas (só console)** começa recolhida. O título de uma seção mostra quantas das suas configurações você mudou.
 
 ### Uma linha de configuração
 
@@ -38,10 +38,11 @@ Clique no título de uma seção para recolhê-la ou expandi-la.
   Tab vai para a próxima caixa. A vírgula funciona como separador decimal. O valor fica dentro do intervalo do controle.
 - **Botão Padrão**: devolve essa configuração ao valor padrão. Passe o mouse sobre ele para ver o valor.
 - **Marca dourada** à esquerda: você mudou essa configuração.
-- **Estrela amarela**: um menu do jogo também define esse valor. Passe o mouse sobre ela para ver qual. Esse menu
+- **Menu do jogo**: quando um menu do jogo também define esse valor, a ajuda do rótulo o cita. Esse menu
   não lê o valor de volta, então pode mostrar outro nível.
-- **Linha acinzentada**: depende de outra configuração que está desligada (por exemplo, a densidade da névoa sem
-  névoa volumétrica, a intensidade da tonalidade sem tonalidade). A linha indica qual configuração mudar.
+- **Linha acinzentada**: depende de outra configuração que está desligada (por exemplo, **Qualidade da neblina volumétrica** sem
+  **Neblina volumétrica**, a intensidade da tonalidade sem tonalidade), ou um modo a define.
+  Passe o mouse sobre o rótulo para ver o motivo. Uma linha que depende de outra fica deslocada para a direita, logo abaixo dela.
 - Passe o mouse sobre um rótulo para ler a ajuda completa.
 
 ## 3. Predefinições
@@ -51,36 +52,47 @@ Clique no título de uma seção para recolhê-la ou expandi-la.
 | Baixa | Desempenho máximo. Visão curta, sem sombras. |
 | Média | Equilibrado. Bom desempenho e sombras razoáveis. |
 | Alta | Nível Alto do jogo. Sombras completas, todos os efeitos. |
-| Extra | Qualidade máxima. Maior distância de visão, tudo ligado. |
+| Extra | Alta, com a maior distância de visão. |
 
-As predefinições mudam apenas as configurações de qualidade gráfica da aba Qualidade. Elas não mexem na câmera,
+As predefinições mudam apenas as configurações de qualidade gráfica da aba Imagem. Elas não mexem na câmera,
 no mouse, na interface, na nitidez, na baixa latência, no HDR nem nos filtros.
 
-Mudou de ideia? **Desfazer** (sob as abas, ou `/pano undo`) restaura as configurações de
+Mudou de ideia? **Desfazer** (rodapé, ou `/pano undo`) restaura as configurações de
 antes da predefinição.
 
-## 4. Filtros
+## 4. Ambiente
 
-A aba Filtros adiciona efeitos sobre a imagem. Eles não mudam nenhuma configuração do jogo.
+A aba Ambiente define o visual do mundo: efeitos sobre a imagem. Eles não mudam nenhuma configuração do jogo.
 
+- **Modo** (topo da aba): **Fixo** (o mesmo filtro em todo lugar), **Dia e noite** (uma tonalidade diurna e uma
+  noturna) ou **Por lugar** (veja abaixo). Fixo por padrão.
+- **Aqui**: o lugar e a hora do dia detectados agora. Quando uma masmorra, um
+  interior ou o clima vem antes de uma zona que você ajustou, ela indica isso.
+- **Filtro** (modos Fixo e Dia e noite): **Base** usa as linhas abaixo. Um dos seus filtros
+  (aba Meus filtros) substitui a tonalidade, a vinheta e a granulação, e traz o seu contraste,
+  o seu brilho e a sua gama. **Editar filtro** o abre na aba Meus filtros.
 - **Tonalidade**: clique em uma miniatura para aplicá-la na hora (sépia, quente, fria, noite, esmeralda, crepúsculo).
   **Intensidade da tonalidade** define a força.
-- **Meu filtro**: usa um dos seus filtros da aba Meus filtros. Ele substitui a tonalidade, a vinheta e a granulação.
-- **Céu**: as mesmas cores em gradiente, cheias no alto da tela e mais claras embaixo.
-  **Intensidade do céu** define a força.
 - **Vinheta**: escurece as bordas da tela.
 - **Granulação**: granulação animada.
-- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma. O jogo ainda renderiza o que elas
+- **Tonalidade diurna** e **Tonalidade noturna** (modo Dia e noite): o Panorama aplica a tonalidade diurna de dia e a tonalidade noturna
+  à noite, segundo o dia e a noite do jogo. Elas substituem a tonalidade. A mudança é gradual das 19h às 21h e das 5h
+  às 7h (horário do servidor). Um dos seus filtros escolhido na linha Filtro as substitui.
+- **Céu**: as mesmas cores em gradiente, cheias no alto da tela e mais claras embaixo.
+  **Intensidade do céu** define a força.
+- **Barras pretas**: barras em cima e embaixo, de 0 a 20 % da tela cada uma, em todos os modos. O jogo ainda renderiza o que elas
   escondem, então não aumentam a taxa de quadros.
 
-### Ambiente
+No modo Simples, a aba mostra o modo, o lugar, o filtro, a tonalidade e sua intensidade, e as
+tonalidades diurna e noturna. Vinheta, granulação, céu e barras pretas ficam no modo Avançado.
 
-A aba Ambiente muda sozinha o tom, o céu, a vinheta e a granulação conforme o lugar onde você está.
+### Por lugar
 
-- **Modo** (topo da aba): **Desligado** (a aba Filtros vale em toda parte), **Dia e noite automáticos** (veja Dia e noite abaixo) ou **Ambiente automático**. Desligado por padrão.
-- **Ambiente automático**: esses filtros seguem o lugar e a hora do dia.
-  Os valores da aba Filtros continuam salvos e voltam quando você muda o modo.
-  Sem Configurações avançadas, a página única mostra só o modo e o lugar detectado; marque Configurações avançadas para editar os contextos.
+No modo **Por lugar**, a tonalidade, o céu, a vinheta e a granulação mudam sozinhos, conforme o lugar onde você está.
+
+- As linhas do modo Fixo ficam ocultas: a regra do lugar as substitui. Só as barras pretas permanecem.
+  Os valores delas continuam salvos e voltam quando você muda o modo.
+  No modo Simples, as regras fornecidas se aplicam; escolha Avançado para editá-las.
 - **Lugar**: define o tom, a vinheta e a granulação. Ordem: masmorra ou raide, interior, clima (chuva,
   neve, tempestade de areia), depois o tipo de zona: terras temperadas, desertos e terras áridas,
   terras nevadas, selva e pântano, terras corrompidas, terras vulcânicas, florestas arcanas. Uma zona
@@ -89,40 +101,36 @@ A aba Ambiente muda sozinha o tom, o céu, a vinheta e a granulação conforme o
 - **Hora do dia**: define o céu (dia, amanhecer e entardecer, noite). A noite segue o dia e a noite
   do jogo; o amanhecer e o entardecer seguem a hora do servidor. Sem céu em interiores nem em
   masmorras.
-- A linha à direita mostra o lugar e a hora do dia detectados agora. Quando uma masmorra, um
-  interior ou o clima vem antes de uma zona que você ajustou, ela indica isso.
-- **Contexto a editar**: escolha um contexto e ajuste seus filtros abaixo. O botão Padrão devolve o
-  valor fornecido para esse contexto.
+- **Regra** (modo Avançado): escolha uma regra e ajuste-a abaixo. O botão Padrão devolve o
+  valor fornecido para essa regra. Na primeira vez que a janela abre, a regra do lugar onde você está fica aberta.
   O menu tem cinco grupos: **Zonas** (a zona em que você está e as que você ajustou), **Masmorra e interior**, **Clima**, **Tipo de zona** e **Céu (hora)**.
   Os quatro primeiros ajustam o tom, a vinheta, a granulação e uma predefinição gráfica: só um lugar se aplica por vez, na ordem indicada acima.
-  O último ajusta o céu. Não é preciso ajustar nada para começar: cada contexto já tem seus valores.
+  O último ajusta o céu. Não é preciso ajustar nada para começar: cada regra já tem seus valores.
 - **Esta zona**: primeira opção do mesmo menu, com o nome da zona em que você está. Escolha-a para dar
   a esta zona seu próprio tom, vinheta e granulação, partindo do seu tipo de zona. Ela passa então
   antes do tipo de zona, mas depois de masmorra, interior e clima. As zonas que você ajusta
-  continuam no menu. **Tipo de zona** remove os valores da zona: ela volta a seguir seu tipo de zona.
+  continuam no menu. **Voltar ao tipo de zona** (ao lado do menu) remove os valores da zona: ela volta a seguir seu tipo de zona.
 - **Todas as zonas**: submenu do mesmo menu, com todas as zonas conhecidas. Escolha uma para ajustá-la sem estar lá. As zonas são organizadas por continente.
-- **Predefinição** e **Distância do cenário** (primeiras linhas de um lugar ou de uma zona): elas se aplicam enquanto você está nesse lugar, por cima dos seus próprios ajustes, com o ambiente automático ligado ou não. A distância do cenário do lugar vem antes da distância da predefinição. Seus próprios ajustes são mantidos e voltam quando você sai. **Meus ajustes** não muda nada. Exemplo: Baixa em masmorras, Extra em uma zona de que você gosta. Em uma masmorra ou raide, a primeira opção do menu ajusta só essa masmorra. Na aba Qualidade, o botão **Por lugar** abre essas linhas para o lugar onde você está; ele mostra **Aqui: …** enquanto um lugar aplica os seus. Em combate, a mudança espera o fim do combate.
-- **Meu filtro** (primeira linha dos filtros de um lugar ou de uma zona): esse lugar usa um dos seus filtros da aba Meus filtros, com o contraste, o brilho e a gama dele, enquanto o ambiente automático estiver ligado.
-- **Dia e noite** (modo **Dia e noite automáticos**): o Panorama aplica a **Tonalidade diurna** de dia e a **Tonalidade noturna** à noite,
-  segundo o dia e a noite do jogo. Elas substituem a tonalidade da aba Filtros. A mudança é gradual das 19h às 21h e das 5h
-  às 7h (horário do servidor). As tonalidades diurna e noturna e suas intensidades são definidas com Configurações avançadas.
+- **Predefinição** e **Distância do cenário** (seção **Imagem** de um lugar ou de uma zona): elas se aplicam enquanto você está nesse lugar, por cima dos seus próprios ajustes, qualquer que seja o modo de ambiente. A distância do cenário do lugar vem antes da distância da predefinição. Seus próprios ajustes são mantidos e voltam quando você sai. **Meus ajustes** não muda nada. Exemplo: Baixa em masmorras, Extra em uma zona de que você gosta. Em uma masmorra ou raide, a primeira opção do menu ajusta só essa masmorra. Na aba Imagem, **Aqui: …** aparece ao lado das predefinições enquanto um lugar aplica as suas; no modo Avançado, ele abre essa regra. Em combate, a mudança espera o fim do combate.
+- **Filtro** (primeira linha da seção **Visual** de um lugar ou de uma zona): esse lugar usa um dos seus filtros da aba Meus filtros, com o contraste, o brilho e a gama dele. **Ajustes abaixo**: a tonalidade, a vinheta e a granulação da regra. A seção Visual só se aplica no modo Por lugar.
 
 ## 5. Meus filtros
 
-A aba Meus filtros (visível com Configurações avançadas) serve para criar quantos filtros seus você quiser. **Novo** adiciona um, **Excluir** remove o filtro aberto: a aba Filtros, os lugares e as zonas que o usavam voltam para Nenhum.
+A aba Meus filtros permite criar quantos filtros seus você quiser. O filtro aberto aparece no mundo só como pré-visualização; o que vale é escolhido na aba Ambiente. **Novo** adiciona um e o abre, **Excluir** remove o filtro aberto: o filtro da aba Ambiente e as regras que o usavam voltam para nenhum filtro. Sempre resta um filtro.
 
-- **Filtro a editar**: escolhe o filtro que as linhas abaixo ajustam. **Nome**: dê um nome a ele (Enter para confirmar).
-- **Vermelho**, **Verde**, **Azul** (em %): cor da tonalidade do filtro. **Intensidade da tonalidade**: a força dela.
+- **Filtro**: escolhe o filtro que as linhas abaixo ajustam. **Nome**: dê um nome a ele (Enter para confirmar).
+- **Tonalidade**: clique em uma miniatura para dar essa cor ao filtro. **Vermelho**, **Verde**, **Azul** (em %): a cor exata dele. **Intensidade da tonalidade**: a força dela.
 - **Vinheta** e **Granulação**: as do filtro.
 - **Contraste**, **Brilho**, **Gama**: ajustes de imagem que o filtro dá ao jogo enquanto está aplicado; depois voltam os seus próprios valores. Meus ajustes: nada muda. Dependendo do modo de exibição, podem não ter efeito.
-- Enquanto a aba está aberta, o filtro exibido aparece ao vivo no jogo.
-- Para usar um filtro: escolha-o na linha **Meu filtro** da aba Filtros (em todo lugar), ou de um lugar ou de uma zona na aba Ambiente (ambiente automático ligado). Ele substitui então a tonalidade, a vinheta e a granulação, cujas linhas ficam acinzentadas. Nenhum: nada muda.
+- No modo Simples, a aba mostra só a tonalidade e a intensidade da tonalidade.
+- Enquanto a aba está aberta, o filtro exibido aparece ao vivo no jogo. A barra **Visual atual:** indica quando é apenas uma prévia.
+- Para usar um filtro: escolha-o na linha **Filtro** da aba Ambiente (modos Fixo e Dia e noite), ou de um lugar ou de uma zona (modo Por lugar). Ele substitui então a tonalidade, a vinheta e a granulação. **Base** ou **Ajustes abaixo**: nada muda.
 
 ## 6. Seus valores e o jogo
 
 - Na primeira instalação, o Panorama lê suas configurações atuais do jogo. Nada muda até você mexer em um controle.
 - Uma mudança feita no menu Gráficos do jogo ou com `/console` aparece na janela.
-- **Aplicar a cada conexão** (rodapé, ligado por padrão): as configurações que você mudou no Panorama são gravadas de novo
+- **Aplicar a cada conexão** (menu Opções, ligado por padrão): as configurações que você mudou no Panorama são gravadas de novo
   a cada conexão. As outras seguem o menu Gráficos do jogo.
 - Uma mudança feita durante o combate é aplicada quando o combate termina.
 - Algumas configurações, como o MSAA, exigem a reinicialização gráfica. Clique em **Reiniciar** no rodapé, ou digite
@@ -130,8 +138,8 @@ A aba Meus filtros (visível com Configurações avançadas) serve para criar qu
 
 ## 7. HDR no Windows
 
-As configurações de HDR existem apenas como comandos de console no jogo. O Panorama as mostra na aba **Avançado**,
-seção **HDR (só console)**. Você precisa de um monitor compatível com HDR.
+As configurações de HDR existem apenas como comandos de console no jogo. O Panorama as mostra na aba **HDR**.
+Você precisa de um monitor compatível com HDR.
 
 ### Passo 1: ativar o HDR no Windows
 
@@ -158,7 +166,8 @@ cerca de 600, DisplayHDR 1000 cerca de 1000.
 
 ### Passo 3: configurar o HDR no Panorama
 
-Abra `/pano`, aba **Avançado**, seção **HDR (só console)**.
+Abra `/pano`, aba **HDR**. No modo Simples, a aba mostra só as três primeiras linhas abaixo: escolha
+**Avançado** para ver **Intensidade HDR** e o brilho de referência.
 
 1. Marque **Saída HDR**.
 2. Marque **Usar brilho de pico** ou **Usar brilho de referência**: um ou outro, nunca os dois. Sem um deles, a imagem fica escura.
@@ -212,6 +221,6 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 - O botão **Padrão** de cada linha redefine essa configuração.
 - O botão **Padrões** do menu Gráficos do jogo redefine apenas as configurações que esse menu gerencia,
   e o Panorama o acompanha. Use os botões Padrão em `/pano` para as outras e para os filtros.
-- **Redefinir tudo** (rodapé, com confirmação) ou `/pano reset`: volta cada configuração alterada no
+- **Redefinir tudo…** (menu Opções, com confirmação) ou `/pano reset`: volta cada configuração alterada no
   Panorama e cada filtro ao padrão. **Desfazer** a cancela até `/reload`.
   A aba Ambiente e as zonas ajustadas também são redefinidas. Seus filtros da aba Meus filtros também são apagados.

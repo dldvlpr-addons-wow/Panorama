@@ -114,7 +114,7 @@ for _, code in ipairs(LOCALES) do
 end
 for _, list in ipairs({ ns.settings, ns.filterSettings, ns.customFilterSettings }) do
     for _, setting in ipairs(list) do
-        assert(setting.title or (setting.label and setting.tip),
+        assert(setting.title or setting.subtitle or (setting.label and setting.tip),
             "texte manquant " .. tostring(setting.cvar or setting.key))
     end
 end
@@ -347,16 +347,13 @@ assert(historyPrinted[#historyPrinted]:find(nsHistory.L.MSG_APPLIED_AFTER_COMBAT
     "Annuler en combat : écriture annoncée pour la fin du combat")
 handler(frame, "PLAYER_REGEN_ENABLED")
 assert(cvars.farclip == "1000", "Annuler en combat : écrit à la sortie du combat")
--- Annuler une suppression : le filtre ouvert à la suppression est rouvert.
+-- Annuler : le filtre choisi dans l'onglet Look au moment du pas est rechoisi.
 nsHistory = Load(nil)
-local openedFilter = 3
-nsHistory.GetEditedCustomFilter = function() return openedFilter end
-nsHistory.SetEditedCustomFilter = function(index) openedFilter = index end
+PanoramaDB.filters.customFilter = 1
 nsHistory.Checkpoint()
-PanoramaDB.filters.vignette = 30
-openedFilter = 2
+PanoramaDB.filters.customFilter = 0
 SlashCmdList.PANORAMA("undo")
-assert(openedFilter == 3, "Annuler rouvre le filtre ouvert au moment du pas")
+assert(PanoramaDB.filters.customFilter == 1, "Annuler rechoisit le filtre choisi au moment du pas")
 -- Erreur pendant un préréglage : signalée, et le panneau se rafraîchit encore ensuite.
 nsHistory = Load(nil)
 local refreshed, reported = 0, nil
@@ -401,7 +398,7 @@ local nsCustom = Load({ values = {}, filters = { tint = 7, customFilter = 6 },
                         customFilters = { { tintRed = 40, grain = "x", contrast = 99, name = "Désert" },
                                           "x", { name = "a|cffff0000b" }, { name = "  " }, nil, {} } })
 local customFilters = PanoramaDB.customFilters
-assert(#customFilters == 4 and customFilters[6] == nil and nsCustom.filterSettings[2].max == 4
+assert(#customFilters == 4 and customFilters[6] == nil and nsCustom.filterSettings[8].max == 4
     and customFilters[1].tintRed == 40 and customFilters[1].grain == 0
     and customFilters[1].contrast == 0 and customFilters[2].tintBlue == 100 and customFilters[4].tintStrength == 50,
     "filtres du joueur chargés")
@@ -409,7 +406,7 @@ assert(PanoramaDB.filters.tint == 0 and PanoramaDB.filters.customFilter == 0
     and PanoramaDB.ambiance.contexts.temperate.customFilter == 0, "teinte 7 et filtre 6 inconnus remplacés")
 assert(customFilters[3].name == nil and customFilters[4].name == nil and nsCustom.CustomFilterName(1) == "Désert"
     and nsCustom.CustomFilterName(3) == "Filtre 3" and nsCustom.CustomFilterName(6) == nil
-    and nsCustom.filterSettings[2].names[1] == "Désert" and nsCustom.filterSettings[2].names[0] == "Aucun",
+    and nsCustom.filterSettings[8].names[1] == "Désert" and nsCustom.filterSettings[8].names[0] == "Réglages ci-dessous",
     "noms des filtres du joueur")
 -- Bandes noires à 10 % d'un écran de 1000 de haut : 100 chacune.
 local ns3 = Load({ values = {}, filters = { letterbox = 10, vignette = 50 } })
@@ -428,7 +425,7 @@ ns3.ApplyFilters()
 assert(frame.shown and bands[1].shown and bands[1].color[2] == 0.82, "teinte sépia")
 -- Aucun filtre enregistré : un filtre ; deux ajoutés, aux valeurs par défaut.
 assert(#PanoramaDB.customFilters == 1 and ns3.AddCustomFilter() == 2 and ns3.AddCustomFilter() == 3
-    and PanoramaDB.customFilters[3].tintStrength == 50 and ns3.filterSettings[2].max == 3, "filtres ajoutés")
+    and PanoramaDB.customFilters[3].tintStrength == 50 and ns3.filterSettings[8].max == 3, "filtres ajoutés")
 -- Filtre du joueur choisi : sa couleur, sa vignette et son grain remplacent ceux de l'onglet Filtres.
 local custom = PanoramaDB.customFilters[2]
 custom.tintRed, custom.tintGreen, custom.tintStrength, custom.vignette = 50, 25, 100, 40
@@ -436,18 +433,17 @@ PanoramaDB.filters.customFilter = 2
 ns3.ApplyFilters()
 assert(bands[1].color[1] == 0.5 and bands[1].color[2] == 0.25 and bands[2].shown and bands[2].alpha == 0.4,
     "filtre du joueur posé")
--- Aperçu (onglet Mes filtres ouvert) : le filtre ouvert passe devant le filtre choisi.
-PanoramaDB.customFilters[3].tintStrength, ns3.previewCustomFilter = 0, 3
-ns3.ApplyFilters()
-assert(frame.shown == false, "aperçu du filtre ouvert")
-ns3.previewCustomFilter, PanoramaDB.filters.customFilter = nil, 0
+-- Mode Selon le lieu : le look vient de la règle du lieu, pas du look de base.
+PanoramaDB.ambiance.enabled = true
+assert(ns3.AppliedFilters() ~= PanoramaDB.filters, "selon le lieu : look de la règle")
+PanoramaDB.ambiance.enabled, PanoramaDB.filters.customFilter = false, 0
 -- Suppression : ce qui choisissait le filtre passe à Aucun, ce qui choisissait un suivant le suit.
 PanoramaDB.filters.customFilter, PanoramaDB.ambiance.contexts.desert.customFilter = 3, 2
 PanoramaDB.ambiance.zones[1] = { customFilter = 3 }
 ns3.DeleteCustomFilter(2)
 assert(#PanoramaDB.customFilters == 2 and PanoramaDB.filters.customFilter == 2
     and PanoramaDB.ambiance.contexts.desert.customFilter == 0 and PanoramaDB.ambiance.zones[1].customFilter == 2
-    and ns3.filterSettings[2].max == 2 and ns3.CustomFilterName(2) == "Filtre 3", "filtre supprimé, choix suivis")
+    and ns3.filterSettings[8].max == 2 and ns3.CustomFilterName(2) == "Filtre 3", "filtre supprimé, choix suivis")
 ns3.DeleteCustomFilter(1)
 ns3.DeleteCustomFilter(1)
 assert(#PanoramaDB.customFilters == 1 and PanoramaDB.filters.customFilter == 1, "un filtre reste toujours")
@@ -824,9 +820,13 @@ assert(PanoramaDB.filters.tintDay == 0 and PanoramaDB.filters.tintDayStrength ==
 
 -- Fenêtre : onglet invalide remis au premier, sections dépliées par défaut.
 local ns4 = Load({ tab = "inconnu" })
-assert(PanoramaDB.tab == "quality" and next(PanoramaDB.collapsed) == nil, "onglet et sections par défaut")
+assert(PanoramaDB.tab == "image" and next(PanoramaDB.collapsed) == nil, "onglet et sections par défaut")
 Load({ tab = "filters" })
-assert(PanoramaDB.tab == "filters", "onglet retenu")
+assert(PanoramaDB.tab == "ambiance", "ancien onglet Filtres (avant 1.9) : Ambiance")
+Load({ tab = "look" })
+assert(PanoramaDB.tab == "ambiance", "onglet Filtres (look) fondu dans Ambiance")
+Load({ tab = "myfilters" })
+assert(PanoramaDB.tab == "myfilters", "onglet Mes filtres gardé")
 Load({ collapsed = { ["Advanced"] = true } })
 assert(next(PanoramaDB.collapsed) == nil and PanoramaDB.layout == 2, "ancien repli de la 1.6.0 purgé")
 Load({ collapsed = { ["Advanced"] = true }, layout = 2 })
@@ -862,7 +862,7 @@ end
 PanoramaDB.filters.autoDayNight, PanoramaDB.filters.tintNight = true, 4
 assert(ns4.IsAvailable(strengthSetting), "intensité de nuit active")
 assert(not ns4.IsAvailable({ key = "tint" }) and ns4.IsAvailable({ key = "vignette" }),
-    "jour/nuit coché : teinte de l'onglet Filtres grisée, pas le reste")
+    "jour/nuit coché : teinte de base grisée, pas le reste")
 PanoramaDB.filters.autoDayNight = false
 assert(not ns4.IsAvailable(strengthSetting), "intensité de nuit grisée sans jour/nuit")
 local dayNightLabel
@@ -871,9 +871,10 @@ for _, setting in ipairs(ns4.filterSettings) do
 end
 assert(dayNightLabel and ns4.UnavailableReason(strengthSetting):find(dayNightLabel, 1, true),
     "raison : jour/nuit auto, pas la teinte")
--- Ambiance auto : ses filtres de base grisés dans l'onglet Filtres, pas dans l'éditeur.
+-- Mode Selon le lieu : look de base grisé (la règle le remplace), bandes noires et éditeur de règle réglables.
 ns4.db.ambiance.enabled = true
-assert(not ns4.IsAvailable({ key = "vignette" }), "vignette suit l'ambiance")
+assert(ns4.UnavailableReason({ key = "vignette" }) == ns4.L.UNAVAILABLE_BY_PLACE, "selon le lieu : vignette de base grisée")
+assert(ns4.IsAvailable({ key = "letterbox" }), "selon le lieu : bandes noires réglables")
 assert(ns4.IsAvailable({ key = "autoDayNight", default = false }), "jour/nuit actif sous l'ambiance")
 assert(ns4.IsAvailable({ key = "vignette", ambiance = true }), "éditeur actif")
 ns4.db.ambiance.enabled = false
@@ -903,7 +904,7 @@ local tint
 for _, setting in ipairs(de.filterSettings) do if setting.key == "tint" then tint = setting end end
 assert(de.presets[3].label == de.locales.deDE.PRESET_HIGH and de.L.OPT_UNDO == de.locales.deDE.OPT_UNDO and de.L.PREFIX == de.locales.enUS.PREFIX
     and de.settings[1].title == de.locales.deDE.SECTION_VIEW and de.settings[2].menu == de.locales.deDE.MENU_VIEW_DISTANCE
-    and de.filterSettings[1].title == de.locales.deDE.SECTION_FILTERS and tint.names[1] == de.locales.deDE.TINT_SEPIA
+    and de.filterSettings[7].title == de.L.SECTION_LOOK_FILTER and tint.names[1] == de.locales.deDE.TINT_SEPIA
     and tint.label == de.locales.deDE.tint, "langue choisie appliquée")
 local lowLatency
 for _, setting in ipairs(de.settings) do if setting.cvar == "LowLatencyMode" then lowLatency = setting end end
@@ -1075,11 +1076,10 @@ SlashCmdList.PANORAMA("blackbars 0")
 assert(nsQuiet.db.filters.letterbox == 0, "bandes retirées")
 SlashCmdList.PANORAMA("grain 12")
 assert(nsQuiet.db.filters.grain == 10, "valeur arrondie au pas du curseur")
--- Ligne grisée dans le panneau : refusée avec sa raison ; les bandes restent réglables.
+-- Look de base en mode Selon le lieu : refusé (rien ne changerait à l'écran), sauf les bandes noires.
 nsQuiet.db.ambiance.enabled = true
-Capture(function() SlashCmdList.PANORAMA("grain 30") end)
-assert(captured[1] == quietL.PREFIX .. nsQuiet.UnavailableReason({ key = "grain" })
-    and nsQuiet.db.filters.grain == 10, "grain sous ambiance auto : refusé, raison dite")
+SlashCmdList.PANORAMA("grain 30")
+assert(nsQuiet.db.filters.grain == 10, "grain en mode Selon le lieu : refusé")
 SlashCmdList.PANORAMA("blackbars 5")
 assert(nsQuiet.db.filters.letterbox == 5, "bandes sous ambiance auto")
 nsQuiet.db.ambiance.enabled = false
