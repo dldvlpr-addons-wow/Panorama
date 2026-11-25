@@ -16,8 +16,9 @@ Guide button in the panel opens the same guide in the game.
 
 ## Features
 
-- **46 settings and 13 filters** grouped by theme: view distance, vegetation, shadows and lighting,
-  environment, image, HDR, camera and interface, advanced, filters.
+- **46 settings and 13 filters** in four tabs: Image (view distance, vegetation, shadows and
+  lighting, environment, image, camera, mouse and interface, experts), HDR, Ambiance (filters and ambiance
+  modes) and My filters.
 - **Your values are kept**: a value set with `/console` beyond a slider's range is kept. The game
   itself limits what it accepts.
 - **Safe on your client**: a setting that your client does not support is hidden and never
@@ -33,9 +34,8 @@ Guide button in the panel opens the same guide in the game.
 - **Graphics restart button**: it restarts the graphics engine without leaving the game.
 - **Presets**: Low, Medium, High and Extra set the main graphics settings at once. They do not change
   camera, mouse, comfort, sharpening or low latency settings.
-- **Default button on every line**: it puts that setting back to its default. Advanced settings
-  and zoom speed use the
-  game's own default.
+- **Default button on every line**: it puts that setting back to its default. The Experts section,
+  HDR, bloom, contrast, brightness, gamma and zoom speed use the game's own default.
 - **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
   cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a
@@ -44,33 +44,40 @@ Guide button in the panel opens the same guide in the game.
 - **My filters** (its own tab): build as many filters of your own as you want, each with a name, a color set
   with Red, Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a
   brightness and a gamma. You see the filter on the game while you set it. Use it everywhere from
-  the Filters tab, or for a place or a zone from the Ambiance tab.
-- **Automatic day and night** (Ambiance tab, off by default): a day tint by day and a night tint at
-  night (game's day and night), each with its own strength, replace the tint. It does not work together with the automatic ambiance: turning one on turns the
-  other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00 (server time).
+  the Filter line of the Ambiance tab, or for a place or a zone in By place mode.
+- **Ambiance modes** (Mode menu of the Ambiance tab): **Fixed** (default) applies the same filter
+  everywhere: Base (the tint, vignette and grain of the tab) or one of your filters. **Day and
+  night** lays a day tint by day and a night tint at night (game's day and night), each with its
+  own strength, in place of the tint. The change is gradual from 19:00 to 21:00 and from 5:00 to
+  7:00 (server time). **By place**: see below.
 - **Sky filter**: a color gradient from the top of the screen, with the tint colors.
-- **Automatic ambiance** (off by default): tint, vignette and grain follow the place (dungeon,
+- **By place** mode: tint, vignette and grain follow the place (dungeon,
   indoors, rain, snow, sandstorm, then the kind of zone: temperate, desert, snowy, jungle, corrupted,
   volcanic, arcane); the sky follows the time of day (day, dawn and dusk, night). Each context has
-  its own values, editable in the Ambiance tab, and any zone can get its own values, picked from
-  the list of all zones. A place or a zone can also apply a graphics preset (Low, Medium, High,
-  Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave. Your Filters tab values
-  stay saved.
+  its own values, editable in the Ambiance tab in Advanced mode, and any zone can get its own values,
+  picked from the list of all zones. A place or a zone can also apply a graphics preset (Low, Medium,
+  High, Extra) or a scenery distance while you are there, whatever the ambiance mode; your own
+  settings come back when you leave. The values of the Fixed mode stay saved.
 
 ## Settings
 
-| Section | Settings |
-|---|---|
-| View distance | Scenery distance, volumetric fog and its quality |
-| Vegetation and details | Grass density, grass distance |
-| Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
-| Environment | Water detail, sky detail, weather intensity, physics |
-| Image | Sharpening filter, sharpening reduction, low latency mode, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects, contrast, brightness, gamma |
-| Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
-| Advanced | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
-| Filters | Black bars, vignette, film grain, my filter, color tint, tint strength, sky, sky strength |
-| My filters | For each of your filters: name, red, green, blue, tint strength, vignette, film grain, contrast, brightness, gamma |
-| Ambiance | Automatic ambiance; my filter, tint, tint strength, vignette, film grain, graphics preset and scenery distance for each place; sky and sky strength for each time of day; automatic day and night, day tint, day tint strength, night tint, night tint strength |
+| Tab | Section | Settings |
+|---|---|---|
+| Image | View distance | Scenery distance, volumetric fog and its quality |
+| Image | Vegetation and details | Grass density, grass distance |
+| Image | Shadows and lighting | Soft shadows, shadow resolution, sun shafts, ambient occlusion |
+| Image | Environment | Water detail, sky detail, weather intensity, physics |
+| Image | Image | Sharpening filter, sharpening reduction, low latency mode, bloom intensity, grey screen on death, violence level, projected textures, reduce spell effects, contrast, brightness, gamma |
+| Image | Camera, mouse and interface | Camera distance, raw mouse input, screenshot quality, zoom speed |
+| Image | Experts (console only) | Water reflections, water ripples, terrain detail distance, building detail distance, creature detail distance, object detail scale, small object culling, object fade distance, horizon start, grass fade distance, particle density, depth-based transparency |
+| HDR | HDR output | HDR output, use peak brightness, peak brightness, HDR intensity, use reference brightness, reference brightness |
+| Ambiance | Top of the tab | Mode (Fixed, Day and night, By place); filter (Base or one of your filters) |
+| Ambiance | Day and night | Day tint, day tint strength, night tint, night tint strength |
+| Ambiance | Filter settings | Color tint, tint strength, vignette, film grain |
+| Ambiance | Sky and black bars | Sky, sky strength, black bars |
+| Ambiance | Image (rules, Advanced mode) | Graphics preset and scenery distance for each place or zone, whatever the mode |
+| Ambiance | Look (rules, Advanced mode, By place) | Filter, tint, tint strength, vignette, film grain for each place or zone; sky and sky strength for each time of day |
+| My filters | | For each of your filters: name, red, green, blue, tint strength, vignette, film grain, contrast, brightness, gamma |
 
 ## Commands
 
@@ -100,12 +107,13 @@ WoW Forever 1.60.1 (interface 16001).
 
 - The in-game interface is available in English, French, German, Spanish, Italian, Portuguese,
   Russian, Korean, Simplified Chinese and Traditional Chinese. It follows the game client language
-  by default; the selector right of the tabs picks another one and reloads the interface.
-- A setting marked with a yellow star is also set by a game menu: hover the star to see which one.
-  That menu does not read the value back, so it may show a level that no longer matches.
+  by default; Language, in the Options menu, picks another one and reloads the interface.
+- When a game menu also sets a setting, the help of its label names that menu. That menu does not
+  read the value back, so it may show a level that no longer matches.
 - The Defaults button in the game's Graphics menu resets only the settings that menu manages, and
   Panorama follows it. To reset the others, and the filters, use the Default button on each line
-  in `/pano`, or Reset all for everything at once, the Ambiance tab and the zones you set included.
+  in `/pano`, or Reset all… in the Options menu for everything at once, the Ambiance tab and the
+  zones you set included.
 - The black bars hide part of the world. The game still renders it, so they do not raise your
   frame rate.
 

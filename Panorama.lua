@@ -11,7 +11,7 @@ local L = setmetatable({}, { __index = function(_, key)
 end })
 NS.L = L
 
--- Une ligne sans `cvar` est un titre de section. Libellé et bulle d'aide : L[cvar] et L[cvar .. "_tip"].
+-- Une ligne sans `cvar` est un titre de section ou un sous-titre. Libellé et bulle d'aide : L[cvar] et L[cvar .. "_tip"].
 -- `title`, `menu`, `names` et les `label` de NS.presets sont des clés de locale (voir Localize).
 -- Les bornes min/max sont celles du curseur du panneau. Une valeur posée hors bornes par
 -- /console est gardée et réappliquée telle quelle.
@@ -22,13 +22,14 @@ NS.L = L
 -- (relevé en jeu 2026-11-14), pour les CVars présentes sur Forever ; celles absentes du client
 -- (horizonfarclip, detailDoodleDensity, shadowLevel, SSFX, gxMultisample) gardent des valeurs
 -- estimées. Extra : Élevé, et farclip 7000.
--- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `requires` : réglage grisé tant que
--- la CVar nommée est coupée (false ou 0).
--- `basic` : ligne de la page unique du mode simple (case « Réglages avancés » décochée).
+-- `tab` (titre de section) : onglet de la fenêtre, parmi NS.tabs. `subtitle` : sous-titre dans une
+-- section (clé de locale), sans repli. `requires` : réglage grisé tant que la CVar nommée est coupée
+-- (false ou 0).
+-- `basic` : ligne montrée en mode simple (sélecteur Simple / Avancé de l'en-tête).
 -- `menu` : option du jeu qui écrit aussi la CVar (relevé dans le source 1.60.1.70862, ticket #12).
 -- Le menu natif ne relit pas les CVars : après Panorama, il peut afficher un autre niveau.
 NS.settings = {
-    { title = "SECTION_VIEW", tab = "quality" },
+    { title = "SECTION_VIEW", tab = "image" },
     { cvar = "farclip", basic = true, menu = "MENU_VIEW_DISTANCE", min = 185, max = 10000, step = 5, default = 1300, levels = { 400, 800, 2600, 7000 } },
     { cvar = "horizonfarclip", menu = "MENU_VIEW_DISTANCE", min = 1000, max = 5000, step = 8, default = 2112, levels = { 1304, 1704, 2112, 5000 } },
     { cvar = "volumeFog", basic = true, default = false, levels = { false, false, true, true } },
@@ -36,12 +37,12 @@ NS.settings = {
     -- (`hardMax`) : le jeu la repasse parfois à 4, que le curseur ne sait pas afficher.
     { cvar = "volumeFogLevel", requires = "volumeFog", min = 0, max = 3, hardMax = true, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
 
-    { title = "SECTION_VEGETATION", tab = "quality" },
+    { title = "SECTION_VEGETATION", tab = "image" },
     { cvar = "detailDoodleDensity", menu = "MENU_ENVIRONMENT", min = 0, max = 100, step = 1, default = 100, levels = { 25, 50, 75, 100 } },
     { cvar = "groundEffectDensity", menu = "MENU_GROUND_CLUTTER", min = 16, max = 256, step = 8, default = 256, levels = { 32, 96, 256, 256 } },
     { cvar = "groundEffectDist", menu = "MENU_GROUND_CLUTTER", min = 0, max = 300, step = 5, default = 140, levels = { 40, 80, 300, 300 } },
 
-    { title = "SECTION_SHADOWS", tab = "quality" },
+    { title = "SECTION_SHADOWS", tab = "image" },
     { cvar = "shadowLevel", basic = true, menu = "MENU_SHADOWS", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
     { cvar = "shadowSoft", menu = "MENU_SHADOWS", default = true, levels = { false, false, true, true } },
     { cvar = "shadowTextureSize", menu = "MENU_SHADOWS", choices = { 1024, 2048 }, default = 2048, levels = { 1024, 1024, 2048, 2048 } },
@@ -49,7 +50,7 @@ NS.settings = {
     { cvar = "SSAO", basic = true, menu = "MENU_SSAO", min = 0, max = 3, step = 1, default = 3, levels = { 0, 1, 3, 3 } },
     { cvar = "SSFX", default = true, levels = { false, true, true, true } },
 
-    { title = "SECTION_ENVIRONMENT", tab = "quality" },
+    { title = "SECTION_ENVIRONMENT", tab = "image" },
     -- waterDetail 3 fait planter le client à l'entrée des Ruines de Lordaeron (signalé par un joueur) :
     -- plafond 2, imposé même à une valeur sauvegardée ou posée par /console (`hardMax`).
     { cvar = "waterDetail", basic = true, menu = "MENU_LIQUID", min = 0, max = 2, hardMax = true, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
@@ -58,7 +59,7 @@ NS.settings = {
     -- Le menu natif demande de relancer le client (ClientRestart, Graphics.lua:1427, 1.60.1.70862).
     { cvar = "physicsLevel", menu = "MENU_PHYSICS", restart = "client", min = 0, max = 2, step = 1, default = 2, levels = { 0, 1, 2, 2 } },
 
-    { title = "SECTION_IMAGE", tab = "quality" },
+    { title = "SECTION_IMAGE", tab = "image" },
     { cvar = "gxMultisample", basic = true, menu = "MENU_MSAA", restart = true, choices = { 1, 2, 4, 8 }, default = 8, levels = { 1, 1, 4, 8 } },
     { cvar = "ResampleAlwaysSharpen", default = true },
     -- Sens inverse du nom : 0 = netteté la plus forte, 2 = la plus faible (menu natif, 1.60.1.70938).
@@ -80,19 +81,7 @@ NS.settings = {
     { cvar = "ProjectedTextures", menu = "MENU_PROJECTED", default = true, levels = { false, true, true, true } },
     { cvar = "spellClutter", menu = "MENU_SPELL_DENSITY", default = false, levels = { true, false, false, false } },
 
-    -- HDR : absent des menus et de l'interface Blizzard Forever. Défauts relevés en jeu (2026-11-15).
-    -- Sans useHDRPeakBrightness ou useHDRBrightness, HDROutput seul assombrit l'image (forum
-    -- Blizzard) ; HDRFactor actif seulement sous useHDRPeakBrightness. Bornes des curseurs choisies par
-    -- Panorama, celles du moteur non relevées.
-    { title = "SECTION_HDR", tab = "advanced" },
-    { cvar = "HDROutput", basic = true, advanced = true, default = false },
-    { cvar = "useHDRPeakBrightness", basic = true, advanced = true, default = false },
-    { cvar = "HDRPeakBrightness", basic = true, requires = "useHDRPeakBrightness", advanced = true, min = 80, max = 2000, step = 10, default = 400 },
-    { cvar = "HDRFactor", requires = "useHDRPeakBrightness", advanced = true, min = 0, max = 2, step = 0.1, default = 2 },
-    { cvar = "useHDRBrightness", advanced = true, default = false },
-    { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
-
-    { title = "SECTION_CAMERA", tab = "interface" },
+    { title = "SECTION_CAMERA", tab = "image" },
     -- Max du curseur : relevés joueurs (/console accepte 4, et farclip 10000 gardé par le jeu). Le menu Forever
     -- borne la caméra à 2.0 (ControlsOverrides.lua) ; aucune borne Lua pour farclip.
     { cvar = "cameraDistanceMaxZoomFactor", basic = true, menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
@@ -105,13 +94,27 @@ NS.settings = {
     -- Barres de vie, taille du texte, texte de combat flottant : retirés. Une CVar touchée est
     -- réécrite à chaque connexion, par-dessus les addons d'interface qui gèrent ces réglages.
 
+    -- HDR : absent des menus et de l'interface Blizzard Forever. Défauts relevés en jeu (2026-11-15).
+    -- Sans useHDRPeakBrightness ou useHDRBrightness, HDROutput seul assombrit l'image (forum
+    -- Blizzard) ; HDRFactor actif seulement sous useHDRPeakBrightness. Bornes des curseurs choisies par
+    -- Panorama, celles du moteur non relevées.
+    -- Onglet à part : réglages de l'écran, pas de la scène. Simple : sortie HDR et luminosité de crête.
+    { title = "SECTION_HDR", tab = "hdr" },
+    { cvar = "HDROutput", advanced = true, basic = true, default = false },
+    { cvar = "useHDRPeakBrightness", advanced = true, basic = true, default = false },
+    { cvar = "HDRPeakBrightness", requires = "useHDRPeakBrightness", advanced = true, basic = true, min = 80, max = 2000, step = 10, default = 400 },
+    { cvar = "HDRFactor", requires = "useHDRPeakBrightness", advanced = true, min = 0, max = 2, step = 0.1, default = 2 },
+    { cvar = "useHDRBrightness", advanced = true, default = false },
+    { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
+
     -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
     -- BlizzardInterfaceCode). `advanced` : défaut lu dans le jeu, comme plus haut.
     -- Bornes relevées en jeu (1.60.1.70938) : le moteur refuse une valeur hors bornes et garde
     -- l'ancienne. reflectionMode accepte 0 à 4, effet de 4 non vu : curseur à 3.
     -- rippleDetail max 2, particleMTDensity max 100. LOD et doodadLodScale : aucune borne moteur,
     -- maximum du curseur choisi par Panorama.
-    { title = "SECTION_ADVANCED", tab = "advanced" },
+    -- Experts : repliée par défaut (Options.lua).
+    { title = "SECTION_EXPERT", tab = "image" },
     { cvar = "reflectionMode", menu = "MENU_LIQUID", advanced = true, min = 0, max = 3, step = 1, default = 0 },
     { cvar = "rippleDetail", menu = "MENU_LIQUID", advanced = true, min = 0, max = 2, step = 1, default = 0 },
     { cvar = "terrainLodDist", menu = "MENU_ENVIRONMENT", advanced = true, min = 50, max = 1000, step = 10, default = 200 },
@@ -129,9 +132,9 @@ NS.settings = {
 }
 
 -- Onglets de la fenêtre, dans l'ordre. Le premier est ouvert au premier lancement.
--- Deux groupes : réglages du jeu (qualité, caméra, avancé), puis effets de Panorama (filtres, ambiance).
-NS.tabs = { "quality", "interface", "advanced", "filters", "myfilters", "ambiance" }
-NS.tabGroupStart = { filters = true }   -- premier onglet d'un groupe : écart plus large avant lui
+-- Image : réglages graphiques du jeu ; HDR : sortie HDR de l'écran ; Look : filtres ;
+-- Ambiance : automatismes par lieu et moment.
+NS.tabs = { "image", "hdr", "ambiance", "myfilters" }
 
 NS.presets = {
     { id = "low", label = "PRESET_LOW" },
@@ -153,6 +156,7 @@ end
 local function Localize(settings, idField)
     for _, setting in ipairs(settings) do
         if setting.title then setting.titleKey, setting.title = setting.title, L[setting.title] end
+        if setting.subtitle then setting.subtitle = L[setting.subtitle] end
         if setting.menu then setting.menu = L[setting.menu] end
         -- Nom sans clé de locale ("Reflex") : gardé tel quel.
         for value, key in pairs(setting.names or {}) do setting.names[value] = L[key] or key end
@@ -214,7 +218,7 @@ end
 local pending = {}
 local events = CreateFrame("Frame")
 
--- Réglages du lieu (NS.PlacePreset d'Ambiance.lua, ambiance auto cochée ou non) : préréglage
+-- Réglages du lieu (NS.PlacePreset d'Ambiance.lua, quel que soit le mode d'ambiance) : préréglage
 -- graphique (index de NS.presets) et distance de vue, écrits dans le jeu par-dessus les réglages
 -- du joueur, sans toucher NS.db.values, les réglages touchés ni l'annulation. À la sortie du
 -- lieu, à la déconnexion et au /reload, les valeurs de NS.db.values sont réécrites.
@@ -498,14 +502,6 @@ end
 -- quelque chose (curseur relâché sur sa valeur, préréglage déjà actif : Rétablir gardé).
 local checkpointState
 
--- Filtre ouvert dans Mes filtres au moment de chaque état : rendu par Annuler et Rétablir, hors de
--- la comparaison des états (changer de filtre ouvert n'est pas une modification).
-local editedOf = setmetatable({}, { __mode = "k" })
-
-local function EditedCustomFilter()
-    return NS.GetEditedCustomFilter and NS.GetEditedCustomFilter()
-end
-
 -- Écritures groupées : une erreur au milieu est signalée et `batching` remis quand même, sinon le
 -- panneau ne se rafraîchit plus jusqu'au /reload.
 local function Batch(write)
@@ -529,7 +525,6 @@ end
 function NS.Checkpoint()
     DropStaleRedo()
     checkpointState = Snapshot()
-    editedOf[checkpointState] = EditedCustomFilter()
     undoStack[#undoStack + 1] = checkpointState
     if #undoStack > HISTORY_SIZE then table.remove(undoStack, 1) end
 end
@@ -565,7 +560,6 @@ local function Restore(state)
     NS.db.ambiance.instanceNames = instanceNames
     NS.LoadFilters(NS.db)   -- relève le nombre de filtres du joueur (choix `customFilter`)
     NS.ApplyFilters()
-    if editedOf[state] and NS.SetEditedCustomFilter then NS.SetEditedCustomFilter(editedOf[state]) end
     if NS.RefreshOptions then NS.RefreshOptions() end
     ReportAdjustedCount()
     return deferred
@@ -580,7 +574,6 @@ local function Step(from, to)
         local state = table.remove(from)
         if not Same(state, current) then
             to[#to + 1] = current
-            editedOf[current] = EditedCustomFilter()
             return true, Restore(state)
         end
     end
@@ -665,6 +658,8 @@ end
 
 function NS.RestartGraphics()
     ConsoleExec("gxRestart")
+    -- Bouton du pied comme /pano restart : le panneau reprend l'état « en attente » à zéro.
+    if NS.OnGraphicsRestarted then NS.OnGraphicsRestarted() end
 end
 
 -- Réglage qui suit le jeu : jamais touché dans Panorama, ou réapplication coupée.
@@ -758,7 +753,9 @@ events:SetScript("OnEvent", function(self, event, arg1)
         db.layout = 2
         local knownTab = false
         for _, tab in ipairs(NS.tabs) do knownTab = knownTab or db.tab == tab end
-        if not knownTab then db.tab = NS.tabs[1] end
+        -- Onglets disparus : Filtres (« filters » avant la 1.9, puis « look ») est fondu dans Ambiance,
+        -- les autres donnent le premier onglet.
+        if not knownTab then db.tab = (db.tab == "filters" or db.tab == "look") and "ambiance" or NS.tabs[1] end
         if type(db.minimap) ~= "table" then db.minimap = {} end
         if type(db.minimap.angle) ~= "number" then db.minimap.angle = 200 end
         if type(db.minimap.show) ~= "boolean" then db.minimap.show = true end
@@ -866,7 +863,7 @@ events:SetScript("OnEvent", function(self, event, arg1)
     end
 end)
 
--- Filtres de l'onglet Filtres réglables par commande, pour une macro : mot de la commande -> clé.
+-- Filtres de base (onglet Ambiance) réglables par commande, pour une macro : mot de la commande -> clé.
 local FILTER_COMMANDS = { blackbars = "letterbox", grain = "grain", vignette = "vignette" }
 
 -- `/pano grain 10`, `/pano blackbars off` : même effet que le curseur (point d'annulation, panneau à jour).
@@ -882,7 +879,7 @@ local function SetFilterByCommand(name, argument)
     if not value or not inRange then
         return print(L.PREFIX .. L.MSG_FILTER_RANGE:format(name, setting.max, name))
     end
-    -- Ligne grisée dans le panneau (ambiance auto, filtre du joueur) : la valeur ne serait pas montrée.
+    -- Ligne grisée dans le panneau (filtre du joueur, mode Selon le lieu) : rien ne changerait à l'écran.
     local reason = NS.UnavailableReason(setting)
     if reason then return print(L.PREFIX .. reason) end
     if NS.CommitTyping then NS.CommitTyping() end

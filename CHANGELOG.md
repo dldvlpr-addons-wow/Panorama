@@ -1,5 +1,46 @@
 # Changelog
 
+## 1.9.0
+
+Everything new since 1.8.2. The beta sections below give the details.
+
+### New
+- **New window**: four tabs, Image, HDR, Ambiance and My filters. Image gathers the former Quality,
+  Interface and Advanced tabs; Advanced becomes the Experts section.
+- **Simple and Advanced (next to the title)**: Simple shows the main settings of each tab. Advanced
+  shows every setting by section, with the rules per place. A new install opens in Simple, an
+  existing one in Advanced; your choice is kept.
+- **Current look: bar**: the look on the world now, and who sets it: you, Day and night, or the
+  place. Its button opens where to change it.
+- **Options menu**: Language, Apply on every login, Minimap button and Reset all….
+- **Undo and Redo (footer, `/pano undo`, `/pano redo`, minimap menu)**: your last 20 changes,
+  presets and Reset all included, until `/reload`.
+- **Mode (Ambiance tab)**: Fixed, Day and night or By place. The Filters tab is merged into Ambiance.
+- **My filters tab**: build your own filters: color, tint strength, vignette, grain, contrast,
+  brightness and gamma, with a live preview. Use one everywhere or for a place.
+- **Day tint (Day and night mode)**: by day, a day tint replaces the base tint. Default: Warm at 25.
+- **Graphics preset and Scenery distance by place**: they apply while you are there, whatever the
+  mode. The **Here:** button next to the presets opens the rule of the place.
+- **Rule menu**: a dungeon or raid can have its own rule, and every known zone is listed.
+- **Contrast, Brightness, Gamma (Image section)**.
+- **Macro commands**: `/pano blackbars 10`, `/pano grain 10`, `/pano vignette 10`, `off` to remove.
+
+### Changed
+- **Automatic ambiance** is now **By place**, **Automatic day and night** is now **Day and night**.
+  By place replaces the base look (filter, tint, vignette, grain, sky).
+- **Weather ambiance** follows your Weather effects setting in Panorama.
+- **Defaults** for a new install: night sky strength 70, volcanic tint strength 15.
+- **Window**: drop-down menus for named values, greyed lines say why, sections fold in Advanced.
+- **Your settings, filters, rules and zones are kept.**
+
+### Removed
+- **Full-screen glow** (`ffxGlow`): no visible effect on WoW Forever. Use **Bloom intensity**.
+- **Yellow star** next to a setting also set by a game menu: its help names that menu.
+
+### Fixed
+- The chat names a setting the game refused, rounded or capped, and reports reset filter settings.
+- Unknown zones, missing loading events and logout errors are handled.
+
 ## 1.9.0-beta3
 
 ### New

@@ -22,16 +22,17 @@ The minimap button:
 
 | Part | What it does |
 |---|---|
-| Search box (top right) | Type a word to list the matching settings of every tab. Clear it to go back. |
-| Tabs | Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). The open tab is remembered. |
-| Advanced settings (under the title) | Unticked: no tabs, one page with the presets, the main quality settings (view distance, volumetric fog, shadows, ambient occlusion, liquid detail, multisampling, sharpness), HDR output and peak brightness, contrast, brightness, camera zoom, filter, filter strength and the ambiance mode. Ticked: every tab and every setting. On first install it is unticked; if you already used Panorama, it is ticked. The search always finds every setting. |
-| Undo, Redo (under the tabs, right) | Undo cancels your last change: slider, box, preset, filter, ambiance or Reset all. Redo puts it back. The last 20 changes are kept until `/reload`. |
-| Language selector (right of the tabs) | Game language or one of ten languages. Changing it reloads the interface. |
-| Guide (left of the search box) | Opens this guide in the game. |
-| Presets (Quality tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
-| Footer | Apply on every login, minimap button, Reset all, graphics engine restart. |
+| **Simple**, **Advanced** (next to the title) | Simple: each tab shows a short list of the main settings, without sections. Advanced: every setting, by section, with the rules per place and the Experts section. On first install it is Simple; if you already used Panorama, it is Advanced. The search always finds every setting. |
+| Guide (top right) | Opens this guide in the game. |
+| **Options** menu (top right) | **Language** (game language or one of ten languages; changing it reloads the interface), **Apply on every login**, **Minimap button**, **Reset all…**. |
+| **Current look:** (bar under the title) | The look on the world now, and who sets it: you, Day and night, or the place. Its button (**Edit**, **Edit this rule**) opens where to change it. Hover the bar to see which one comes first. |
+| Tabs | **Image** (graphics quality), **HDR**, **Ambiance** (look of the world), **My filters**. The open tab is remembered. |
+| Search box (right of the tabs) | Type a word to list the matching settings of every tab. Clear it to go back. |
+| Presets (Image tab) | Low, Medium, High, Extra. The preset that matches your settings is highlighted. |
+| Footer | **Undo** cancels your last change: slider, box, preset, filter, ambiance or Reset all. **Redo** puts it back. The last 20 changes are kept until `/reload`. **Restart** restarts the graphics engine. |
 
-Click a section title to fold or unfold it.
+In Advanced mode, click a section title to fold or unfold it. The **Experts (console only)** section starts
+folded. A section title shows how many of its settings you changed.
 
 ### A setting line
 
@@ -40,10 +41,11 @@ Click a section title to fold or unfold it.
   Tab goes to the next box. A comma works as decimal point. The value is kept within the slider's range.
 - **Default button**: puts that setting back to its default value. Hover it to see the value.
 - **Gold mark** on the left: you changed this setting.
-- **Yellow star**: a game menu also sets this value. Hover it to see which one. That menu does not
+- **Game menu**: when a game menu also sets this value, the help of the label names it. That menu does not
   read the value back, so it may show another level.
-- **Greyed line**: it depends on another setting that is off (for example fog density without
-  volumetric fog, tint strength without a tint). The line says which setting to change.
+- **Greyed line**: it depends on another setting that is off (for example **Volumetric fog quality**
+  without **Volumetric fog**, tint strength without a tint), or a mode sets it. Hover the label to see why.
+  A line that depends on another one is shifted to the right, just under it.
 - Hover a label to read its full help.
 
 ## 3. Presets
@@ -55,75 +57,82 @@ Click a section title to fold or unfold it.
 | High | The game's High level. Full shadows, all effects. |
 | Extra | High, with the longest view distance. |
 
-Presets change only the graphics quality settings of the Quality tab. They do not touch camera,
+Presets change only the graphics quality settings of the Image tab. They do not touch camera,
 mouse, interface, sharpening, low latency, HDR or filters.
 
-Changed your mind? **Undo** (under the tabs, or `/pano undo`) restores the settings from
+Changed your mind? **Undo** (footer, or `/pano undo`) restores the settings from
 before the preset.
 
-## 4. Filters
+## 4. Ambiance
 
-The Filters tab adds effects on top of the image. They change no game setting.
+The Ambiance tab sets the look of the world: effects on top of the image. They change no game setting.
 
-- **Tint**: click a thumbnail to apply it right away (sepia, warm, cold, night, emerald, dusk).
+- **Mode** (top of the tab): **Fixed** (the same filter everywhere), **Day and night** (a day tint and a
+  night tint) or **By place** (see below). Fixed by default.
+- **Here**: the place and the time of day detected now. When a dungeon, indoors or the weather comes
+  before a zone you set, it says so.
+- **Filter** (Fixed and Day and night modes): **Base** uses the lines below. One of your filters
+  (My filters tab) replaces the tint, the vignette and the film grain, and brings its contrast,
+  brightness and gamma. **Edit filter** opens it in the My filters tab.
+- **Color tint**: click a thumbnail to apply it right away (sepia, warm, cold, night, emerald, dusk).
   **Tint strength** sets how strong it is.
-- **My filter**: uses one of your filters from the My filters tab. It replaces the tint, the vignette and the film grain.
-- **Sky**: the same colors as a gradient, full at the top of the screen and lighter at the bottom.
-  **Sky strength** sets how strong it is.
 - **Vignette**: darkens the edges of the screen.
 - **Film grain**: animated grain.
-- **Black bars**: top and bottom bars, 0 to 20 % of the screen each. The game still renders what they
-  hide, so they do not raise the frame rate.
+- **Day tint** and **Night tint** (Day and night mode): Panorama lays the day tint by day and the night
+  tint at night, following the game's day and night. They replace the color tint. The change is gradual
+  from 19:00 to 21:00 and from 5:00 to 7:00 (server time). One of your filters chosen on the Filter line
+  replaces them.
+- **Sky**: the same colors as a gradient, full at the top of the screen and lighter at the bottom.
+  **Sky strength** sets how strong it is.
+- **Black bars**: top and bottom bars, 0 to 20 % of the screen each, in every mode. The game still renders
+  what they hide, so they do not raise the frame rate.
 
-### Ambiance
+In Simple mode, the tab shows the mode, the place, the filter, the color tint and its strength, and the
+day and night tints. Vignette, film grain, sky and black bars are in Advanced mode.
 
-The Ambiance tab changes the tint, sky, vignette and grain on its own, to fit where you are.
+### By place
 
-- **Mode** (top of the tab): **Off** (the Filters tab applies everywhere), **Automatic day and night** (see Day and
-  night below) or **Automatic ambiance**. Off by default.
-- **Automatic ambiance**: these filters follow the place and the time of day.
-  The values of the Filters tab stay saved and come back when you change the mode.
-  Without Advanced settings, the single page shows only the mode and the place detected; tick Advanced settings to edit the contexts.
+In **By place** mode, the tint, sky, vignette and grain change on their own, to fit where you are.
+
+- The lines of the Fixed mode are hidden: the rule of the place replaces them. Only the black bars stay.
+  Their values stay saved and come back when you change the mode.
+  In Simple mode, the shipped rules apply; choose Advanced to edit them.
 - **Place**: sets the tint, vignette and grain. Order: dungeon or raid, indoors, weather (rain, snow,
   sandstorm), then the kind of zone: temperate, desert, snowy, jungle and marsh, corrupted, volcanic,
   arcane forest. A zone not known yet counts as temperate. Weather counts only when Weather
   intensity is above 0.
 - **Time of day**: sets the sky (day, dawn and dusk, night). Night follows the game's day and
   night; dawn and dusk follow the server time. No sky indoors or in a dungeon.
-- The line on the right shows the place and the time of day detected now. When a dungeon, indoors
-  or the weather comes before a zone you set, it says so.
-- **Context to edit**: pick a context, then set its filters below. The Default button gives back the
-  value shipped for that context.
+- **Rule** (Advanced mode): pick a rule, then set it below. The Default button gives back the
+  value shipped for that rule. The first time the window opens in a session, the rule of the place you are in is open.
   The menu has five groups: **Zones** (the zone you are in and the zones you set), **Dungeon and indoors**, **Weather**, **Zone type** and **Sky (time of day)**.
   The first four set tint, vignette, grain and a graphics preset: one place applies at a time, in the order given above.
-  The last one sets the sky. Nothing to set to get started: every context already has its values.
+  The last one sets the sky. Nothing to set to get started: every rule already has its values.
 - **This zone**: first choice of the same menu, with the name of the zone you are in. Pick it to give
   this zone its own tint, vignette and grain, starting from its kind of zone. It then comes before
   the kind of zone, but after dungeon, indoors and weather. Zones you set stay in the menu.
-  **Zone type** removes the values of the zone: it follows its kind of zone again.
+  **Back to zone type** (next to the menu) removes the values of the zone: it follows its kind of zone again.
 - **All zones**: submenu of the same menu, with every known zone. Pick one to set it without being there. Zones are sorted by continent.
-- **Graphics preset** and **Scenery distance** (first lines of a place or a zone): they apply while you are in that place, over your own settings, with the automatic ambiance on or off. The scenery distance of the place comes before the one of the preset. Your own settings are kept and come back when you leave. **My settings** changes nothing. Example: Low in dungeons, Extra in a zone you like. In a dungeon or raid, the first choice of the menu sets that dungeon alone. In the Quality tab, the **By place** button opens these lines for the place you are in; it reads **Here: …** while a place applies its own. In combat, the change waits for the end of the fight.
-- **My filter** (first line of the filters of a place or a zone): this place uses one of your filters from the My filters tab, with its contrast, brightness and gamma, while the automatic ambiance is on.
-- **Day and night** (mode **Automatic day and night**): Panorama lays the **Day tint** by day and the **Night tint** at night,
-  following the game's day and night. They replace the Filters tab tint. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00
-  (server time). The day and night tints and their strengths are set with Advanced settings.
+- **Graphics preset** and **Scenery distance** (section **Image** of a place or a zone): they apply while you are in that place, over your own settings, whatever the ambiance mode. The scenery distance of the place comes before the one of the preset. Your own settings are kept and come back when you leave. **My settings** changes nothing. Example: Low in dungeons, Extra in a zone you like. In a dungeon or raid, the first choice of the menu sets that dungeon alone. In the Image tab, **Here: …** shows next to the presets while a place applies its own; in Advanced mode, it opens that rule. In combat, the change waits for the end of the fight.
+- **Filter** (first line of section **Look** of a place or a zone): this place uses one of your filters from the My filters tab, with its contrast, brightness and gamma. **Settings below**: the tint, vignette and grain of the rule. The Look section applies only in By place mode.
 
 ## 5. My filters
 
-The My filters tab (shown with Advanced settings) lets you create as many filters of your own as you want. **New** adds one, **Delete** removes the open one: the Filters tab, places and zones that used it go back to None.
+The My filters tab lets you create as many filters of your own as you want. The open filter shows on the world only as a preview; the filter that applies is chosen in the Ambiance tab. **New** adds one and opens it, **Delete** removes the open one: the Ambiance tab filter and the rules that used it go back to no filter. One filter always remains.
 
-- **Filter to edit**: picks the filter that the lines below set. **Name**: give it a name (Enter to confirm).
-- **Red**, **Green**, **Blue** (in %): the tint color of the filter. **Tint strength**: how strong it is.
+- **Filter**: picks the filter that the lines below set. **Name**: give it a name (Enter to confirm).
+- **Color tint**: click a thumbnail to give the filter that color. **Red**, **Green**, **Blue** (in %): its exact color. **Tint strength**: how strong it is.
 - **Vignette** and **Film grain**: those of the filter.
 - **Contrast**, **Brightness**, **Gamma**: image settings the filter gives the game while it is applied; your own values come back afterwards. My settings: nothing changes. Depending on the display mode, they may have no effect.
-- While the tab is open, the filter shown is visible live on the game.
-- To use a filter: pick it on the **My filter** line of the Filters tab (everywhere), or for a place or a zone in the Ambiance tab (automatic ambiance on). It then replaces the tint, the vignette and the film grain, whose lines are greyed out. None: nothing changes.
+- In Simple mode, the tab shows only the color tint and the tint strength.
+- While the tab is open, the filter shown is visible live on the game. The **Current look:** bar says when it is only a preview.
+- To use a filter: pick it on the **Filter** line of the Ambiance tab (Fixed and Day and night modes), or of a place or a zone (By place mode). It then replaces the tint, the vignette and the film grain. **Base** or **Settings below**: nothing changes.
 
 ## 6. Your values and the game
 
 - On first install, Panorama reads your current game settings. Nothing changes until you move a control.
 - A change made in the game's Graphics menu or with `/console` shows in the window.
-- **Apply on every login** (footer, on by default): the settings you changed in Panorama are written again
+- **Apply on every login** (Options menu, on by default): the settings you changed in Panorama are written again
   at each login. The others follow the game's Graphics menu.
 - A change made during combat is applied when combat ends.
 - Some settings, such as MSAA, need a graphics restart. Click **Restart** in the footer, or type
@@ -131,8 +140,8 @@ The My filters tab (shown with Advanced settings) lets you create as many filter
 
 ## 7. HDR on Windows
 
-HDR settings exist only as console commands in the game. Panorama shows them in the **Advanced** tab,
-section **HDR (console only)**. You need a monitor that supports HDR.
+HDR settings exist only as console commands in the game. Panorama shows them in the **HDR** tab.
+You need a monitor that supports HDR.
 
 ### Step 1: turn on HDR in Windows
 
@@ -159,7 +168,8 @@ about 600, DisplayHDR 1000 about 1000.
 
 ### Step 3: set HDR in Panorama
 
-Open `/pano`, tab **Advanced**, section **HDR (console only)**.
+Open `/pano`, tab **HDR**. In Simple mode, the tab shows only the first three lines below: choose
+**Advanced** to see **HDR intensity** and the reference brightness.
 
 1. Check **HDR output**.
 2. Check **Use peak brightness** or **Use reference brightness**: one of the two, never both. Without one, the image goes dark.
@@ -213,6 +223,6 @@ Each HDR line has a Default button that puts back the game's value.
 - The **Default** button on each line resets that setting.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
-- **Reset all** (footer, with confirmation) or `/pano reset`: puts every setting changed in Panorama
+- **Reset all…** (Options menu, with confirmation) or `/pano reset`: puts every setting changed in Panorama
   and every filter back to its default. **Undo** cancels it until `/reload`.
   The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.

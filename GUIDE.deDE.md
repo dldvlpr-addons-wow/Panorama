@@ -20,16 +20,17 @@ Der Minimap-Button:
 
 | Bereich | Funktion |
 |---|---|
-| Suchfeld (oben rechts) | Gib ein Wort ein, um die passenden Einstellungen aller Reiter aufzulisten. Leere es, um zurückzukehren. |
-| Reiter | Qualität, Oberfläche, Erweitert (Spieleinstellungen), dann Filter, Meine Filter, Stimmung (Effekte von Panorama). Der geöffnete Reiter wird gespeichert. |
-| Erweiterte Einstellungen (unter dem Titel) | Nicht angehakt: keine Reiter, eine Seite mit den Voreinstellungen, den wichtigsten Qualitätseinstellungen (Sichtweite, volumetrischer Nebel, Schatten, Umgebungsverdeckung, Wasserdetails, Kantenglättung, Schärfeabschwächung), HDR-Ausgabe und Spitzenhelligkeit, Kontrast, Helligkeit, Kameradistanz, Filter, Filterstärke und dem Stimmungsmodus. Angehakt: alle Reiter und alle Einstellungen. Bei der Erstinstallation ist es nicht angehakt; wenn du Panorama schon benutzt hast, ist es angehakt. Die Suche findet immer alle Einstellungen. |
-| Rückgängig, Wiederholen (unter den Reitern, rechts) | Rückgängig macht deine letzte Änderung rückgängig: Regler, Feld, Voreinstellung, Filter, Stimmung oder Alles zurücksetzen. Wiederholen stellt sie wieder her. Die letzten 20 Änderungen bleiben bis `/reload` erhalten. |
-| Sprachauswahl (rechts neben den Reitern) | Spielsprache oder eine von zehn Sprachen. Eine Änderung lädt die Oberfläche neu. |
-| Anleitung (links neben dem Suchfeld) | Öffnet diese Anleitung im Spiel. |
-| Voreinstellungen (Reiter Qualität) | Niedrig, Mittel, Hoch, Extra. Die Voreinstellung, die zu deinen Einstellungen passt, ist hervorgehoben. |
-| Fußzeile | Bei jedem Einloggen anwenden, Minimap-Button, Alles zurücksetzen, Neustart der Grafik-Engine. |
+| **Einfach**, **Erweitert** (neben dem Titel) | Einfach: Jeder Reiter zeigt eine kurze Liste der wichtigsten Einstellungen, ohne Abschnitte. Erweitert: alle Einstellungen, nach Abschnitten, mit den Regeln pro Ort und dem Abschnitt Experten. Bei der Erstinstallation ist es Einfach; wenn du Panorama schon benutzt hast, ist es Erweitert. Die Suche findet immer alle Einstellungen. |
+| Anleitung (oben rechts) | Öffnet diese Anleitung im Spiel. |
+| Menü **Optionen** (oben rechts) | **Sprache** (Spielsprache oder eine von zehn Sprachen; eine Änderung lädt die Oberfläche neu), **Bei jedem Einloggen anwenden**, **Minimap-Button**, **Alles zurücksetzen…**. |
+| **Aktuelles Aussehen:** (Leiste unter dem Titel) | Das Aussehen, das gerade auf der Welt liegt, und wer es vorgibt: du, Tag und Nacht oder der Ort. Ihr Button (**Bearbeiten**, **Diese Regel bearbeiten**) öffnet die Stelle, an der du es änderst. Fahre mit der Maus über die Leiste, um zu sehen, was Vorrang hat. |
+| Reiter | **Bild** (Grafikqualität), **HDR**, **Stimmung** (Aussehen der Welt), **Meine Filter**. Der geöffnete Reiter wird gespeichert. |
+| Suchfeld (rechts neben den Reitern) | Gib ein Wort ein, um die passenden Einstellungen aller Reiter aufzulisten. Leere es, um zurückzukehren. |
+| Voreinstellungen (Reiter Bild) | Niedrig, Mittel, Hoch, Extra. Die Voreinstellung, die zu deinen Einstellungen passt, ist hervorgehoben. |
+| Fußzeile | **Rückgängig** macht deine letzte Änderung rückgängig: Regler, Feld, Voreinstellung, Filter, Stimmung oder Alles zurücksetzen. **Wiederholen** stellt sie wieder her. Die letzten 20 Änderungen bleiben bis `/reload` erhalten. **Neu starten** startet die Grafik-Engine neu. |
 
-Klicke auf einen Abschnittstitel, um ihn ein- oder auszuklappen.
+Klicke im Modus Erweitert auf einen Abschnittstitel, um ihn ein- oder auszuklappen. Der Abschnitt **Experten (nur Konsole)** ist
+zunächst eingeklappt. Ein Abschnittstitel zeigt, wie viele seiner Einstellungen du geändert hast.
 
 ### Eine Einstellungszeile
 
@@ -40,10 +41,11 @@ Klicke auf einen Abschnittstitel, um ihn ein- oder auszuklappen.
 - **Standard-Button**: setzt diese Einstellung auf ihren Standardwert zurück. Fahre mit der Maus darüber,
   um den Wert zu sehen.
 - **Goldene Markierung** links: Du hast diese Einstellung geändert.
-- **Gelber Stern**: Ein Spielmenü setzt diesen Wert ebenfalls. Fahre mit der Maus darüber, um zu sehen,
-  welches. Dieses Menü liest den Wert nicht zurück, es kann also eine andere Stufe zeigen.
-- **Ausgegraute Zeile**: Sie hängt von einer anderen Einstellung ab, die aus ist (zum Beispiel Nebeldichte
-  ohne volumetrischen Nebel, Farbtonstärke ohne Farbton). Die Zeile nennt die Einstellung, die du ändern musst.
+- **Spielmenü**: Wenn ein Spielmenü diesen Wert ebenfalls setzt, nennt die Hilfe der Beschriftung es. Dieses Menü
+  liest den Wert nicht zurück, es kann also eine andere Stufe zeigen.
+- **Ausgegraute Zeile**: Sie hängt von einer anderen Einstellung ab, die aus ist (zum Beispiel **Qualität des volumetrischen Nebels**
+  ohne **Volumetrischer Nebel**, Farbtonstärke ohne Farbton), oder ein Modus legt sie fest. Fahre mit der Maus über die Beschriftung, um den Grund zu sehen.
+  Eine Zeile, die von einer anderen abhängt, ist nach rechts eingerückt, direkt unter ihr.
 - Fahre mit der Maus über eine Beschriftung, um die ganze Hilfe zu lesen.
 
 ## 3. Voreinstellungen
@@ -55,76 +57,84 @@ Klicke auf einen Abschnittstitel, um ihn ein- oder auszuklappen.
 | Hoch | Stufe Hoch des Spiels. Volle Schatten, alle Effekte. |
 | Extra | Hoch, mit der größten Sichtweite. |
 
-Voreinstellungen ändern nur die Grafikqualitäts-Einstellungen im Reiter Qualität. Sie ändern nicht
+Voreinstellungen ändern nur die Grafikqualitäts-Einstellungen im Reiter Bild. Sie ändern nicht
 Kamera, Maus, Oberfläche, Schärfung, niedrige Latenz, HDR oder Filter.
 
-Anders überlegt? **Rückgängig** (unter den Reitern, oder `/pano undo`)
+Anders überlegt? **Rückgängig** (Fußzeile, oder `/pano undo`)
 stellt die Einstellungen von vor der Voreinstellung wieder her.
 
-## 4. Filter
+## 4. Stimmung
 
-Der Reiter Filter fügt Effekte über dem Bild hinzu. Sie ändern keine Spieleinstellung.
+Der Reiter Stimmung legt das Aussehen der Welt fest: Effekte über dem Bild. Sie ändern keine Spieleinstellung.
 
+- **Modus** (oben im Reiter): **Fest** (derselbe Filter überall), **Tag und Nacht** (ein Tagfarbton und ein
+  Nachtfarbton) oder **Nach Ort** (siehe unten). Standardmäßig Fest.
+- **Hier**: der Ort und die Tageszeit, die gerade erkannt werden. Hat ein Dungeon, ein Innenraum oder das Wetter
+  Vorrang vor einer von dir eingestellten Zone, wird das angezeigt.
+- **Filter** (Modi Fest und Tag und Nacht): **Basis** nutzt die Zeilen darunter. Einer deiner Filter
+  (Reiter Meine Filter) ersetzt Farbton, Vignette und Filmkorn und bringt seinen Kontrast,
+  seine Helligkeit und sein Gamma mit. **Filter bearbeiten** öffnet ihn im Reiter Meine Filter.
 - **Farbton**: Klicke auf eine Vorschau, um ihn sofort anzuwenden (Sepia, Warm, Kalt, Nacht, Smaragd,
   Dämmerung). **Farbtonstärke** legt fest, wie stark er ist.
-- **Mein Filter**: nutzt einen deiner Filter aus dem Reiter Meine Filter. Er ersetzt Farbton, Vignette und Filmkorn.
-- **Himmel**: dieselben Farben als Verlauf, oben am Bildschirm voll und unten heller.
-  **Himmelsstärke** legt fest, wie stark er ist.
 - **Vignette**: dunkelt die Bildschirmränder ab.
 - **Filmkorn**: animiertes Korn.
-- **Schwarze Balken**: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms. Das Spiel rendert
+- **Tagfarbton** und **Nachtfarbton** (Modus Tag und Nacht): Panorama legt tagsüber den Tagfarbton und nachts den Nachtfarbton
+  auf, nach Tag und Nacht des Spiels. Sie ersetzen den Farbton. Der Wechsel erfolgt allmählich von 19 bis
+  21 Uhr und von 5 bis 7 Uhr (Serverzeit). Einer deiner Filter, den du in der Zeile Filter wählst,
+  ersetzt sie.
+- **Himmel**: dieselben Farben als Verlauf, oben am Bildschirm voll und unten heller.
+  **Himmelsstärke** legt fest, wie stark er ist.
+- **Schwarze Balken**: Balken oben und unten, jeweils 0 bis 20 % des Bildschirms, in jedem Modus. Das Spiel rendert
   weiterhin, was sie verdecken, daher steigern sie die Bildrate nicht.
 
-### Stimmung
+Im Modus Einfach zeigt der Reiter den Modus, den Ort, den Filter, den Farbton und seine Stärke sowie die
+Tag- und Nachtfarbtöne. Vignette, Filmkorn, Himmel und schwarze Balken gibt es im Modus Erweitert.
 
-Der Reiter Stimmung ändert Tönung, Himmel, Vignette und Körnung von selbst, passend zu deinem Ort.
+### Nach Ort
 
-- **Modus** (oben im Reiter): **Aus** (der Reiter Filter gilt überall), **Automatisch Tag und Nacht** (siehe Tag und Nacht unten) oder **Automatische Stimmung**. Standardmäßig aus.
-- **Automatische Stimmung**: diese Filter folgen Ort und Tageszeit. Die
-  Werte des Reiters Filter bleiben gespeichert und kehren zurück, wenn du den Modus wechselst.
-  Ohne Erweiterte Einstellungen zeigt die einzelne Seite nur den Modus und den erkannten Ort; hake Erweiterte Einstellungen an, um die Kontexte zu bearbeiten.
+Im Modus **Nach Ort** ändern sich Tönung, Himmel, Vignette und Körnung von selbst, passend zu deinem Ort.
+
+- Die Zeilen des Modus Fest sind ausgeblendet: Die Regel des Ortes ersetzt sie. Nur die schwarzen Balken bleiben.
+  Ihre Werte bleiben gespeichert und kehren zurück, wenn du den Modus wechselst.
+  Im Modus Einfach gelten die mitgelieferten Regeln; wähle Erweitert, um sie zu bearbeiten.
 - **Ort**: legt Tönung, Vignette und Körnung fest. Reihenfolge: Dungeon oder Schlachtzug, Innenraum,
   Wetter (Regen, Schnee, Sandsturm), dann die Art der Zone: gemäßigte Lande, Wüsten und Ödland,
   Schneelande, Dschungel und Sumpf, verderbte Lande, Vulkanlande, Arkane Wälder. Eine noch unbekannte
   Zone zählt als gemäßigt. Wetter zählt nur, wenn die Wetterintensität über 0 liegt.
 - **Tageszeit**: legt den Himmel fest (Tag, Morgen- und Abenddämmerung, Nacht). Die Nacht folgt
   Tag und Nacht des Spiels, die Dämmerung der Serverzeit. Kein Himmel in Innenräumen oder im Dungeon.
-- Die Zeile rechts zeigt den Ort und die Tageszeit, die gerade erkannt werden. Hat ein Dungeon, ein
-  Innenraum oder das Wetter Vorrang vor einer von dir eingestellten Zone, wird das angezeigt.
-- **Zu bearbeitender Kontext**: wähle einen Kontext und stelle darunter seine Filter ein. Der Knopf
-  Standard gibt den mitgelieferten Wert dieses Kontexts zurück.
+- **Regel** (Modus Erweitert): wähle eine Regel und stelle sie darunter ein. Der Button
+  Standard gibt den mitgelieferten Wert dieser Regel zurück. Wenn sich das Fenster zum ersten Mal öffnet, ist die Regel des Ortes, an dem du bist, geöffnet.
   Das Menü hat fünf Gruppen: **Zonen** (die Zone, in der du bist, und die von dir eingestellten Zonen), **Dungeon und Innenraum**, **Wetter**, **Zonentyp** und **Himmel (Tageszeit)**.
   Die ersten vier stellen Tönung, Vignette, Körnung und eine Grafikvoreinstellung ein: Es gilt immer nur ein Ort, in der oben genannten Reihenfolge.
-  Die letzte stellt den Himmel ein. Für den Anfang musst du nichts einstellen: Jeder Kontext hat bereits seine Werte.
+  Die letzte stellt den Himmel ein. Für den Anfang musst du nichts einstellen: Jede Regel hat bereits ihre Werte.
 - **Diese Zone**: erste Wahl desselben Menüs, mit dem Namen der Zone, in der du dich befindest. Wähle
   sie, um dieser Zone eine eigene Tönung, Vignette und Körnung zu geben, ausgehend von ihrer Art der
   Zone. Sie hat dann Vorrang vor der Art der Zone, aber nach Dungeon, Innenraum und Wetter. Die
-  Zonen, die du eingestellt hast, bleiben im Menü. **Zonentyp** entfernt die Werte der Zone: sie folgt
+  Zonen, die du eingestellt hast, bleiben im Menü. **Zurück zum Zonentyp** (neben dem Menü) entfernt die Werte der Zone: sie folgt
   wieder ihrer Art der Zone.
 - **Alle Zonen**: Untermenü desselben Menüs, mit allen bekannten Zonen. Wähle eine, um sie einzustellen, ohne dort zu sein. Die Zonen sind nach Kontinent geordnet.
-- **Voreinstellung** und **Sichtweite der Umgebung** (erste Zeilen eines Ortes oder einer Zone): Sie gelten, solange du an diesem Ort bist, über deinen eigenen Einstellungen, mit oder ohne automatische Stimmung. Die Sichtweite des Ortes hat Vorrang vor der Sichtweite der Voreinstellung. Deine eigenen Einstellungen bleiben gespeichert und kommen zurück, wenn du gehst. **Meine Einstellungen** ändert nichts. Beispiel: Niedrig in Dungeons, Extra in einer Zone, die du magst. In einem Dungeon oder Schlachtzug stellt die erste Auswahl des Menüs nur diesen Dungeon ein. Im Tab Qualität öffnet die Schaltfläche **Nach Ort** diese Zeilen für den Ort, an dem du bist; sie zeigt **Hier: …**, solange ein Ort eigene Werte vorgibt. Im Kampf wartet die Änderung bis zum Ende des Kampfes.
-- **Mein Filter** (erste Zeile der Filter eines Ortes oder einer Zone): Dieser Ort nutzt einen deiner Filter aus dem Reiter Meine Filter, mit dessen Kontrast, Helligkeit und Gamma, solange die automatische Stimmung aktiviert ist.
-- **Tag und Nacht** (Modus **Automatisch Tag und Nacht**): Panorama legt tagsüber den **Tagfarbton** und nachts den **Nachtfarbton**
-  auf, nach Tag und Nacht des Spiels. Sie ersetzen den Farbton des Reiters Filter. Der Wechsel erfolgt allmählich von 19 bis
-  21 Uhr und von 5 bis 7 Uhr (Serverzeit). Die Tag- und Nachtfarbtöne und ihre Stärken werden mit Erweiterte Einstellungen festgelegt.
+- **Voreinstellung** und **Sichtweite der Umgebung** (Abschnitt **Bild** eines Ortes oder einer Zone): Sie gelten, solange du an diesem Ort bist, über deinen eigenen Einstellungen, in jedem Stimmungsmodus. Die Sichtweite des Ortes hat Vorrang vor der Sichtweite der Voreinstellung. Deine eigenen Einstellungen bleiben gespeichert und kommen zurück, wenn du gehst. **Meine Einstellungen** ändert nichts. Beispiel: Niedrig in Dungeons, Extra in einer Zone, die du magst. In einem Dungeon oder Schlachtzug stellt die erste Auswahl des Menüs nur diesen Dungeon ein. Im Reiter Bild erscheint neben den Voreinstellungen **Hier: …**, solange ein Ort eigene Werte vorgibt; im Modus Erweitert öffnet es diese Regel. Im Kampf wartet die Änderung bis zum Ende des Kampfes.
+- **Filter** (erste Zeile des Abschnitts **Aussehen** eines Ortes oder einer Zone): Dieser Ort nutzt einen deiner Filter aus dem Reiter Meine Filter, mit dessen Kontrast, Helligkeit und Gamma. **Einstellungen unten**: Tönung, Vignette und Körnung der Regel. Der Abschnitt Aussehen gilt nur im Modus Nach Ort.
 
 ## 5. Meine Filter
 
-Der Reiter Meine Filter (mit Erweiterte Einstellungen sichtbar) dient dazu, beliebig viele eigene Filter zu erstellen. **Neu** fügt einen hinzu, **Löschen** entfernt den geöffneten: der Reiter Filter, Orte und Zonen, die ihn nutzten, wechseln zu Keiner.
+Im Reiter Meine Filter kannst du beliebig viele eigene Filter erstellen. Der geöffnete Filter wird auf der Welt nur als Vorschau gezeigt; der angewendete wird im Tab Stimmung gewählt. **Neu** fügt einen hinzu und öffnet ihn, **Löschen** entfernt den geöffneten: der Filter des Reiters Stimmung und die Regeln, die ihn nutzten, wechseln zu keinem Filter. Ein Filter bleibt immer erhalten.
 
-- **Zu bearbeitender Filter**: wählt den Filter, den die Zeilen darunter einstellen. **Name**: gib ihm einen Namen (Enter zum Bestätigen).
-- **Rot**, **Grün**, **Blau** (in %): Farbe des Farbtons des Filters. **Farbtonstärke**: seine Stärke.
+- **Filter**: wählt den Filter, den die Zeilen darunter einstellen. **Name**: gib ihm einen Namen (Enter zum Bestätigen).
+- **Farbton**: Klicke auf eine Vorschau, um dem Filter diese Farbe zu geben. **Rot**, **Grün**, **Blau** (in %): seine genaue Farbe. **Farbtonstärke**: seine Stärke.
 - **Vignette** und **Filmkorn**: die des Filters.
 - **Kontrast**, **Helligkeit**, **Gamma**: Bildeinstellungen, die der Filter dem Spiel gibt, solange er angewendet wird; deine eigenen Werte kehren danach zurück. Meine Einstellungen: nichts ändert sich. Je nach Anzeigemodus können sie wirkungslos bleiben.
-- Solange der Reiter geöffnet ist, ist der angezeigte Filter live im Spiel zu sehen.
-- So nutzt du einen Filter: Wähle ihn in der Zeile **Mein Filter** des Reiters Filter (überall) oder für einen Ort oder eine Zone im Reiter Stimmung (automatische Stimmung aktiviert). Er ersetzt dann Farbton, Vignette und Filmkorn, deren Zeilen ausgegraut sind. Keiner: nichts ändert sich.
+- Im Modus Einfach zeigt der Reiter nur den Farbton und die Farbtonstärke.
+- Solange der Reiter geöffnet ist, ist der angezeigte Filter live im Spiel zu sehen. Die Leiste **Aktuelles Aussehen:** sagt, wenn es nur eine Vorschau ist.
+- So nutzt du einen Filter: Wähle ihn in der Zeile **Filter** des Reiters Stimmung (Modi Fest und Tag und Nacht) oder für einen Ort oder eine Zone (Modus Nach Ort). Er ersetzt dann Farbton, Vignette und Filmkorn. **Basis** oder **Einstellungen unten**: nichts ändert sich.
 
 ## 6. Deine Werte und das Spiel
 
 - Bei der ersten Installation liest Panorama deine aktuellen Spieleinstellungen. Nichts ändert sich,
   bis du ein Steuerelement bewegst.
 - Eine Änderung im Grafikmenü des Spiels oder mit `/console` wird im Fenster angezeigt.
-- **Bei jedem Einloggen anwenden** (Fußzeile, standardmäßig an): Die Einstellungen, die du in Panorama
+- **Bei jedem Einloggen anwenden** (Menü Optionen, standardmäßig an): Die Einstellungen, die du in Panorama
   geändert hast, werden bei jedem Einloggen erneut geschrieben. Die anderen folgen dem Grafikmenü des Spiels.
 - Eine Änderung im Kampf wird am Ende des Kampfes angewendet.
 - Einige Einstellungen, wie MSAA, brauchen einen Neustart der Grafik. Klicke in der Fußzeile auf
@@ -132,8 +142,8 @@ Der Reiter Meine Filter (mit Erweiterte Einstellungen sichtbar) dient dazu, beli
 
 ## 7. HDR unter Windows
 
-HDR-Einstellungen gibt es im Spiel nur als Konsolenbefehle. Panorama zeigt sie im Reiter **Erweitert**,
-Abschnitt **HDR (nur Konsole)**. Du brauchst einen Monitor, der HDR unterstützt.
+HDR-Einstellungen gibt es im Spiel nur als Konsolenbefehle. Panorama zeigt sie im Reiter **HDR**.
+Du brauchst einen Monitor, der HDR unterstützt.
 
 ### Schritt 1: HDR in Windows einschalten
 
@@ -162,7 +172,8 @@ etwa 600, DisplayHDR 1000 etwa 1000.
 
 ### Schritt 3: HDR in Panorama einstellen
 
-Öffne `/pano`, Reiter **Erweitert**, Abschnitt **HDR (nur Konsole)**.
+Öffne `/pano`, Reiter **HDR**. Im Modus Einfach zeigt der Reiter nur die ersten drei Zeilen unten: wähle
+**Erweitert**, um **HDR-Intensität** und die Referenzhelligkeit zu sehen.
 
 1. Aktiviere **HDR-Ausgabe**.
 2. Aktiviere **Spitzenhelligkeit verwenden** oder **Referenzhelligkeit verwenden**: einen von beiden, nie beide. Ohne einen wird das Bild dunkel.
@@ -217,6 +228,6 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 - Der **Standard**-Button in jeder Zeile setzt diese Einstellung zurück.
 - Der Button **Standard** des Grafikmenüs des Spiels setzt nur die Einstellungen zurück, die dieses Menü
   verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in `/pano`.
-- **Alles zurücksetzen** (Fußzeile, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
+- **Alles zurücksetzen…** (Menü Optionen, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
   Einstellung und jeden Filter auf den Standard zurück. **Rückgängig** macht es bis `/reload` rückgängig.
-  Der Tab Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.
+  Der Reiter Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.

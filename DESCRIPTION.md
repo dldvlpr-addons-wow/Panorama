@@ -27,7 +27,7 @@ Panorama handles the picture: view distance, vegetation, shadows, water, image, 
 1. **Install** Panorama and start the game.
 2. Click the **Panorama button** on the minimap, or type <span style="color: #ffd100;"><strong>/pano</strong></span>.
 3. **Pick a preset**, or move any slider. The change shows in the game right away.
-4. Click **Guide**, next to the search box, to read how everything works.
+4. Click **Guide**, top right of the window, to read how everything works.
 
 Nothing changes until you touch a control: on first install, Panorama starts from your current game settings. Only exception: water detail above 2 is lowered to 2, as level 3 crashes the game.
 
@@ -50,7 +50,7 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">Graphics settings</span>
 
-- <span style="color: #ffd100;"><strong>46 settings in collapsible sections:</strong></span> view distance, vegetation, shadows and lighting, environment, image, HDR, camera and mouse, advanced.
+- <span style="color: #ffd100;"><strong>46 settings by section:</strong></span> view distance, vegetation, shadows and lighting, environment, image, camera, mouse and interface, and experts in the Image tab, HDR in its own tab. In Advanced mode, click a section title to fold it; Experts starts folded.
 - <span style="color: #ffd100;"><strong>Four presets:</strong></span> Low, Medium, High and Extra.
 - <span style="color: #ffd100;"><strong>HDR on Windows:</strong></span> HDR output, peak or reference brightness and HDR intensity, settings the game only has as console commands.
 - <span style="color: #ffd100;"><strong>Type a value.</strong></span> Each slider has a box next to it for an exact value.
@@ -59,9 +59,9 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 ### <span style="color: #ffd100;">Filters and ambiance</span>
 
 - <span style="color: #ffd100;"><strong>13 filters:</strong></span> black bars for a cinematic look, vignette, film grain and six tints (sepia, warm, cold, night, emerald, dusk), picked from thumbnails and a sky gradient from the top of the screen. No CVar changed.
-- <span style="color: #ffd100;"><strong>My filters:</strong></span> a tab to build as many filters of your own as you want, each with a name, a color set with Red, Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a brightness and a gamma. You see the filter on the game while you set it. Use it everywhere, or for a place or a zone.
-- <span style="color: #ffd100;"><strong>Automatic ambiance:</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Each context, and any zone you pick, has its own values. A place or a zone can also apply a graphics preset (Low, Medium, High, Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave.
-- <span style="color: #ffd100;"><strong>Automatic day and night:</strong></span> off by default. It lays a day tint by day and a night tint at night. It is a separate choice: turning one on turns the other off.
+- <span style="color: #ffd100;"><strong>My filters:</strong></span> a tab to build as many filters of your own as you want, each with a name, a color set with Red, Green and Blue sliders, a tint strength, a vignette, a film grain, a contrast, a brightness and a gamma. You see the filter on the game while you set it. Pick it on the Filter line of the Ambiance tab, or for a place or a zone.
+- <span style="color: #ffd100;"><strong>Three ambiance modes:</strong></span> the Mode menu of the Ambiance tab picks <strong>Fixed</strong> (default: the same filter everywhere, Base or one of your filters), <strong>Day and night</strong> (a day tint by day and a night tint at night) or <strong>By place</strong>.
+- <span style="color: #ffd100;"><strong>By place:</strong></span> tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Each context, and any zone you pick, has its own values. A place or a zone can also apply a graphics preset (Low, Medium, High, Extra) or a scenery distance while you are there, whatever the ambiance mode; your own settings come back when you leave.
 
 ### <span style="color: #ffd100;">Safe for your game</span>
 
@@ -72,32 +72,24 @@ Nothing changes until you touch a control: on first install, Panorama starts fro
 
 ### <span style="color: #ffd100;">The window</span>
 
-- <span style="color: #ffd100;"><strong>Its own window, in six tabs:</strong></span> Quality, Interface, Advanced (game settings), then Filters, My filters, Ambiance (Panorama effects). A search box looks through every tab. Without <strong>Advanced settings</strong>, the window is one simple page: presets, main quality settings, HDR, contrast, brightness, camera zoom, filter and ambiance mode. <strong>Undo</strong> and <strong>Redo</strong> buttons cancel or put back your last changes. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
+- <span style="color: #ffd100;"><strong>Its own window, in four tabs:</strong></span> Image (graphics quality and presets), HDR, Ambiance (look of the world) and My filters. A search box looks through the settings of every tab. <strong>Simple</strong>, next to the title, shows the main settings of each tab; <strong>Advanced</strong> shows every setting, by section. The <strong>Current look:</strong> bar says which look is on the world and who sets it. In the footer, <strong>Undo</strong> and <strong>Redo</strong> cancel or put back your last changes, and <strong>Restart</strong> restarts the graphics engine. The <strong>Options</strong> menu holds Language, Apply on every login, Minimap button and Reset all. Drag it anywhere, close it with Escape. It also opens from Options > AddOns > Panorama.
 - <span style="color: #ffd100;"><strong>Minimap button:</strong></span> left click opens the window, right click shows presets, undo, redo and graphics restart.
-- <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. A selector in the window changes the language.
+- <span style="color: #ffd100;"><strong>10 languages:</strong></span> English, French, German, Spanish, Italian, Portuguese, Russian, Korean, Simplified and Traditional Chinese. The Options menu of the window changes the language.
 - <span style="color: #ffd100;"><strong>In-game guide</strong></span> in all 10 languages, HDR setup on Windows included.
 
 ---
 
-## <span style="color: #3c3;">🆕 New in 1.8.2</span>
+## <span style="color: #3c3;">🆕 New in 1.9.0</span>
 
-- <span style="color: #ffd100;"><strong>Bloom intensity (Image section):</strong></span> the strength of the glow around lights and bright areas, from 0 to 1. It is the setting behind the game's own bloom slider.
-- <span style="color: #ffd100;"><strong>Night tint strength:</strong></span> the default goes from 50 to 90 for a new install. If Panorama is already installed, your current value is kept.
-
----
-
-## <span style="color: #ff6b35;">✂ Removed in 1.8.1</span>
-
-- <span style="color: #ffd100;"><strong>Nameplates section, text size and floating combat text section.</strong></span> Panorama rewrote these settings at every login once changed, over the addons that manage them. The values you had stay in the game; Panorama no longer writes them.
-
----
-
-## <span style="color: #3c3;">🆕 New in 1.8.0</span>
-
-- <span style="color: #ffd100;"><strong>Automatic ambiance (Ambiance tab):</strong></span> off by default. Tint, vignette and grain follow the place (dungeon, indoors, rain, snow, sandstorm, kind of zone), the sky follows the time of day. Any zone can get its own values, picked from the list of all zones. A place or a zone can also apply a graphics preset (Low, Medium, High, Extra) or a scenery distance while you are there, with the automatic ambiance on or off; your own settings come back when you leave.
-- <span style="color: #ffd100;"><strong>Automatic day and night (Ambiance tab):</strong></span> off by default. At night (game's day and night), a night tint with its own strength replaces the tint. It does not work together with the automatic ambiance: turning one on turns the other off. The change is gradual from 19:00 to 21:00 and from 5:00 to 7:00 (server time).
-- <span style="color: #ffd100;"><strong>Sky filter:</strong></span> a color gradient from the top of the screen, with the tint colors.
-- <span style="color: #ffd100;"><strong>Four distance settings (Advanced tab):</strong></span> small object culling, object fade distance, horizon start, grass fade distance.
+- <span style="color: #ffd100;"><strong>A new window:</strong></span> four tabs (Image, HDR, Ambiance, My filters), <strong>Simple</strong> or <strong>Advanced</strong> view next to the title, a <strong>Current look:</strong> bar that says who sets the look on the world, an <strong>Options</strong> menu, and Undo, Redo and Restart in the footer.
+- <span style="color: #ffd100;"><strong>Ambiance modes:</strong></span> one Mode menu picks <strong>Fixed</strong>, <strong>Day and night</strong> or <strong>By place</strong>. The Filters tab is now part of Ambiance.
+- <span style="color: #ffd100;"><strong>My filters:</strong></span> build your own filters (color, tint strength, vignette, grain, contrast, brightness, gamma), with a live preview, and use them everywhere or for a place.
+- <span style="color: #ffd100;"><strong>Rules per place:</strong></span> each place or zone can also apply a graphics preset and a scenery distance while you are there. Dungeons and raids one by one, and every zone in the list.
+- <span style="color: #ffd100;"><strong>Undo and Redo:</strong></span> your last 20 changes, Reset all included.
+- <span style="color: #ffd100;"><strong>Day tint:</strong></span> Day and night mode now has a day tint as well as a night tint.
+- <span style="color: #ffd100;"><strong>Contrast, Brightness, Gamma</strong></span> in the Image section.
+- <span style="color: #ffd100;"><strong>Macro commands:</strong></span> <code>/pano blackbars</code>, <code>/pano grain</code>, <code>/pano vignette</code>.
+- <span style="color: #ffd100;"><strong>Removed:</strong></span> Full-screen glow, which had no visible effect on WoW Forever. Use Bloom intensity instead.
 
 Full list in the **Files** tab.
 
@@ -126,21 +118,20 @@ Full list in the **Files** tab.
 
 ### <span style="color: #ff9800;">⚠ Works, with limits</span>
 
-- **Advanced settings** and zoom speed have limits measured in game.
+- **Experts settings** and zoom speed have limits measured in game.
 - **Black bars** hide part of the world but the game still renders it: no frame rate gain.
 - **HDR** needs a monitor that supports HDR, with HDR on in Windows. With no brightness mode checked, the image goes dark.
 
 ### <span style="color: #f44336;">✖ Does not do</span>
 
 - It does not set nameplates, text size or combat text: those belong to the game's options and to your interface addons.
-- It does not change the game's Graphics menu presets. The Graphics menu's **Defaults** button resets only the settings that menu manages, and Panorama follows it. To reset the others and the filters, use the Default button on each line in `/pano`, or Reset all for everything at once, the Ambiance tab and the zones you set included. A yellow star marks a setting also set by a game menu.
+- It does not change the game's Graphics menu presets. The Graphics menu's **Defaults** button resets only the settings that menu manages, and Panorama follows it. To reset the others and the filters, use the Default button on each line in `/pano`, or **Reset all…** in the Options menu for everything at once, the Ambiance tab and the zones you set included. When a game menu also sets a setting, the help of its label names that menu.
 
 ---
 
-## <span style="color: #ff6b35;">🔄 Updating to 1.8.2</span>
+## <span style="color: #ff6b35;">🔄 Updating to 1.9.0</span>
 
-- <span style="color: #3c3;"><strong>Your settings and filters are kept.</strong></span>
-- <span style="color: #ffd100;"><strong>Restart the game once after updating from 1.7.4 or older.</strong></span> A /reload does not load the new Ambiance.lua file.
+- <span style="color: #3c3;"><strong>Your settings, filters, rules and zones are kept.</strong></span>
 
 ---
 

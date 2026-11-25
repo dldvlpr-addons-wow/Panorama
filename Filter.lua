@@ -60,32 +60,10 @@ local SKY_GROUND = 0.4   -- part de la couleur du ciel gardée en bas de l'écra
 
 -- Même forme que NS.settings, avec `key` à la place de `cvar`. `names` : texte affiché par valeur.
 NS.filterSettings = {
-    { title = "SECTION_FILTERS", tab = "filters" },
-    -- Filtre du joueur en tête : choisi, il remplace teinte, vignette et grain. `names` : 0, puis le
-    -- nom de chaque filtre, relu à chaque affichage (le joueur le renomme).
-    -- `max` : nombre de filtres du joueur, relevé à chaque chargement, ajout ou suppression.
-    { key = "customFilter", min = 0, max = 1, step = 1, default = 0,
-      names = setmetatable({ [0] = "CUSTOM_FILTER_NONE" },
-                           { __index = function(_, index) return NS.CustomFilterName(index) end }) },
-    -- Teinte : la fenêtre l'affiche en vignettes cliquables (Options.lua).
-    -- `strength` : intensité remise à son défaut quand on clique une teinte à intensité 0.
-    { key = "tint", basic = true, strength = "tintStrength", min = 0, max = #TINTS, step = 1, default = 0,
-      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
-                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
-    { key = "tintStrength", basic = true, requires = "tint", min = 0, max = 100, step = 5, default = 50 },
-    -- Ciel : même palette que la teinte, en dégradé, pleine force en haut de l'écran.
-    { key = "sky", min = 0, max = #TINTS, step = 1, default = 0,
-      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
-                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
-    { key = "skyStrength", requires = "sky", min = 0, max = 100, step = 5, default = 50 },
-    { key = "vignette", min = 0, max = 100, step = 5, default = 0 },
-    { key = "grain", min = 0, max = 100, step = 5, default = 0 },
-    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
-    -- Hors ambiance : toujours lue dans les filtres de base.
-    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
-    -- Jour/nuit automatique, dans l'onglet Ambiance avec l'autre automatisme : `tintDay` remplace
-    -- `tint` le jour, `tintNight` la nuit (NS.NightFactor). Jamais avec l'ambiance auto : activer
-    -- l'un coupe l'autre. Lu dans les filtres de base seulement.
+    -- Onglet Ambiance, dans l'ordre : Jour et nuit (mode Jour et nuit), filtre de base (modes Fixe et
+    -- Jour et nuit), ciel et bandes noires.
+    -- Jour/nuit automatique : `tintDay` remplace `tint` le jour, `tintNight` la nuit (NS.NightFactor).
+    -- Jamais avec le mode Selon le lieu : activer l'un coupe l'autre. Lu dans les filtres de base seulement.
     { title = "SECTION_DAYNIGHT", tab = "ambiance" },
     { key = "autoDayNight", default = false },
     { key = "tintDay", strength = "tintDayStrength", requires = "autoDayNight",
@@ -100,6 +78,33 @@ NS.filterSettings = {
                 "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
     { key = "tintNightStrength", min = 0, max = 100, step = 5, default = 90,
       requires = function(filters) return filters.autoDayNight and filters.tintNight ~= 0 end },
+    { title = "SECTION_LOOK_FILTER", tab = "ambiance" },
+    -- Filtre du joueur en tête : choisi, il remplace teinte, vignette et grain. `names` : 0, puis le
+    -- nom de chaque filtre, relu à chaque affichage (le joueur le renomme).
+    -- `max` : nombre de filtres du joueur, relevé à chaque chargement, ajout ou suppression.
+    -- `block` : choisi par le menu Filtre du bloc de l'onglet Ambiance, pas par une ligne de la liste ;
+    -- les règles d'ambiance gardent leur ligne.
+    { key = "customFilter", block = true, min = 0, max = 1, step = 1, default = 0,
+      names = setmetatable({ [0] = "CUSTOM_FILTER_NONE" },
+                           { __index = function(_, index) return NS.CustomFilterName(index) end }) },
+    -- Teinte : la fenêtre l'affiche en vignettes cliquables (Options.lua).
+    -- `strength` : intensité remise à son défaut quand on clique une teinte à intensité 0.
+    { key = "tint", basic = true, strength = "tintStrength", min = 0, max = #TINTS, step = 1, default = 0,
+      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
+                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
+    { key = "tintStrength", basic = true, requires = "tint", min = 0, max = 100, step = 5, default = 50 },
+    { key = "vignette", min = 0, max = 100, step = 5, default = 0 },
+    { key = "grain", min = 0, max = 100, step = 5, default = 0 },
+    -- Ciel et bandes noires : jamais dans un filtre du joueur, toujours lus ici (ou dans la règle).
+    { title = "SECTION_LOOK_FRAME", tab = "ambiance" },
+    -- Ciel : même palette que la teinte, en dégradé, pleine force en haut de l'écran.
+    { key = "sky", min = 0, max = #TINTS, step = 1, default = 0,
+      names = { [0] = "TINT_NONE", "TINT_SEPIA", "TINT_WARM", "TINT_COLD",
+                "TINT_NIGHT", "TINT_EMERALD", "TINT_DUSK" } },
+    { key = "skyStrength", requires = "sky", min = 0, max = 100, step = 5, default = 50 },
+    -- Hauteur de chaque bande, en pourcentage de la hauteur de l'écran. 0 : pas de bandes.
+    -- Hors ambiance : toujours lue dans les filtres de base.
+    { key = "letterbox", min = 0, max = 20, step = 1, default = 0 },
 }
 
 -- Faux pour un nombre hors bornes, hors choix ou une valeur d'un autre type.
@@ -179,7 +184,7 @@ function NS.AddCustomFilter()
     return #customFilters
 end
 
--- Supprime un filtre du joueur, sauf le dernier qui reste. Ce qui le choisissait (onglet Filtres,
+-- Supprime un filtre du joueur, sauf le dernier qui reste. Ce qui le choisissait (look de base,
 -- lieux, zones) passe à Aucun ; ce qui choisissait un filtre suivant suit son nouvel index.
 function NS.DeleteCustomFilter(index)
     local customFilters = NS.db.customFilters
@@ -238,20 +243,20 @@ local function RenderValues(filters)
     local values = {}
     for key, value in pairs(NEUTRAL) do values[key] = value end
     local base = NS.db.filters
-    -- Filtre du joueur choisi, ou ouvert dans l'onglet Mes filtres (aperçu) : sa couleur, sa vignette
-    -- et son grain remplacent ceux des filtres lus, teintes de jour et de nuit comprises.
-    local custom = NS.db.customFilters[NS.previewCustomFilter or filters.customFilter]
+    -- Filtre du joueur choisi : sa couleur, sa vignette et son grain remplacent ceux des filtres
+    -- lus, teintes de jour et de nuit comprises.
+    local custom = NS.db.customFilters[filters.customFilter]
     if custom then
         values.tintR, values.tintG, values.tintB = Blend(
             { custom.tintRed / 100, custom.tintGreen / 100, custom.tintBlue / 100 }, custom.tintStrength / 100)
     else
-        -- Jour/nuit automatique : la teinte de jour remplace celle de l'onglet Filtres.
+        -- Jour/nuit automatique : la teinte de jour remplace celle de base.
         local dayTint, dayStrength = filters.tint, filters.tintStrength
         if base.autoDayNight then dayTint, dayStrength = base.tintDay, base.tintDayStrength end
         local color = dayStrength > 0 and TINTS[dayTint]
         if color then values.tintR, values.tintG, values.tintB = Blend(color, dayStrength / 100) end
         -- Nuit (0 le jour, 1 la nuit, entre les deux à l'aube et au crépuscule) : la teinte de nuit
-        -- remplace celle de jour. Jamais avec l'ambiance auto : l'une coupe l'autre.
+        -- remplace celle de jour. Jamais avec Selon le lieu : l'un coupe l'autre.
         local night = base.autoDayNight and NS.NightFactor() or 0
         if night > 0 then
             local nightColor = TINTS[base.tintNight]
@@ -366,8 +371,7 @@ local function CreateLayer()
 end
 
 -- Calque créé au premier filtre actif : rien n'est posé sur le monde tant que tout est à 0.
--- Valeurs : filtres de base, ou ambiance du contexte (Ambiance.lua) ; filtre du joueur choisi, ou ouvert
--- dans l'onglet Mes filtres (aperçu), par-dessus.
+-- Valeurs : filtres de base (avec le filtre ouvert dans Mes filtres en aperçu, NS.previewCustomFilter), ou ambiance du contexte (Ambiance.lua) ; filtre du joueur choisi par-dessus.
 -- `smooth` : changement de contexte de l'ambiance ou d'heure, fondu depuis ce qui est à l'écran (lent si
 -- le moment de la journée a changé) ; sinon (réglage du joueur) valeurs posées tout de suite.
 function NS.ApplyFilters(smooth)

@@ -20,16 +20,17 @@ Le bouton de la minimap :
 
 | Élément | Ce qu'il fait |
 |---|---|
-| Champ de recherche (en haut à droite) | Tapez un mot pour lister les réglages correspondants de tous les onglets. Videz-le pour revenir. |
-| Onglets | Qualité, Interface, Avancé (réglages du jeu), puis Filtres, Mes filtres, Ambiance (effets de Panorama). L'onglet ouvert est mémorisé. |
-| Réglages avancés (sous le titre) | Décoché : pas d'onglets, une seule page avec les préréglages, les réglages principaux de qualité (distance d'affichage, brouillard volumétrique, ombres, occlusion ambiante, détail de l'eau, anticrénelage, atténuation de la netteté), la sortie HDR et la crête, le contraste, la luminosité, le recul de la caméra, le filtre, l'intensité du filtre et le mode d'ambiance. Coché : tous les onglets et tous les réglages. À la première installation, il est décoché ; si vous utilisiez déjà Panorama, il est coché. La recherche trouve toujours tous les réglages. |
-| Annuler, Rétablir (sous les onglets, à droite) | Annuler défait votre dernière modification : curseur, champ, préréglage, filtre, ambiance ou Tout réinitialiser. Rétablir la remet. Les 20 dernières modifications sont conservées jusqu'à `/reload`. |
-| Sélecteur de langue (à droite des onglets) | Langue du jeu ou l'une des dix langues. Changer de langue recharge l'interface. |
-| Guide (à gauche du champ de recherche) | Ouvre ce guide dans le jeu. |
-| Préréglages (onglet Qualité) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
-| Pied de fenêtre | Appliquer à chaque connexion, bouton minimap, Tout réinitialiser, redémarrage du moteur graphique. |
+| **Simple**, **Avancé** (à côté du titre) | Simple : chaque onglet montre une courte liste des réglages principaux, sans sections. Avancé : tous les réglages, par section, avec les règles par lieu et la section Experts. À la première installation, c'est Simple ; si vous utilisiez déjà Panorama, c'est Avancé. La recherche trouve toujours tous les réglages. |
+| Guide (en haut à droite) | Ouvre ce guide dans le jeu. |
+| Menu **Options** (en haut à droite) | **Langue** (langue du jeu ou l'une des dix langues ; changer de langue recharge l'interface), **Appliquer à chaque connexion**, **Bouton de la minimap**, **Tout réinitialiser…**. |
+| **Look actuel :** (bandeau sous le titre) | Le look posé sur le monde, et qui l'impose : vous, Jour et nuit, ou le lieu. Son bouton (**Modifier**, **Modifier cette règle**) ouvre l'endroit où le changer. Survolez le bandeau pour voir lequel passe en premier. |
+| Onglets | **Image** (qualité graphique), **HDR**, **Ambiance** (look du monde), **Mes filtres**. L'onglet ouvert est mémorisé. |
+| Champ de recherche (à droite des onglets) | Tapez un mot pour lister les réglages correspondants de tous les onglets. Videz-le pour revenir. |
+| Préréglages (onglet Image) | Bas, Moyen, Élevé, Extra. Le préréglage qui correspond à vos réglages est mis en évidence. |
+| Pied de fenêtre | **Annuler** défait votre dernière modification : curseur, champ, préréglage, filtre, ambiance ou Tout réinitialiser. **Rétablir** la remet. Les 20 dernières modifications sont conservées jusqu'à `/reload`. **Redémarrer** redémarre le moteur graphique. |
 
-Cliquez sur un titre de section pour la replier ou la déplier.
+En mode Avancé, cliquez sur un titre de section pour la replier ou la déplier. La section **Experts (console seulement)**
+est repliée au départ. Un titre de section indique combien de ses réglages vous avez modifiés.
 
 ### Une ligne de réglage
 
@@ -38,10 +39,11 @@ Cliquez sur un titre de section pour la replier ou la déplier.
   Tab passe au champ suivant. La virgule fonctionne comme séparateur décimal. La valeur reste dans la plage du curseur.
 - **Bouton Défaut** : remet ce réglage à sa valeur par défaut. Survolez-le pour voir la valeur.
 - **Marque dorée** à gauche : vous avez modifié ce réglage.
-- **Étoile jaune** : un menu du jeu définit aussi cette valeur. Survolez-la pour voir lequel. Ce menu
+- **Menu du jeu** : quand un menu du jeu définit aussi cette valeur, l'aide du libellé le nomme. Ce menu
   ne relit pas la valeur, il peut donc afficher un autre niveau.
-- **Ligne grisée** : elle dépend d'un autre réglage désactivé (par exemple la densité du brouillard sans
-  brouillard volumétrique, l'intensité de la teinte sans teinte). La ligne dit quel réglage changer.
+- **Ligne grisée** : elle dépend d'un autre réglage désactivé (par exemple **Qualité du brouillard volumétrique** sans
+  **Brouillard volumétrique**, l'intensité de la teinte sans teinte), ou un mode la règle. Survolez le libellé pour savoir pourquoi.
+  Une ligne qui dépend d'une autre est décalée vers la droite, juste en dessous.
 - Survolez un libellé pour lire son aide complète.
 
 ## 3. Préréglages
@@ -53,75 +55,83 @@ Cliquez sur un titre de section pour la replier ou la déplier.
 | Élevé | Niveau Élevé du jeu. Ombres complètes, tous les effets. |
 | Extra | Qualité maximale. Vue la plus lointaine, tout activé. |
 
-Les préréglages ne modifient que les réglages de qualité graphique de l'onglet Qualité. Ils ne touchent pas à la caméra,
+Les préréglages ne modifient que les réglages de qualité graphique de l'onglet Image. Ils ne touchent pas à la caméra,
 à la souris, à l'interface, à la netteté, à la faible latence, au HDR ni aux filtres.
 
-Vous avez changé d'avis ? **Annuler** (sous les onglets, ou `/pano undo`) rétablit les réglages d'avant
+Vous avez changé d'avis ? **Annuler** (pied de fenêtre, ou `/pano undo`) rétablit les réglages d'avant
 le préréglage.
 
-## 4. Filtres
+## 4. Ambiance
 
-L'onglet Filtres ajoute des effets par-dessus l'image. Ils ne changent aucun réglage du jeu.
+L'onglet Ambiance règle le look du monde : des effets par-dessus l'image. Ils ne changent aucun réglage du jeu.
 
+- **Mode** (haut de l'onglet) : **Fixe** (le même filtre partout), **Jour et nuit** (une teinte de jour et une
+  teinte de nuit) ou **Selon le lieu** (voir plus bas). Fixe par défaut.
+- **Ici** : le lieu et l'heure détectés maintenant. Quand un donjon, un intérieur ou la météo passe
+  avant une zone que vous avez réglée, il l'indique.
+- **Filtre** (modes Fixe et Jour et nuit) : **Base** utilise les lignes en dessous. Un de vos filtres
+  (onglet Mes filtres) remplace la teinte, la vignette et le grain, et apporte son contraste, sa
+  luminosité et son gamma. **Modifier le filtre** l'ouvre dans l'onglet Mes filtres.
 - **Teinte** : cliquez sur une vignette pour l'appliquer tout de suite (sépia, chaude, froide, nuit, émeraude, crépuscule).
   **Intensité de la teinte** règle sa force.
-- **Mon filtre** : utilise un de vos filtres de l'onglet Mes filtres. Il remplace la teinte, la vignette et le grain.
-- **Ciel** : les mêmes couleurs en dégradé, pleines en haut de l'écran et plus claires en bas.
-  **Intensité du ciel** règle sa force.
 - **Vignettage** : assombrit les bords de l'écran.
 - **Grain** : grain animé.
-- **Bandes noires** : bandes en haut et en bas, de 0 à 20 % de l'écran chacune. Le jeu calcule quand même ce qu'elles
-  cachent, elles n'augmentent donc pas le nombre d'images par seconde.
+- **Teinte de jour** et **Teinte de nuit** (mode Jour et nuit) : Panorama pose la teinte de jour le jour et la teinte
+  de nuit la nuit, selon le jour et la nuit du jeu. Elles remplacent la teinte. Le passage est progressif
+  de 19 h à 21 h et de 5 h à 7 h (heure du serveur). Un de vos filtres choisi à la ligne Filtre
+  les remplace.
+- **Ciel** : les mêmes couleurs en dégradé, pleines en haut de l'écran et plus claires en bas.
+  **Intensité du ciel** règle sa force.
+- **Bandes noires** : bandes en haut et en bas, de 0 à 20 % de l'écran chacune, dans tous les modes. Le jeu calcule
+  quand même ce qu'elles cachent, elles n'augmentent donc pas le nombre d'images par seconde.
 
-### Ambiance
+En mode Simple, l'onglet montre le mode, le lieu, le filtre, la teinte et son intensité, et les teintes
+de jour et de nuit. Vignettage, grain, ciel et bandes noires sont en mode Avancé.
 
-L'onglet Ambiance change tout seul la teinte, le ciel, la vignette et le grain selon l'endroit où vous êtes.
+### Selon le lieu
 
-- **Mode** (haut de l'onglet) : **Désactivé** (l'onglet Filtres s'applique partout), **Jour et nuit automatiques** (voir Jour et nuit plus bas) ou **Ambiance auto**. Désactivé par défaut.
-- **Ambiance auto** : ces filtres suivent le lieu et l'heure. Les valeurs
-  de l'onglet Filtres restent enregistrées et reviennent quand vous changez de mode.
-  Sans Réglages avancés, la page unique n'affiche que le mode et le lieu détecté ; cochez Réglages avancés pour modifier les contextes.
+En mode **Selon le lieu**, la teinte, le ciel, la vignette et le grain changent tout seuls selon l'endroit où vous êtes.
+
+- Les lignes du mode Fixe sont cachées : la règle du lieu les remplace. Seules les bandes noires restent.
+  Leurs valeurs restent enregistrées et reviennent quand vous changez de mode.
+  En mode Simple, les règles livrées s'appliquent ; passez en Avancé pour les modifier.
 - **Lieu** : règle la teinte, la vignette et le grain. Ordre : donjon ou raid, intérieur, météo (pluie,
   neige, tempête de sable), puis le type de zone : terres tempérées, déserts et terres arides, terres
   enneigées, jungle et marais, terres corrompues, terres volcaniques, forêts arcaniques. Une zone pas
   encore connue compte comme tempérée. La météo ne compte que si Intensité météo est supérieure à 0.
 - **Heure** : règle le ciel (jour, aube et crépuscule, nuit). La nuit suit le jour et la nuit du
   jeu ; l'aube et le crépuscule suivent l'heure du serveur. Pas de ciel en intérieur ni en donjon.
-- La ligne de droite montre le lieu et l'heure détectés maintenant. Quand un donjon, un intérieur ou
-  la météo passe avant une zone que vous avez réglée, elle l'indique.
-- **Contexte à modifier** : choisissez un contexte, puis réglez ses filtres en dessous. Le bouton
-  Défaut rend la valeur livrée pour ce contexte.
+- **Règle** (mode Avancé) : choisissez une règle, puis réglez-la en dessous. Le bouton
+  Défaut rend la valeur livrée pour cette règle. La première fois que la fenêtre s'ouvre, la règle ouverte est celle du lieu où vous êtes.
   Le menu est rangé en cinq groupes : **Zones** (la zone où vous êtes et celles que vous avez réglées), **Donjon et intérieur**, **Météo**, **Type de zone** et **Ciel (moment)**.
   Les quatre premiers règlent la teinte, la vignette, le grain et un préréglage graphique : un seul lieu s'applique à la fois, dans l'ordre donné plus haut.
-  Le dernier règle le ciel. Rien à régler pour commencer : chaque contexte a déjà ses valeurs.
+  Le dernier règle le ciel. Rien à régler pour commencer : chaque règle a déjà ses valeurs.
 - **Cette zone** : premier choix du même menu, avec le nom de la zone où vous êtes. Choisissez-la pour
   donner à cette zone sa propre teinte, sa propre vignette et son propre grain, en partant de son type
   de zone. Elle passe alors avant le type de zone, mais après donjon, intérieur et météo. Les zones
-  que vous réglez restent dans le menu. **Type de zone** retire les valeurs de la zone : elle suit de
+  que vous réglez restent dans le menu. **Revenir au type de zone** (à côté du menu) retire les valeurs de la zone : elle suit de
   nouveau son type de zone.
 - **Toutes les zones** : sous-menu du même menu, avec toutes les zones connues. Choisissez-en une pour la régler sans y être. Les zones sont rangées par continent.
-- **Préréglage** et **Distance des décors** (premières lignes d'un lieu ou d'une zone) : ils s'appliquent tant que vous êtes dans ce lieu, par-dessus vos propres réglages, que l'ambiance auto soit cochée ou non. La distance des décors du lieu passe avant celle du préréglage. Vos propres réglages sont conservés et reviennent quand vous partez. **Mes réglages** ne change rien. Exemple : Bas en donjon, Extra dans une zone que vous aimez. Dans un donjon ou un raid, le premier choix du menu règle ce donjon seul. Dans l'onglet Qualité, le bouton **Par lieu** ouvre ces lignes pour le lieu où vous êtes ; il affiche **Ici : …** tant qu'un lieu impose les siens. En combat, le changement attend la fin du combat.
-- **Mon filtre** (première ligne des filtres d'un lieu ou d'une zone) : ce lieu utilise un de vos filtres de l'onglet Mes filtres, avec son contraste, sa luminosité et son gamma, tant que l'ambiance auto est cochée.
-- **Jour et nuit** (mode **Jour et nuit automatiques**) : Panorama pose la **Teinte de jour** le jour et la **Teinte de nuit** la nuit,
-  selon le jour et la nuit du jeu. Elles remplacent la teinte de l'onglet Filtres. Le passage est progressif de 19 h à 21 h et de 5 h à
-  7 h (heure du serveur). Les teintes de jour et de nuit et leurs intensités se règlent avec Réglages avancés.
+- **Préréglage** et **Distance des décors** (section **Image** d'un lieu ou d'une zone) : ils s'appliquent tant que vous êtes dans ce lieu, par-dessus vos propres réglages, quel que soit le mode d'ambiance. La distance des décors du lieu passe avant celle du préréglage. Vos propres réglages sont conservés et reviennent quand vous partez. **Mes réglages** ne change rien. Exemple : Bas en donjon, Extra dans une zone que vous aimez. Dans un donjon ou un raid, le premier choix du menu règle ce donjon seul. Dans l'onglet Image, **Ici : …** s'affiche à côté des préréglages tant qu'un lieu impose les siens ; en mode Avancé, il ouvre cette règle. En combat, le changement attend la fin du combat.
+- **Filtre** (première ligne de la section **Look** d'un lieu ou d'une zone) : ce lieu utilise un de vos filtres de l'onglet Mes filtres, avec son contraste, sa luminosité et son gamma. **Réglages ci-dessous** : la teinte, la vignette et le grain de la règle. La section Look ne s'applique qu'en mode Selon le lieu.
 
 ## 5. Mes filtres
 
-L'onglet Mes filtres (affiché avec Réglages avancés) sert à créer autant de filtres à vous que vous voulez. **Nouveau** en ajoute un, **Supprimer** retire le filtre ouvert : l'onglet Filtres, les lieux et les zones qui l'utilisaient repassent à Aucun.
+L'onglet Mes filtres sert à créer autant de filtres à vous que vous voulez. Le filtre ouvert n'est montré sur le monde qu'en aperçu ; celui qui s'applique se choisit dans l'onglet Ambiance. **Nouveau** en ajoute un et l'ouvre, **Supprimer** retire le filtre ouvert : le filtre de l'onglet Ambiance et les règles qui l'utilisaient repassent sans filtre. Il reste toujours un filtre.
 
-- **Filtre à modifier** : choisit le filtre que règlent les lignes en dessous. **Nom** : donnez-lui un nom (Entrée pour valider).
-- **Rouge**, **Vert**, **Bleu** (en %) : couleur de la teinte du filtre. **Intensité de la teinte** : sa force.
+- **Filtre** : choisit le filtre que règlent les lignes en dessous. **Nom** : donnez-lui un nom (Entrée pour valider).
+- **Teinte** : cliquez sur une vignette pour donner cette couleur au filtre. **Rouge**, **Vert**, **Bleu** (en %) : sa couleur exacte. **Intensité de la teinte** : sa force.
 - **Vignettage** et **Grain** : ceux du filtre.
 - **Contraste**, **Luminosité**, **Gamma** : réglages d'image que le filtre donne au jeu tant qu'il est appliqué ; vos propres valeurs reviennent ensuite. Mes réglages : rien ne change. Selon le mode d'affichage, ils peuvent rester sans effet.
-- Tant que l'onglet est ouvert, le filtre affiché se voit en direct sur le jeu.
-- Pour utiliser un filtre : choisissez-le à la ligne **Mon filtre** de l'onglet Filtres (partout), ou d'un lieu ou d'une zone dans l'onglet Ambiance (ambiance auto cochée). Il remplace alors la teinte, la vignette et le grain, dont les lignes sont grisées. Aucun : rien ne change.
+- En mode Simple, l'onglet ne montre que la teinte et l'intensité de la teinte.
+- Tant que l'onglet est ouvert, le filtre affiché se voit en direct sur le jeu. Le bandeau **Look actuel :** indique quand ce n'est qu'un aperçu.
+- Pour utiliser un filtre : choisissez-le à la ligne **Filtre** de l'onglet Ambiance (modes Fixe et Jour et nuit), ou d'un lieu ou d'une zone (mode Selon le lieu). Il remplace alors la teinte, la vignette et le grain. **Base** ou **Réglages ci-dessous** : rien ne change.
 
 ## 6. Vos valeurs et le jeu
 
 - À la première installation, Panorama lit vos réglages actuels du jeu. Rien ne change tant que vous ne touchez pas un contrôle.
 - Une modification faite dans le menu Graphismes du jeu ou avec `/console` apparaît dans la fenêtre.
-- **Appliquer à chaque connexion** (pied de fenêtre, activé par défaut) : les réglages que vous avez modifiés dans Panorama sont réécrits
+- **Appliquer à chaque connexion** (menu Options, activé par défaut) : les réglages que vous avez modifiés dans Panorama sont réécrits
   à chaque connexion. Les autres suivent le menu Graphismes du jeu.
 - Une modification faite en combat est appliquée à la fin du combat.
 - Certains réglages, comme le MSAA, demandent un redémarrage graphique. Cliquez sur **Redémarrer** dans le pied de fenêtre, ou tapez
@@ -129,8 +139,8 @@ L'onglet Mes filtres (affiché avec Réglages avancés) sert à créer autant de
 
 ## 7. HDR sous Windows
 
-Les réglages HDR n'existent que sous forme de commandes de console dans le jeu. Panorama les affiche dans l'onglet **Avancé**,
-section **HDR (console seulement)**. Il vous faut un écran compatible HDR.
+Les réglages HDR n'existent que sous forme de commandes de console dans le jeu. Panorama les affiche dans l'onglet **HDR**.
+Il vous faut un écran compatible HDR.
 
 ### Étape 1 : activer le HDR dans Windows
 
@@ -157,7 +167,8 @@ environ 600, DisplayHDR 1000 environ 1000.
 
 ### Étape 3 : régler le HDR dans Panorama
 
-Ouvrez `/pano`, onglet **Avancé**, section **HDR (console seulement)**.
+Ouvrez `/pano`, onglet **HDR**. En mode Simple, l'onglet ne montre que les trois premières lignes ci-dessous : choisissez
+**Avancé** pour voir **Intensité HDR** et la luminosité de référence.
 
 1. Cochez **Sortie HDR**.
 2. Cochez **Luminosité de crête** ou **Luminosité de référence** : l'un ou l'autre, jamais les deux. Sans l'un d'eux, l'image s'assombrit.
@@ -211,6 +222,6 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 - Le bouton **Défaut** de chaque ligne réinitialise ce réglage.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
-- **Tout réinitialiser** (pied de fenêtre, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
+- **Tout réinitialiser…** (menu Options, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
   dans Panorama et chaque filtre à sa valeur par défaut. **Annuler** l'annule jusqu'à `/reload`.
   L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.
