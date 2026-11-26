@@ -1,4 +1,4 @@
-## Interface: 16001
+## Interface: 16001, 120100
 ## Title: |cff5fd3f0Panorama|r
 ## Notes: Advanced graphics settings (view distance, shadows, water, camera...) adjustable in game and reapplied at every login. /pano
 ## Notes-frFR: Tes réglages graphiques avancés (distance de vue, ombres, eau, caméra...) réglables en jeu et réappliqués à chaque connexion. /pano
@@ -19,7 +19,9 @@
 ## IconTexture: Interface\Icons\INV_Misc_Spyglass_03
 ## X-License: GPL-3.0-or-later
 
-# Même liste de versions que KickAlert, dans l'ordre :
+# Déclarées : Forever (16001) et retail (120100), vérifiées dans le source Blizzard 1.60.1.70862 et 12.1.0.69933.
+# Classic non déclarés : source absent en local, client différent de Forever, rien de vérifié.
+# Liste de KickAlert, pour mémoire :
 #   11509 Classic Era · 11600 Anniversary · 16001 Forever · 20506 TBC
 #   30405 Wrath · 40402 Cata · 50504 Mists · 120100 retail
 

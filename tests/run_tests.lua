@@ -281,17 +281,46 @@ combat = false
 handler(frame, "PLAYER_REGEN_ENABLED")
 assert(cvars.farclip == "1000", "annulation écrite après le combat")
 
--- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, annulable.
+-- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, touchées ou non, filtres au
+-- défaut, annulable.
 local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } })
 SlashCmdList.PANORAMA("low")
 cvars.cameraZoomSpeed = "35"   -- réglé par le jeu, jamais touché dans Panorama
+handler(frame, "CVAR_UPDATE", "cameraZoomSpeed")
+cvars.rawMouseEnable = "0"     -- jamais touché, défaut du jeu vide : laissé tel quel
+handler(frame, "CVAR_UPDATE", "rawMouseEnable")
+GetCVarDefault = function(name)
+    if name == "cameraZoomSpeed" then return "20" end
+    if name == "rawMouseEnable" then return "" end
+end
 SlashCmdList.PANORAMA("reset")
-assert(cvars.cameraZoomSpeed == "35", "réglage non touché laissé au jeu")
+GetCVarDefault = function() return nil end
+assert(cvars.cameraZoomSpeed == "20" and not PanoramaDB.touched.cameraZoomSpeed,
+    "réglage non touché remis au défaut du jeu et rendu au jeu")
+assert(cvars.rawMouseEnable == "0" and not PanoramaDB.touched.rawMouseEnable,
+    "réglage non touché sans défaut du jeu laissé tel quel")
 assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and nsReset.CanUndo(), "CVars remises au jeu")
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.letterbox == 0, "filtres remis au défaut")
 bands = {}   -- calque de filtres créé par l'annulation (grain rendu)
 SlashCmdList.PANORAMA("undo")
 assert(cvars.farclip == "400" and PanoramaDB.touched.farclip and PanoramaDB.filters.grain == 50, "reset annulé")
+assert(cvars.cameraZoomSpeed == "35" and not PanoramaDB.touched.cameraZoomSpeed, "reset annulé : réglage non touché revenu")
+-- Défaut donné par le jeu : pris pour tout réglage, avancé ou non ; repli sur celui de Panorama sinon.
+GetCVarDefault = function(name) if name == "farclip" then return "800" end end
+SlashCmdList.PANORAMA("reset")
+assert(cvars.farclip == "800" and not PanoramaDB.touched.farclip, "reset : défaut du jeu pour un réglage non avancé")
+-- Réglage touché : défaut vide, défaut de Panorama ; booléen "4", lu vrai comme ReadCVar.
+cvars.rawMouseEnable, cvars.spellClutter = "0", "0"
+PanoramaDB.values.rawMouseEnable, PanoramaDB.values.spellClutter = false, false
+PanoramaDB.touched.rawMouseEnable, PanoramaDB.touched.spellClutter = true, true
+GetCVarDefault = function(name)
+    if name == "rawMouseEnable" then return "" end
+    if name == "spellClutter" then return "4" end
+end
+SlashCmdList.PANORAMA("reset")
+assert(cvars.rawMouseEnable == "1" and cvars.spellClutter == "1" and not PanoramaDB.touched.rawMouseEnable
+    and not PanoramaDB.touched.spellClutter, "reset : défaut vide au défaut de Panorama, booléen 4 lu vrai")
+GetCVarDefault = function() return nil end
 
 -- Historique : plusieurs pas, Rétablir, file Rétablir vidée par une modification, 20 pas au plus.
 local nsHistory = Load(nil)
@@ -1104,5 +1133,17 @@ local loggedOut = pcall(handler, frame, "PLAYER_LOGOUT")
 C_CVar.SetCVar = storeCVar
 assert(loggedOut and PanoramaDB.placePreset ~= nil, "erreur à la déconnexion rattrapée, repère gardé")
 assert(nsLogout.db == PanoramaDB)
+
+-- Retail : table de zones retail, ancienne version d'une zone comptée comme la zone principale.
+WOW_PROJECT_MAINLINE, WOW_PROJECT_ID = 1, 1
+local nsRetail = Load({ schema = 2 })
+instance = { false }
+mapID = 94
+local retailZone, retailBiome = nsRetail.CurrentZone()
+assert(retailZone == 2395 and retailBiome == "arcane", "ancienne Bois des Chants éternels comptée comme la nouvelle")
+mapID = 1
+assert(select(2, nsRetail.CurrentZone()) == "desert", "Durotar retail en désert")
+assert(#nsRetail.zoneMaps > 140, "zones retail listées pour le menu")
+WOW_PROJECT_MAINLINE, WOW_PROJECT_ID = nil, nil
 
 io.write("ok\n")

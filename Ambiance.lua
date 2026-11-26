@@ -50,17 +50,45 @@ NS.ambianceContexts = {
     { id = "night", label = "AMBIANCE_NIGHT", group = "AMBIANCE_GROUP_SKY", values = { sky = 4, skyStrength = 70 } },
 }
 
--- uiMapID des zones de Forever 1.60.1 (table UiMap du build 70938) -> biome. Zone absente :
--- carte parente cherchée, puis tempéré.
-local BIOMES = {
-    temperate = { 1412, 1417, 1424, 1425, 1429, 1432, 1433, 1436, 1439, 1440, 1442, 1453, 1456, 2521, 2665 },
-    desert = { 1411, 1413, 1418, 1441, 1446, 1451, 1454 },
-    frozen = { 1416, 1426, 1452, 1455 },
-    jungle = { 1434, 1435, 1437, 1444, 1445, 1449, 2548, 2652 },
-    corrupted = { 1419, 1420, 1421, 1422, 1423, 1430, 1431, 1443, 1448, 1458 },
-    volcanic = { 1427, 1428 },
-    arcane = { 1438, 1447, 1450, 1457, 2482 },
-}
+-- uiMapID des zones -> biome. Zone absente : carte parente cherchée, puis tempéré.
+-- Les uiMapID diffèrent entre Forever et retail : une table par client.
+local RETAIL = WOW_PROJECT_MAINLINE ~= nil and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local BIOMES, ALIASES
+if RETAIL then
+    -- Retail : table UiMap de wago.tools (novembre 2026), zones jouables (ContentTuningID non nul)
+    -- posées sur un continent, plus les capitales, Nazjatar, Terremine et l'île des Sirènes.
+    BIOMES = {
+        temperate = { 7, 14, 25, 26, 37, 48, 49, 52, 62, 63, 65, 84, 88, 97, 107, 108, 111, 116, 117, 198,
+                      203, 217, 241, 244, 245, 376, 388, 390, 433, 535, 542, 550, 554, 588, 634, 641, 650,
+                      895, 942, 1161, 1169, 1355, 1462, 2023, 2151, 2214, 2215, 2248, 2339, 2346, 2351, 2352, 2369, 2512 },
+        desert = { 1, 10, 15, 64, 71, 81, 85, 105, 199, 249, 864 },
+        frozen = { 27, 83, 87, 114, 115, 118, 120, 121, 123, 170, 379, 525, 2024 },
+        jungle = { 51, 56, 69, 70, 78, 102, 119, 174, 194, 224, 371, 418, 504, 507, 534, 543, 862, 863,
+                   1165, 2413, 2437 },
+        corrupted = { 17, 18, 21, 22, 23, 42, 47, 66, 77, 90, 95, 104, 106, 422, 646, 830, 885, 896, 1525,
+                      1536, 1543, 2213, 2255, 2256, 2405 },
+        volcanic = { 32, 36, 100, 2022, 2133 },
+        arcane = { 57, 76, 80, 89, 103, 109, 127, 207, 539, 630, 680, 790, 882, 1533, 1565, 1970, 2025,
+                   2112, 2200, 2239, 2371, 2393, 2395, 2424 },
+    }
+    -- Autre version d'une même zone (ancienne Quel'Thalas, Ombreterre de campagne, Uldum et Val de
+    -- l'Éternel printemps de l'assaut de N'Zoth...) : comptée comme la zone principale, pour ne pas
+    -- la lister deux fois dans le menu ni la régler deux fois.
+    ALIASES = { [94] = 2395, [122] = 2424, [110] = 2393, [2605] = 2393, [2134] = 2112, [2070] = 18,
+                [1740] = 1565, [1741] = 1536, [1960] = 1543, [1527] = 249, [1530] = 390 }
+else
+    -- Forever 1.60.1 : table UiMap du build 70938.
+    BIOMES = {
+        temperate = { 1412, 1417, 1424, 1425, 1429, 1432, 1433, 1436, 1439, 1440, 1442, 1453, 1456, 2521, 2665 },
+        desert = { 1411, 1413, 1418, 1441, 1446, 1451, 1454 },
+        frozen = { 1416, 1426, 1452, 1455 },
+        jungle = { 1434, 1435, 1437, 1444, 1445, 1449, 2548, 2652 },
+        corrupted = { 1419, 1420, 1421, 1422, 1423, 1430, 1431, 1443, 1448, 1458 },
+        volcanic = { 1427, 1428 },
+        arcane = { 1438, 1447, 1450, 1457, 2482 },
+    }
+    ALIASES = {}
+end
 local ZONE_BIOMES = {}
 -- Toutes les zones connues, pour le menu de l'éditeur.
 NS.zoneMaps = {}
@@ -97,6 +125,7 @@ local function FindZone(mapID)
     local start = mapID
     for _ = 1, MAX_MAP_DEPTH do
         if not mapID or mapID == 0 then break end
+        mapID = ALIASES[mapID] or mapID
         if ZONE_BIOMES[mapID] then return mapID, ZONE_BIOMES[mapID] end
         local info = C_Map.GetMapInfo(mapID)
         mapID = info and info.parentMapID

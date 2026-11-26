@@ -101,7 +101,7 @@ Panorama has a button that opens it.
 
 ## Supported clients
 
-WoW Forever 1.60.1 (interface 16001).
+WoW Forever 1.60.1 (interface 16001) and retail 12.1 (interface 120100).
 
 ## Notes
 

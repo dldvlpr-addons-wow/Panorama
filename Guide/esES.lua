@@ -123,6 +123,6 @@ NS.guides.esES = {
     { "h2", "9. Restablecer" },
     { "li", "El botón |cffffd100Predeterminado|r de cada línea restablece ese ajuste.", "-" },
     { "li", "El botón |cffffd100Predeterminado|r del menú de Gráficos del juego restablece solo los ajustes que gestiona ese menú, y Panorama lo sigue. Usa los botones Predeterminado de |cffffd100/pano|r para los demás y para los filtros.", "-" },
-    { "li", "|cffffd100Restablecer todo…|r (menú Opciones, con confirmación) o |cffffd100/pano reset|r: devuelve cada ajuste cambiado en Panorama y cada filtro a su valor por defecto. |cffffd100Deshacer|r lo anula hasta |cffffd100/reload|r. La pestaña Ambiente y las zonas ajustadas también se restablecen. Tus filtros de la pestaña Mis filtros también se borran.", "-" },
+    { "li", "|cffffd100Restablecer todo…|r (menú Opciones, con confirmación) o |cffffd100/pano reset|r: devuelve cada ajuste de la ventana, cambiado en Panorama o no, y cada filtro a su valor por defecto. |cffffd100Deshacer|r lo anula hasta |cffffd100/reload|r. La pestaña Ambiente y las zonas ajustadas también se restablecen. Tus filtros de la pestaña Mis filtros también se borran.", "-" },
 }
 NS.guides.esMX = NS.guides.esES

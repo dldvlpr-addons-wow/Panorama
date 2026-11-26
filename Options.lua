@@ -189,7 +189,7 @@ local function FormatValue(setting, value)
 end
 
 local function DefaultValue(setting)
-    if setting.cvar then return NS.GameDefault(setting) end
+    if setting.cvar then return (NS.GameDefault(setting)) end
     if setting.ambiance then return AmbianceDefault(setting.key) end
     return setting.default
 end
