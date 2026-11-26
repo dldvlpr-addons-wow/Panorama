@@ -123,5 +123,5 @@ NS.guides.deDE = {
     { "h2", "9. Zurücksetzen" },
     { "li", "Der |cffffd100Standard|r-Button in jeder Zeile setzt diese Einstellung zurück.", "-" },
     { "li", "Der Button |cffffd100Standard|r des Grafikmenüs des Spiels setzt nur die Einstellungen zurück, die dieses Menü verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in |cffffd100/pano|r.", "-" },
-    { "li", "|cffffd100Alles zurücksetzen…|r (Menü Optionen, mit Bestätigung) oder |cffffd100/pano reset|r: setzt jede in Panorama geänderte Einstellung und jeden Filter auf den Standard zurück. |cffffd100Rückgängig|r macht es bis |cffffd100/reload|r rückgängig. Der Reiter Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.", "-" },
+    { "li", "|cffffd100Alles zurücksetzen…|r (Menü Optionen, mit Bestätigung) oder |cffffd100/pano reset|r: setzt jede Einstellung im Fenster, ob in Panorama geändert oder nicht, und jeden Filter auf den Standard zurück. |cffffd100Rückgängig|r macht es bis |cffffd100/reload|r rückgängig. Der Reiter Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.", "-" },
 }

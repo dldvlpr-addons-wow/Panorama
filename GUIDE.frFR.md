@@ -222,6 +222,6 @@ Chaque ligne HDR a un bouton Défaut qui remet la valeur du jeu.
 - Le bouton **Défaut** de chaque ligne réinitialise ce réglage.
 - Le bouton **Par défaut** du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère,
   et Panorama le suit. Utilisez les boutons Défaut de `/pano` pour les autres et pour les filtres.
-- **Tout réinitialiser…** (menu Options, avec confirmation) ou `/pano reset` : remet chaque réglage modifié
-  dans Panorama et chaque filtre à sa valeur par défaut. **Annuler** l'annule jusqu'à `/reload`.
+- **Tout réinitialiser…** (menu Options, avec confirmation) ou `/pano reset` : remet chaque réglage de la fenêtre,
+  modifié dans Panorama ou non, et chaque filtre à sa valeur par défaut. **Annuler** l'annule jusqu'à `/reload`.
   L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.

@@ -103,7 +103,7 @@ Full list in the **Files** tab.
 | `/pano low`, `medium`, `high`, `extra` | Apply a preset |
 | `/pano undo` | Cancel the last change |
 | `/pano redo` | Put back the change you just undid |
-| `/pano reset` | Reset every setting changed in Panorama, and every filter |
+| `/pano reset` | Reset every setting in the window, changed in Panorama or not, and every filter |
 | `/pano status` | Show in the chat the place and time of day detected and the filters applied now (during a fade, the values it goes to) |
 | `/pano apply` | Write again the settings changed in Panorama |
 | `/pano restart` | Restart the graphics engine |
