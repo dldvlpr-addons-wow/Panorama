@@ -52,8 +52,8 @@ local LOCALES = { "enUS", "frFR", "deDE", "esES", "itIT", "ptBR", "ruRU", "koKR"
 -- .toc : chaque fichier listé existe et compile en Lua 5.1 (loadfile = luac -p), et chaque .lua
 -- livré est listé. tests/ et .claude/ ne sont pas livrés (.pkgmeta).
 local listed = {}
-for line in io.lines("Panorama.toc") do
-    line = line:gsub("\r$", "")
+for rawLine in io.lines("Panorama.toc") do
+    local line = rawLine:gsub("\r$", "")
     if line ~= "" and not line:find("^#") then
         local path = line:gsub("%s*%[.*$", ""):gsub("\\", "/")
         listed[path] = true
@@ -61,8 +61,8 @@ for line in io.lines("Panorama.toc") do
     end
 end
 local found = io.popen("find . -name '*.lua' -not -path './tests/*' -not -path './.*'")
-for path in found:lines() do
-    path = path:gsub("^%./", "")
+for foundPath in found:lines() do
+    local path = foundPath:gsub("^%./", "")
     assert(listed[path], path .. " absent du .toc")
 end
 found:close()

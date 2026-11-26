@@ -38,8 +38,8 @@ local function Parse(code)
         open = nil
     end
     local file = assert(io.open(Source(code), "rb"))
-    for line in file:read("*a"):gmatch("([^\n]*)\n?") do
-        line = line:gsub("\r$", "")
+    for rawLine in file:read("*a"):gmatch("([^\n]*)\n?") do
+        local line = rawLine:gsub("\r$", "")
         local hashes, title = line:match("^(#+)%s+(.*)$")
         local marker, item = line:match("^(%-) (.*)$")
         if not marker then marker, item = line:match("^(%d+%.) (.*)$") end
