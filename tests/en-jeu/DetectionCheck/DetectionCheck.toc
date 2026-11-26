@@ -1,0 +1,4 @@
+## Interface: 16001
+## Title: DetectionCheck
+## Notes: Test temporaire : compare les CVars de Panorama aux valeurs de la détection du matériel.
+DetectionCheck.lua

@@ -34,8 +34,10 @@ Guide button in the panel opens the same guide in the game.
 - **Graphics restart button**: it restarts the graphics engine without leaving the game.
 - **Presets**: Low, Medium, High and Extra set the main graphics settings at once. They do not change
   camera, mouse, comfort, sharpening or low latency settings.
-- **Default button on every line**: it puts that setting back to its default. The Experts section,
-  HDR, bloom, contrast, brightness, gamma and zoom speed use the game's own default.
+- **Default button on every line**: it puts that setting back to the value it had in the game
+  before you first changed it in Panorama. Settings changed before version 1.9.1 go back to the
+  game's own default. For those, Reset all… in the Options menu asks the game to detect your
+  computer again: restart the game and it sets the graphics settings for your computer.
 - **Black bars filter**: top and bottom black bars, from 0 to 20 % of the screen each, for a
   cinematic look. They change no CVar.
 - **Vignette, film grain and tint filters**: darkened screen edges, animated film grain, and a

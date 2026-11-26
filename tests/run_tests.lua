@@ -52,8 +52,8 @@ local LOCALES = { "enUS", "frFR", "deDE", "esES", "itIT", "ptBR", "ruRU", "koKR"
 -- .toc : chaque fichier listé existe et compile en Lua 5.1 (loadfile = luac -p), et chaque .lua
 -- livré est listé. tests/ et .claude/ ne sont pas livrés (.pkgmeta).
 local listed = {}
-for line in io.lines("Panorama.toc") do
-    line = line:gsub("\r$", "")
+for rawLine in io.lines("Panorama.toc") do
+    local line = rawLine:gsub("\r$", "")
     if line ~= "" and not line:find("^#") then
         local path = line:gsub("%s*%[.*$", ""):gsub("\\", "/")
         listed[path] = true
@@ -61,8 +61,8 @@ for line in io.lines("Panorama.toc") do
     end
 end
 local found = io.popen("find . -name '*.lua' -not -path './tests/*' -not -path './.*'")
-for path in found:lines() do
-    path = path:gsub("^%./", "")
+for foundPath in found:lines() do
+    local path = foundPath:gsub("^%./", "")
     assert(listed[path], path .. " absent du .toc")
 end
 found:close()
@@ -281,17 +281,39 @@ combat = false
 handler(frame, "PLAYER_REGEN_ENABLED")
 assert(cvars.farclip == "1000", "annulation écrite après le combat")
 
--- Remise à zéro complète : CVars au défaut du jeu et rendues au jeu, filtres au défaut, annulable.
-local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } })
+-- Remise à zéro complète : CVars à la valeur du jeu d'avant le premier changement (détection du
+-- matériel : 3000) et rendues au jeu, filtres au défaut, annulable.
+local nsReset = Load({ values = {}, filters = { grain = 50, letterbox = 10 } }, { farclip = "3000", hwDetect = "0" })
 SlashCmdList.PANORAMA("low")
+assert(PanoramaDB.origin.farclip == 3000, "origine gardée au premier changement")
+SlashCmdList.PANORAMA("medium")
+assert(PanoramaDB.origin.farclip == 3000, "origine gardée une seule fois")
 cvars.cameraZoomSpeed = "35"   -- réglé par le jeu, jamais touché dans Panorama
 SlashCmdList.PANORAMA("reset")
 assert(cvars.cameraZoomSpeed == "35", "réglage non touché laissé au jeu")
-assert(cvars.farclip == "1300" and not PanoramaDB.touched.farclip and nsReset.CanUndo(), "CVars remises au jeu")
+assert(cvars.farclip == "3000" and not PanoramaDB.touched.farclip and nsReset.CanUndo(), "CVars remises au jeu")
+assert(PanoramaDB.origin.farclip == nil, "origine oubliée avec le réglage rendu au jeu")
+assert(cvars.hwDetect == "0", "toutes les origines gardées : pas de nouvelle détection du matériel")
 assert(PanoramaDB.filters.grain == 0 and PanoramaDB.filters.letterbox == 0, "filtres remis au défaut")
 bands = {}   -- calque de filtres créé par l'annulation (grain rendu)
 SlashCmdList.PANORAMA("undo")
-assert(cvars.farclip == "400" and PanoramaDB.touched.farclip and PanoramaDB.filters.grain == 50, "reset annulé")
+assert(cvars.farclip == "800" and PanoramaDB.touched.farclip and PanoramaDB.filters.grain == 50, "reset annulé")
+assert(PanoramaDB.origin.farclip == 3000, "annulation : origine rendue")
+-- Réglages touchés sans origine gardée (versions d'avant) : défaut du jeu pour tous les réglages : nombre, booléen "4" lu vrai, défaut vide ou hors `choices`
+-- remplacé par celui de Panorama.
+GetCVarDefault = function(name)
+    return ({ farclip = "1000", spellClutter = "4", sunShafts = "", shadowTextureSize = "512" })[name]
+end
+cvars.spellClutter, cvars.sunShafts, cvars.shadowTextureSize = "0", "0", "1024"
+PanoramaDB.values.spellClutter, PanoramaDB.values.sunShafts, PanoramaDB.values.shadowTextureSize = false, 0, 1024
+PanoramaDB.touched.spellClutter, PanoramaDB.touched.sunShafts, PanoramaDB.touched.shadowTextureSize = true, true, true
+SlashCmdList.PANORAMA("reset")
+assert(cvars.hwDetect == "1", "réglage sans origine : détection du matériel au prochain lancement")
+assert(cvars.farclip == "3000" and cvars.spellClutter == "1" and cvars.sunShafts == "2"
+    and cvars.shadowTextureSize == "2048", "reset : défaut du jeu, repli sur le défaut de Panorama")
+GetCVarDefault = function() return nil end
+SlashCmdList.PANORAMA("undo")
+assert(cvars.hwDetect == "0", "reset annulé : détection du matériel retirée")
 
 -- Historique : plusieurs pas, Rétablir, file Rétablir vidée par une modification, 20 pas au plus.
 local nsHistory = Load(nil)
@@ -631,9 +653,13 @@ local placeIndex, placeDistance = nsPlace.PlacePreset()
 assert(placeIndex == 4 and placeDistance == 800, "intérieur sur Mes réglages : préréglage de la zone gardé")
 assert(nsPlace.DetectedText():find("800", 1, true), "distance du lieu dans l'état")
 -- Réglage changé dans Panorama pendant que le lieu le tient : gardé, écrit en sortant du lieu.
+PanoramaDB.touched.farclip, PanoramaDB.origin.farclip = nil, nil
+local playerFarclip = PanoramaDB.values.farclip
 PanoramaDB.values.farclip = 6000
-nsPlace.Change(nsPlace.farclipSetting)
+nsPlace.Change(nsPlace.farclipSetting, playerFarclip)
 assert(cvars.farclip == "800" and PanoramaDB.values.farclip == 6000, "réglage tenu par le lieu : choix du joueur gardé")
+assert(playerFarclip ~= 800 and PanoramaDB.origin.farclip == playerFarclip,
+    "réglage tenu par le lieu : origine = valeur du joueur, pas celle du lieu")
 nsPlace.ApplyAll()
 assert(cvars.farclip == "800", "tout réappliquer : réglage du lieu gardé")
 -- Donjon : réglage propre, rangé sous l'opposé de son instanceID, nom gardé.

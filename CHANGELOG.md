@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.1
+
+### Changed
+- **Default button and Reset all…**: a setting goes back to the value it had in the game before you
+  first changed it in Panorama (the value of the game's hardware detection for the Graphics menu
+  settings), no longer to a Panorama value (view distance 1300). A setting you never changed in
+  Panorama already has the game's value: Default leaves it as it is. For settings changed before
+  1.9.1, Panorama did not keep that value: they go back to the game's own default (view distance
+  1000), or to Panorama's when the game gives none.
+- **Reset all…**: when a setting was changed before 1.9.1, Reset all also asks the game to detect
+  your computer again at the next launch. The chat message says to restart the game: the graphics
+  settings then go back to the values the game picks for your computer, those you set in its
+  Graphics menu included. The confirmation box says so.
+
 ## 1.9.0
 
 Everything new since 1.8.2. The beta sections below give the details.

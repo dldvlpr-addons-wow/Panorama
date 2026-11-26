@@ -70,7 +70,7 @@ NS.settings = {
     -- Bloom du rendu linéaire : seul réglage à effet visible (relevé en jeu 2026-11-21). ffxGlow et
     -- bloomEnable n'en ont pas : pas de ligne, pour ne pas laisser croire que le bloom est coupé.
     -- Curseur natif 0 à 1 par pas de 0.2 (Blizzard_SettingsDefinitions_Shared/Graphics.lua:1588).
-    -- `advanced` : écrit seulement après modification, défaut lu dans le jeu.
+    -- `advanced` : écrit seulement après modification, défaut du jeu borné au curseur.
     { cvar = "bloomUserMult", menu = "MENU_BLOOM", advanced = true, min = 0, max = 1, step = 0.2, default = 1 },
     -- Image du jeu entier. `place` : clé du réglage du filtre du joueur (NS.customFilterSettings) qui peut imposer sa valeur (NS.PlacePreset).
     { cvar = "Contrast", basic = true, menu = "MENU_CONTRAST", place = "contrast", advanced = true, min = 0, max = 100, step = 1, default = 50 },
@@ -87,7 +87,7 @@ NS.settings = {
     { cvar = "cameraDistanceMaxZoomFactor", basic = true, menu = "MENU_CAMERA", min = 1, max = 4, step = 0.1, default = 2.6 },
     { cvar = "rawMouseEnable", default = true },
     { cvar = "screenshotQuality", min = 1, max = 10, step = 1, default = 10 },
-    -- Absente du menu Forever. `advanced` : défaut lu dans le jeu (NS.GameDefault).
+    -- Absente du menu Forever. `advanced` : défaut du jeu borné au curseur (NS.GameDefault).
     -- cameraZoomSpeed : lue par Blizzard_GamepadTargeting/TargetLogic.lua.
     -- cameraZoomSpeed : le moteur accepte 1 à 50 (relevé 1.60.1.70938).
     { cvar = "cameraZoomSpeed", advanced = true, min = 1, max = 50, step = 1, default = 20 },
@@ -108,7 +108,7 @@ NS.settings = {
     { cvar = "HDRBrightness", requires = "useHDRBrightness", advanced = true, min = 80, max = 1000, step = 1, default = 203 },
 
     -- Réglables seulement par /console : absentes des menus du jeu (relevé dans Config.wtf et
-    -- BlizzardInterfaceCode). `advanced` : défaut lu dans le jeu, comme plus haut.
+    -- BlizzardInterfaceCode). `advanced` : défaut du jeu borné au curseur, comme plus haut.
     -- Bornes relevées en jeu (1.60.1.70938) : le moteur refuse une valeur hors bornes et garde
     -- l'ancienne. reflectionMode accepte 0 à 4, effet de 4 non vu : curseur à 3.
     -- rippleDetail max 2, particleMTDensity max 100. LOD et doodadLodScale : aucune borne moteur,
@@ -377,18 +377,19 @@ function NS.ApplyAll(capOnly)
     end
 end
 
--- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées) ; repli sur
--- setting.default si le client ne la donne pas.
+-- Défaut d'un réglage : valeur du jeu avant le premier changement dans Panorama (NS.db.origin),
+-- sinon GetCVarDefault, sinon setting.default. GetCVarDefault ne donne pas les valeurs de la
+-- détection du matériel : il ne sert qu'aux réglages touchés avant que l'origine soit gardée.
 function NS.GameDefault(setting)
-    if setting.advanced then
-        local raw = GetCVarDefault(setting.cvar)
-        if type(setting.default) == "boolean" then
-            if raw ~= nil then return raw == "1" or raw == "true" end
-        else
-            local number = tonumber(raw)
-            if number then return math.max(setting.min, math.min(number, setting.max)) end
-        end
-    end
+    local origin = NS.db and NS.db.origin[setting.cvar]
+    if origin ~= nil then return origin end
+    local raw = GetCVarDefault(setting.cvar)
+    if raw == nil or raw == "" then return setting.default end
+    -- Même lecture que ReadCVar : tout sauf "0" vaut vrai (spellClutter "4").
+    if type(setting.default) == "boolean" then return raw ~= "0" end
+    local number = tonumber(raw)
+    if number and setting.advanced then return math.max(setting.min, math.min(number, setting.max)) end
+    if number then return NS.Sanitize(setting, number) end
     return setting.default
 end
 
@@ -447,7 +448,13 @@ end
 
 -- Appelé à chaque changement du joueur (panneau, préréglage, annulation) : NS.db.values est
 -- déjà à jour. Le panneau relit les valeurs pour que ses contrôles suivent.
-function NS.Change(setting)
+-- `previous` : valeur d'avant le changement. Réglage pas encore touché : c'est celle du jeu
+-- (détection du matériel, menu Graphismes), gardée comme défaut, même quand le lieu tient le
+-- réglage ou qu'une écriture attend la fin du combat (la CVar ne la porte pas alors).
+function NS.Change(setting, previous)
+    if not NS.db.touched[setting.cvar] and previous ~= nil then
+        NS.db.origin[setting.cvar] = previous
+    end
     NS.db.touched[setting.cvar] = true
     local wanted = NS.db.values[setting.cvar]
     NS.Apply(setting)
@@ -461,8 +468,9 @@ function NS.Change(setting)
 end
 
 local function SetValue(setting, value)
+    local previous = NS.db.values[setting.cvar]
     NS.db.values[setting.cvar] = value
-    NS.Change(setting)
+    NS.Change(setting, previous)
 end
 
 -- Historique Annuler / Rétablir, en mémoire de session (vidé au /reload) : état d'avant chaque
@@ -491,8 +499,9 @@ end
 
 local function Snapshot()
     local db = NS.db
-    local state = { values = Copy(db.values), touched = Copy(db.touched), filters = Copy(db.filters),
-                    ambiance = Copy(db.ambiance), customFilters = Copy(db.customFilters) }
+    local state = { values = Copy(db.values), touched = Copy(db.touched), origin = Copy(db.origin), filters = Copy(db.filters),
+                    ambiance = Copy(db.ambiance), customFilters = Copy(db.customFilters),
+                    hwDetect = GetCVarValue("hwDetect") }
     -- Cache des noms de donjon : ni un choix du joueur ni un pas d'historique.
     state.ambiance.instanceNames = nil
     return state
@@ -555,6 +564,11 @@ local function Restore(state)
             end
         end
     end)
+    NS.db.origin = Copy(state.origin)
+    -- Reset all annulé : la détection du matériel demandée pour le prochain lancement est retirée.
+    if state.hwDetect ~= nil and GetCVarValue("hwDetect") ~= state.hwDetect then
+        pcall(SetCVarValue, "hwDetect", state.hwDetect)
+    end
     local instanceNames = NS.db.ambiance.instanceNames
     NS.db.filters, NS.db.ambiance, NS.db.customFilters = state.filters, state.ambiance, state.customFilters
     NS.db.ambiance.instanceNames = instanceNames
@@ -622,14 +636,17 @@ end
 
 -- Remise à zéro complète : chaque CVar modifiée dans Panorama à son défaut (NS.GameDefault), puis
 -- rendue au jeu (plus réécrite à la connexion) ; les autres suivent déjà le jeu et restent telles
--- quelles. Chaque filtre à son défaut, ambiance coupée et remise aux valeurs livrées, zones
+-- quelles. CVar modifiée sans valeur d'origine gardée (versions d'avant la 1.9.1) : hwDetect à 1,
+-- le jeu refait la détection du matériel au prochain lancement. Chaque filtre à son défaut, ambiance coupée et remise aux valeurs livrées, zones
 -- oubliées, filtres du joueur remis à neuf. Annulable comme toute modification.
 function NS.ResetAll()
     NS.Checkpoint()
     local restartNote = ""
+    local withoutOrigin = false
     Batch(function()
         for _, setting in ipairs(NS.settings) do
             if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
+                withoutOrigin = withoutOrigin or NS.db.origin[setting.cvar] == nil
                 local default = NS.GameDefault(setting)
                 if setting.restart and NS.db.values[setting.cvar] ~= default then
                     if setting.restart == "client" then
@@ -640,6 +657,7 @@ function NS.ResetAll()
                 end
                 SetValue(setting, default)
                 NS.db.touched[setting.cvar] = nil
+                NS.db.origin[setting.cvar] = nil
             end
         end
     end)
@@ -652,7 +670,19 @@ function NS.ResetAll()
     NS.LoadAmbiance(NS.db)
     NS.ApplyFilters()
     if NS.RefreshOptions then NS.RefreshOptions() end
-    print(L.PREFIX .. L.MSG_RESET_ALL .. restartNote)
+    local redetect = false
+    if withoutOrigin and GetCVarValue("hwDetect") ~= nil then
+        local ok, written = pcall(SetCVarValue, "hwDetect", "1")
+        redetect = ok and written ~= false
+    end
+    if redetect then
+        print(L.PREFIX .. L.MSG_RESET_REDETECT)
+    elseif withoutOrigin then
+        -- Détection refusée : libellé du bouton Défauts des réglages du jeu, traduit par le client.
+        print(L.PREFIX .. L.MSG_RESET_ALL:format(SETTINGS_DEFAULTS or "Defaults") .. restartNote)
+    else
+        print(L.PREFIX .. L.MSG_RESET_DONE .. restartNote)
+    end
     ReportAdjustedCount()
 end
 
@@ -739,6 +769,8 @@ events:SetScript("OnEvent", function(self, event, arg1)
         if type(db.values) ~= "table" then db.values = {} end
         if db.applyOnLogin == nil then db.applyOnLogin = true end
         if type(db.touched) ~= "table" then db.touched = {} end
+        -- Valeur du jeu avant le premier changement dans Panorama (NS.Change), rendue par Défaut.
+        if type(db.origin) ~= "table" then db.origin = {} end
         -- Avant le schéma 2, tout réglage non avancé était réécrit à la connexion. Migration : un
         -- réglage dont la valeur sauvegardée diffère du jeu est marqué touché, pour la garder.
         -- Réapplication coupée : rien n'était réécrit, rien à garder.
@@ -762,6 +794,13 @@ events:SetScript("OnEvent", function(self, event, arg1)
         for _, setting in ipairs(NS.settings) do
             if setting.cvar then
                 local value = db.values[setting.cvar]
+                local origin = db.origin[setting.cvar]
+                if origin ~= nil then
+                    -- Type seul vérifié : une origine hors `choices` (ombres 512) reste celle du jeu.
+                    local valid = type(origin) == type(setting.default)
+                        and (type(origin) ~= "number" or origin == origin and math.abs(origin) ~= math.huge)
+                    db.origin[setting.cvar] = db.touched[setting.cvar] and valid and origin or nil
+                end
                 if migrate and not setting.advanced and value ~= nil and NS.Exists(setting) then
                     local saved, game = NS.Sanitize(setting, value), NS.Sanitize(setting, ReadCVar(setting))
                     -- Curseur arrondi (0.30000000000000004) contre CVar relue ("0.3") : écart sous le pas.
