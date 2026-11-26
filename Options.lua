@@ -189,6 +189,8 @@ local function FormatValue(setting, value)
 end
 
 local function DefaultValue(setting)
+    -- Réglage jamais changé dans Panorama : sa valeur actuelle est celle du jeu, donc son défaut.
+    if setting.cvar and not NS.db.touched[setting.cvar] then return NS.db.values[setting.cvar] end
     if setting.cvar then return NS.GameDefault(setting) end
     if setting.ambiance then return AmbianceDefault(setting.key) end
     return setting.default
@@ -598,12 +600,18 @@ local function CreateSlider(parent, setting, width, onChange, onPreview)
     track:SetColorTexture(0, 0, 0, 0.6)
     -- Repère de la valeur par défaut : la poignée (32) reste dans le curseur, son centre va de 16 à width - 16.
     -- Ligne de règle : défaut propre à chaque règle, pas de repère fixe.
-    local default = not setting.ambiance and DefaultValue(setting)
-    if default and default >= setting.min and default <= setting.max then
-        local mark = slider:CreateTexture(nil, "BORDER")
-        mark:SetColorTexture(1, 1, 1, 0.35)
-        mark:SetSize(1, 10)
-        mark:SetPoint("CENTER", slider, "LEFT", 16 + (width - 32) * (default - setting.min) / (setting.max - setting.min), 0)
+    -- Replacé à chaque rafraîchissement : le défaut suit le jeu tant que le réglage n'est pas touché.
+    local mark = slider:CreateTexture(nil, "BORDER")
+    mark:SetColorTexture(1, 1, 1, 0.35)
+    mark:SetSize(1, 10)
+    mark:Hide()
+    function slider.PlaceMark()
+        local default = not setting.ambiance and DefaultValue(setting)
+        local shown = type(default) == "number" and default >= setting.min and default <= setting.max
+        mark:SetShown(shown)
+        if shown then
+            mark:SetPoint("CENTER", slider, "LEFT", 16 + (width - 32) * (default - setting.min) / (setting.max - setting.min), 0)
+        end
     end
     local held, moved = false, false
     -- Curseur tenu : un rafraîchissement (zone, minute, /console) ne le ramène pas en arrière.
@@ -777,8 +785,9 @@ local function CreateRowBase(setting, height)
     function row.Change(value, checkpointed)
         if not checkpointed then NS.Checkpoint() end
         if setting.cvar then
+            local previous = NS.db.values[setting.cvar]
             NS.db.values[setting.cvar] = value
-            NS.Change(setting)
+            NS.Change(setting, previous)
         else
             local values = Store(setting, true)
             if not values then return end
@@ -908,6 +917,7 @@ local function CreateRow(setting, item)
         slider:SetPoint("LEFT", row, "TOPLEFT", CONTROL_X, middle)
         row.HoverWith(slider)
         refreshControl = function(value)
+            slider.PlaceMark()
             if slider.IsHeld() then return end
             slider:SetValue(value)
             if not box.typed then box.Reset() end
