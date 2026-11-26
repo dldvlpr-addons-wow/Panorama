@@ -123,5 +123,5 @@ NS.guides.enUS = {
     { "h2", "9. Reset" },
     { "li", "The |cffffd100Default|r button on each line resets that setting.", "-" },
     { "li", "The |cffffd100Defaults|r button of the game's Graphics menu resets only the settings that menu manages, and Panorama follows it. Use the Default buttons in |cffffd100/pano|r for the others and for the filters.", "-" },
-    { "li", "|cffffd100Reset all…|r (Options menu, with confirmation) or |cffffd100/pano reset|r: puts every setting in the window, changed in Panorama or not, and every filter back to its default. |cffffd100Undo|r cancels it until |cffffd100/reload|r. The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.", "-" },
+    { "li", "|cffffd100Reset all…|r (Options menu, with confirmation) or |cffffd100/pano reset|r: puts every setting changed in Panorama and every filter back to its default. |cffffd100Undo|r cancels it until |cffffd100/reload|r. The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.", "-" },
 }

@@ -123,5 +123,5 @@ NS.guides.frFR = {
     { "h2", "9. Réinitialisation" },
     { "li", "Le bouton |cffffd100Défaut|r de chaque ligne réinitialise ce réglage.", "-" },
     { "li", "Le bouton |cffffd100Par défaut|r du menu Graphismes du jeu réinitialise uniquement les réglages que ce menu gère, et Panorama le suit. Utilisez les boutons Défaut de |cffffd100/pano|r pour les autres et pour les filtres.", "-" },
-    { "li", "|cffffd100Tout réinitialiser…|r (menu Options, avec confirmation) ou |cffffd100/pano reset|r : remet chaque réglage de la fenêtre, modifié dans Panorama ou non, et chaque filtre à sa valeur par défaut. |cffffd100Annuler|r l'annule jusqu'à |cffffd100/reload|r. L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.", "-" },
+    { "li", "|cffffd100Tout réinitialiser…|r (menu Options, avec confirmation) ou |cffffd100/pano reset|r : remet chaque réglage modifié dans Panorama et chaque filtre à sa valeur par défaut. |cffffd100Annuler|r l'annule jusqu'à |cffffd100/reload|r. L'onglet Ambiance et les zones réglées sont remis à zéro aussi. Vos filtres de l'onglet Mes filtres sont effacés aussi.", "-" },
 }

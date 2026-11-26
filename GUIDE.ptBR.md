@@ -221,6 +221,6 @@ Cada linha de HDR tem um botão Padrão que devolve o valor do jogo.
 - O botão **Padrão** de cada linha redefine essa configuração.
 - O botão **Padrões** do menu Gráficos do jogo redefine apenas as configurações que esse menu gerencia,
   e o Panorama o acompanha. Use os botões Padrão em `/pano` para as outras e para os filtros.
-- **Redefinir tudo…** (menu Opções, com confirmação) ou `/pano reset`: volta cada configuração da janela,
-  alterada no Panorama ou não, e cada filtro ao padrão. **Desfazer** a cancela até `/reload`.
+- **Redefinir tudo…** (menu Opções, com confirmação) ou `/pano reset`: volta cada configuração alterada no
+  Panorama e cada filtro ao padrão. **Desfazer** a cancela até `/reload`.
   A aba Ambiente e as zonas ajustadas também são redefinidas. Seus filtros da aba Meus filtros também são apagados.

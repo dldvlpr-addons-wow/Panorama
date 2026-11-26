@@ -225,6 +225,6 @@ Ogni riga HDR ha un pulsante Predefinito che ripristina il valore del gioco.
 - Il pulsante **Predefinito** di ogni riga ripristina quell'impostazione.
 - Il pulsante **Predefiniti** del menu Grafica del gioco ripristina solo le impostazioni che quel menu
   gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in `/pano` per le altre e per i filtri.
-- **Ripristina tutto…** (menu Opzioni, con conferma) o `/pano reset`: riporta ogni impostazione della finestra,
-  modificata in Panorama o no, e ogni filtro al valore predefinito. **Annulla** la annulla fino a `/reload`.
+- **Ripristina tutto…** (menu Opzioni, con conferma) o `/pano reset`: riporta ogni impostazione modificata
+  in Panorama e ogni filtro al valore predefinito. **Annulla** la annulla fino a `/reload`.
   Anche la scheda Atmosfera e le zone impostate vengono ripristinate. Anche i tuoi filtri della scheda Miei filtri vengono cancellati.

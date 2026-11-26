@@ -378,24 +378,18 @@ function NS.ApplyAll(capOnly)
 end
 
 -- Valeur par défaut du jeu pour les CVars aux bornes ou défauts estimés (avancées) ; repli sur
--- setting.default si le client ne la donne pas. `fromGame` (Tout réinitialiser) : défaut du jeu lu
--- pour chaque CVar, pas seulement les avancées, pour rendre le jeu tel qu'avant Panorama.
--- Second retour : true si la valeur vient du jeu. Défaut vide ("", relevé sur Forever) ou rejeté
--- par Sanitize : pas de défaut du jeu, repli sur setting.default.
-function NS.GameDefault(setting, fromGame)
-    if setting.advanced or fromGame then
+-- setting.default si le client ne la donne pas.
+function NS.GameDefault(setting)
+    if setting.advanced then
         local raw = GetCVarDefault(setting.cvar)
         if type(setting.default) == "boolean" then
-            -- Même lecture que ReadCVar : tout sauf "0" vaut vrai (spellClutter "4").
-            if raw ~= nil and raw ~= "" then return raw ~= "0" and raw ~= "false", true end
+            if raw ~= nil then return raw == "1" or raw == "true" end
         else
             local number = tonumber(raw)
-            if number and setting.advanced then return math.max(setting.min, math.min(number, setting.max)), true end
-            -- Défaut du jeu rejeté par Sanitize (hors de `choices`) : pas un défaut du jeu.
-            if number and NS.Sanitize(setting, number) == number then return number, true end
+            if number then return math.max(setting.min, math.min(number, setting.max)) end
         end
     end
-    return setting.default, false
+    return setting.default
 end
 
 -- Vrai pendant un préréglage ou une annulation : le panneau est rafraîchi une fois, à la fin.
@@ -626,22 +620,17 @@ function NS.ApplyPreset(index)
     if placePreset or placeViewDistance then print(L.PREFIX .. L.MSG_PRESET_HELD) end
 end
 
--- Remise à zéro complète : chaque CVar du panneau au défaut du jeu (NS.GameDefault, `fromGame`),
--- modifiée dans Panorama ou non (menu du jeu, /console, réglage d'avant Panorama), puis rendue au jeu (plus
--- réécrite à la connexion). Chaque filtre à son défaut, ambiance coupée et remise aux valeurs
--- livrées, zones oubliées, filtres du joueur remis à neuf. Annulable comme toute modification.
+-- Remise à zéro complète : chaque CVar modifiée dans Panorama à son défaut (NS.GameDefault), puis
+-- rendue au jeu (plus réécrite à la connexion) ; les autres suivent déjà le jeu et restent telles
+-- quelles. Chaque filtre à son défaut, ambiance coupée et remise aux valeurs livrées, zones
+-- oubliées, filtres du joueur remis à neuf. Annulable comme toute modification.
 function NS.ResetAll()
     NS.Checkpoint()
     local restartNote = ""
     Batch(function()
         for _, setting in ipairs(NS.settings) do
-            -- Sans défaut du jeu, un réglage jamais touché garde la valeur du jeu (rendu tel quel).
-            local default, fromGame
-            if setting.cvar and NS.Exists(setting) then
-                default, fromGame = NS.GameDefault(setting, true)
-                if not fromGame and not NS.db.touched[setting.cvar] then default = nil end
-            end
-            if default ~= nil then
+            if setting.cvar and NS.db.touched[setting.cvar] and NS.Exists(setting) then
+                local default = NS.GameDefault(setting)
                 if setting.restart and NS.db.values[setting.cvar] ~= default then
                     if setting.restart == "client" then
                         restartNote = " " .. L.OPT_NEEDS_CLIENT_RESTART
@@ -663,7 +652,8 @@ function NS.ResetAll()
     NS.LoadAmbiance(NS.db)
     NS.ApplyFilters()
     if NS.RefreshOptions then NS.RefreshOptions() end
-    print(L.PREFIX .. L.MSG_RESET_ALL .. restartNote)
+    -- Libellé du bouton Défauts des réglages du jeu, traduit par le client.
+    print(L.PREFIX .. L.MSG_RESET_ALL:format(SETTINGS_DEFAULTS or "Defaults") .. restartNote)
     ReportAdjustedCount()
 end
 

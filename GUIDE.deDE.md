@@ -228,6 +228,6 @@ Jede HDR-Zeile hat einen Standard-Button, der den Wert des Spiels wiederherstell
 - Der **Standard**-Button in jeder Zeile setzt diese Einstellung zurück.
 - Der Button **Standard** des Grafikmenüs des Spiels setzt nur die Einstellungen zurück, die dieses Menü
   verwaltet, und Panorama folgt ihm. Nutze für die anderen und für die Filter die Standard-Buttons in `/pano`.
-- **Alles zurücksetzen…** (Menü Optionen, mit Bestätigung) oder `/pano reset`: setzt jede Einstellung im Fenster,
-  ob in Panorama geändert oder nicht, und jeden Filter auf den Standard zurück. **Rückgängig** macht es bis `/reload` rückgängig.
+- **Alles zurücksetzen…** (Menü Optionen, mit Bestätigung) oder `/pano reset`: setzt jede in Panorama geänderte
+  Einstellung und jeden Filter auf den Standard zurück. **Rückgängig** macht es bis `/reload` rückgängig.
   Der Reiter Stimmung und die eingestellten Zonen werden ebenfalls zurückgesetzt. Deine Filter im Reiter Meine Filter werden ebenfalls gelöscht.

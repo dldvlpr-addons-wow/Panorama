@@ -123,5 +123,5 @@ NS.guides.itIT = {
     { "h2", "9. Ripristino" },
     { "li", "Il pulsante |cffffd100Predefinito|r di ogni riga ripristina quell'impostazione.", "-" },
     { "li", "Il pulsante |cffffd100Predefiniti|r del menu Grafica del gioco ripristina solo le impostazioni che quel menu gestisce, e Panorama lo segue. Usa i pulsanti Predefinito in |cffffd100/pano|r per le altre e per i filtri.", "-" },
-    { "li", "|cffffd100Ripristina tutto…|r (menu Opzioni, con conferma) o |cffffd100/pano reset|r: riporta ogni impostazione della finestra, modificata in Panorama o no, e ogni filtro al valore predefinito. |cffffd100Annulla|r la annulla fino a |cffffd100/reload|r. Anche la scheda Atmosfera e le zone impostate vengono ripristinate. Anche i tuoi filtri della scheda Miei filtri vengono cancellati.", "-" },
+    { "li", "|cffffd100Ripristina tutto…|r (menu Opzioni, con conferma) o |cffffd100/pano reset|r: riporta ogni impostazione modificata in Panorama e ogni filtro al valore predefinito. |cffffd100Annulla|r la annulla fino a |cffffd100/reload|r. Anche la scheda Atmosfera e le zone impostate vengono ripristinate. Anche i tuoi filtri della scheda Miei filtri vengono cancellati.", "-" },
 }

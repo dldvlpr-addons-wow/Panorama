@@ -223,6 +223,6 @@ Each HDR line has a Default button that puts back the game's value.
 - The **Default** button on each line resets that setting.
 - The **Defaults** button of the game's Graphics menu resets only the settings that menu manages,
   and Panorama follows it. Use the Default buttons in `/pano` for the others and for the filters.
-- **Reset all…** (Options menu, with confirmation) or `/pano reset`: puts every setting in the window,
-  changed in Panorama or not, and every filter back to its default. **Undo** cancels it until `/reload`.
+- **Reset all…** (Options menu, with confirmation) or `/pano reset`: puts every setting changed in Panorama
+  and every filter back to its default. **Undo** cancels it until `/reload`.
   The Ambiance tab and the zones you set are reset too. Your filters in the My filters tab are erased too.

@@ -227,6 +227,6 @@ Cada línea de HDR tiene un botón Predeterminado que restaura el valor del jueg
 - El botón **Predeterminado** de cada línea restablece ese ajuste.
 - El botón **Predeterminado** del menú de Gráficos del juego restablece solo los ajustes que gestiona
   ese menú, y Panorama lo sigue. Usa los botones Predeterminado de `/pano` para los demás y para los filtros.
-- **Restablecer todo…** (menú Opciones, con confirmación) o `/pano reset`: devuelve cada ajuste de la ventana,
-  cambiado en Panorama o no, y cada filtro a su valor por defecto. **Deshacer** lo anula hasta `/reload`.
+- **Restablecer todo…** (menú Opciones, con confirmación) o `/pano reset`: devuelve cada ajuste cambiado en Panorama
+  y cada filtro a su valor por defecto. **Deshacer** lo anula hasta `/reload`.
   La pestaña Ambiente y las zonas ajustadas también se restablecen. Tus filtros de la pestaña Mis filtros también se borran.

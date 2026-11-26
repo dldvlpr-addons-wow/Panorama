@@ -123,5 +123,5 @@ NS.guides.ptBR = {
     { "h2", "9. Redefinição" },
     { "li", "O botão |cffffd100Padrão|r de cada linha redefine essa configuração.", "-" },
     { "li", "O botão |cffffd100Padrões|r do menu Gráficos do jogo redefine apenas as configurações que esse menu gerencia, e o Panorama o acompanha. Use os botões Padrão em |cffffd100/pano|r para as outras e para os filtros.", "-" },
-    { "li", "|cffffd100Redefinir tudo…|r (menu Opções, com confirmação) ou |cffffd100/pano reset|r: volta cada configuração da janela, alterada no Panorama ou não, e cada filtro ao padrão. |cffffd100Desfazer|r a cancela até |cffffd100/reload|r. A aba Ambiente e as zonas ajustadas também são redefinidas. Seus filtros da aba Meus filtros também são apagados.", "-" },
+    { "li", "|cffffd100Redefinir tudo…|r (menu Opções, com confirmação) ou |cffffd100/pano reset|r: volta cada configuração alterada no Panorama e cada filtro ao padrão. |cffffd100Desfazer|r a cancela até |cffffd100/reload|r. A aba Ambiente e as zonas ajustadas também são redefinidas. Seus filtros da aba Meus filtros também são apagados.", "-" },
 }
